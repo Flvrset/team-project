@@ -1,10 +1,14 @@
-import { Container, Typography, Button, Grid, Box, Card, CardContent, CardMedia, AppBar, Toolbar, Stack, Paper, Avatar, Rating } from '@mui/material';
+import { Container, Typography, Button, Grid, Box, Card, CardContent, CardMedia, AppBar, Toolbar, Stack, Avatar, Rating } from '@mui/material';
 import { Link } from 'react-router-dom';
 import PetsIcon from '@mui/icons-material/Pets';
 import SearchIcon from '@mui/icons-material/Search';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useEffect, useState } from 'react';
+import heroImage from '../assets/hero-image.webp';
+import petWalkingImage from '../assets/pet-walking.webp';
+import petSittingImage from '../assets/pet-sitting.webp';
+import petBoardingImage from '../assets/pet-boarding.webp';
 
 const LandingPage = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -198,7 +202,7 @@ const LandingPage = () => {
               }}>
                 <Avatar
                   variant="rounded"
-                  src="/src/assets/hero-image.webp"
+                  src={heroImage}
                   alt="Zwierzęta domowe"
                   sx={{
                     position: 'absolute',
@@ -233,7 +237,7 @@ const LandingPage = () => {
               <CardMedia
                 component="img"
                 height="200"
-                image="/src/assets/pet-walking.webp"
+                image={petWalkingImage}
                 alt="Spacer z psem"
               />
               <CardContent>
@@ -253,7 +257,7 @@ const LandingPage = () => {
               <CardMedia
                 component="img"
                 height="200"
-                image="/src/assets/pet-sitting.webp"
+                image={petSittingImage}
                 alt="Opieka domowa"
               />
               <CardContent>
@@ -273,7 +277,7 @@ const LandingPage = () => {
               <CardMedia
                 component="img"
                 height="200"
-                image="/src/assets/pet-boarding.webp"
+                image={petBoardingImage}
                 alt="Pobyt u opiekuna"
               />
               <CardContent>
