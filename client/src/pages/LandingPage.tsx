@@ -1,14 +1,17 @@
-import { Container, Typography, Button, Grid, Box, Card, CardContent, CardMedia, AppBar, Toolbar, Stack, Avatar, Rating } from '@mui/material';
-import { Link } from 'react-router-dom';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import PetsIcon from '@mui/icons-material/Pets';
 import SearchIcon from '@mui/icons-material/Search';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { Container, Typography, Button, Grid, Box, Card, CardContent, CardMedia, Stack, Avatar, Rating } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+
 import heroImage from '../assets/hero-image.webp';
-import petWalkingImage from '../assets/pet-walking.webp';
-import petSittingImage from '../assets/pet-sitting.webp';
 import petBoardingImage from '../assets/pet-boarding.webp';
+import petSittingImage from '../assets/pet-sitting.webp';
+import petWalkingImage from '../assets/pet-walking.webp';
+import AppBar from '../components/AppBar';
+
 
 const LandingPage = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -25,12 +28,9 @@ const LandingPage = () => {
     };
   }, []);
 
-  // Calculate rotation based on scroll position
   const calculateRotation = () => {
-    // Start with -5 degrees and reduce as user scrolls
-    // Limit the range from -5 to 5 degrees
     const maxRotation = 5;
-    const scrollFactor = 0.02; // Adjust this to control sensitivity
+    const scrollFactor = 0.02;
     const rotation = -5 + (scrollY * scrollFactor);
 
     return Math.min(Math.max(rotation, -maxRotation), maxRotation);
@@ -38,58 +38,7 @@ const LandingPage = () => {
 
   return (
     <>
-      <AppBar position="sticky" color="primary" elevation={0} sx={{ top: 0, zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <Toolbar>
-          <PetsIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            PetCare Connect
-          </Typography>
-
-          <Button
-            color="inherit"
-            component={Link}
-            to="/login"
-            startIcon={<AccountCircleIcon />}
-            sx={{
-              bgcolor: 'rgba(255,255,255,0.1)',
-              borderRadius: 2,
-              px: 2,
-              py: 0.7,
-              transition: 'all 0.2s ease',
-              '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.2)',
-                transform: 'translateY(-2px)'
-              }
-            }}
-          >
-            Logowanie
-          </Button>
-
-          {/* Improved Register Button */}
-          <Button
-            color="secondary"
-            variant="contained"
-            component={Link}
-            to="/register"
-            sx={{
-              ml: 2,
-              borderRadius: 2,
-              px: 2,
-              py: 0.7,
-              fontWeight: 600,
-              boxShadow: '0 2px 8px rgba(255, 152, 0, 0.3)',
-              transition: 'all 0.2s ease',
-              '&:hover': {
-                boxShadow: '0 4px 12px rgba(255, 152, 0, 0.5)',
-                transform: 'translateY(-2px)'
-              }
-            }}
-          >
-            Rejestracja
-          </Button>
-        </Toolbar>
-      </AppBar>
-
+      <AppBar />
       <Box
         sx={{
           width: '100%',
