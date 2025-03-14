@@ -1,0 +1,156 @@
+-- Create database
+CREATE DATABASE petbuddies;
+
+-- Connect to database
+\c petbuddies;
+
+-- Create schema for project
+CREATE SCHEMA IF NOT EXISTS petbuddies_schema;
+
+-- Ensure the schema is used
+SET search_path TO petbuddies_schema;
+
+-- Create the User table
+CREATE TABLE petbuddies_schema."User" (
+    "user_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "name" VARCHAR(255) NOT NULL,
+    "surname" VARCHAR(255) NOT NULL,
+    "login" VARCHAR(255) NOT NULL UNIQUE,
+    "join_date" DATE NOT NULL,
+    "country" VARCHAR(255) NOT NULL,
+    "city" VARCHAR(255) NOT NULL,
+    "postal_code" VARCHAR(255) NOT NULL,
+    "street" VARCHAR(255) NOT NULL,
+    "house_number" VARCHAR(255) NOT NULL,
+    "apartment_number" INTEGER,
+    "phone_number" VARCHAR(20) NOT NULL,
+    "email_address" VARCHAR(255) NOT NULL UNIQUE,
+    "is_banned" BOOLEAN NOT NULL DEFAULT false
+);
+
+-- Create the Pet table
+CREATE TABLE petbuddies_schema."Pet" (
+    "pet_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "pet_name" VARCHAR(255) NOT NULL,
+    "creation_date" DATE NOT NULL,
+    "type" VARCHAR(255) NOT NULL,
+    "race" VARCHAR(255) NOT NULL,
+    "size" VARCHAR(255),
+    "age" INTEGER
+);
+
+-- Create the ReportType table
+CREATE TABLE petbuddies_schema."ReportType" (
+    "report_type_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "report_type_name" VARCHAR(255) NOT NULL
+);
+
+-- Create the MedDocDict table
+CREATE TABLE petbuddies_schema."MedDocDict" (
+    "doc_type_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "doc_name" VARCHAR(255) NOT NULL
+);
+
+-- Create the Ownership table
+CREATE TABLE petbuddies_schema."Ownership" (
+    "ownership_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "user_id" INTEGER NOT NULL,
+    "pet_id" INTEGER NOT NULL,
+    CONSTRAINT fk_ownership_user FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_ownership_pet FOREIGN KEY ("pet_id") REFERENCES petbuddies_schema."Pet"("pet_id") ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- Create the Post table
+CREATE TABLE petbuddies_schema."Post" (
+    "post_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "user_id" INTEGER NOT NULL,
+    "start_date" DATE NOT NULL,
+    "end_date" DATE NOT NULL,
+    "start_time" TIME NOT NULL,
+    "end_time" TIME NOT NULL,
+    "description" TEXT,
+    "cost" NUMERIC(10,2),
+    CONSTRAINT fk_post_user FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- Create the AdditionalServicesDict table
+CREATE TABLE petbuddies_schema."AdditionalServicesDict" (
+    "additional_services_dict_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "service_name" VARCHAR(255) NOT NULL
+);
+
+-- Create the MedDocs table
+CREATE TABLE petbuddies_schema."MedDocs" (
+    "meddoc_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "pet_id" INTEGER NOT NULL,
+    "start_date" DATE NOT NULL,
+    "end_date" DATE,
+    "validated_date" DATE,
+    "doc_type_id" INTEGER NOT NULL,
+    "doc" BYTEA NOT NULL,
+    CONSTRAINT fk_meddocs_pet FOREIGN KEY ("pet_id") REFERENCES petbuddies_schema."Pet"("pet_id") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_meddocs_doctype FOREIGN KEY ("doc_type_id") REFERENCES petbuddies_schema."MedDocDict"("doc_type_id") ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- Create the PetCare table
+CREATE TABLE petbuddies_schema."PetCare" (
+    "petcare_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "post_id" INTEGER NOT NULL,
+    "pet_id" INTEGER NOT NULL,
+    CONSTRAINT fk_petcare_post FOREIGN KEY ("post_id") REFERENCES petbuddies_schema."Post"("post_id") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_petcare_pet FOREIGN KEY ("pet_id") REFERENCES petbuddies_schema."Pet"("pet_id") ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- Create the CareAgreement table
+CREATE TABLE petbuddies_schema."CareAgreement" (
+    "care_agreement_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "post_id" INTEGER NOT NULL,
+    "volunteer_id" INTEGER NOT NULL,
+    "agreement_date" DATE NOT NULL,
+    CONSTRAINT fk_careagreement_post FOREIGN KEY ("post_id") REFERENCES petbuddies_schema."Post"("post_id") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_careagreement_volunteer FOREIGN KEY ("volunteer_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- Create the Report table
+CREATE TABLE petbuddies_schema."Report" (
+    "report_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "who_user_id" INTEGER NOT NULL,
+    "whom_user_id" INTEGER NOT NULL,
+    "post_id" INTEGER NOT NULL,
+    "report_type_id" INTEGER NOT NULL,
+    "description" TEXT NOT NULL,
+    CONSTRAINT fk_report_who FOREIGN KEY ("who_user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_report_whom FOREIGN KEY ("whom_user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_report_post FOREIGN KEY ("post_id") REFERENCES petbuddies_schema."Post"("post_id") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_report_type FOREIGN KEY ("report_type_id") REFERENCES petbuddies_schema."ReportType"("report_type_id") ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- Create the OwnerRating table
+CREATE TABLE petbuddies_schema."OwnerRating" (
+    "owner_rating_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "care_agreement_id" INTEGER NOT NULL,
+    "description" TEXT,
+    "star_number" INTEGER NOT NULL CHECK ("star_number" BETWEEN 1 AND 5),
+    CONSTRAINT fk_ownerrating_agreement FOREIGN KEY ("care_agreement_id") REFERENCES petbuddies_schema."CareAgreement"("care_agreement_id") ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- Create the VolunteerRating table
+CREATE TABLE petbuddies_schema."VolunteerRating" (
+    "volunteer_rating_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "care_agreement_id" INTEGER NOT NULL,
+    "description" TEXT,
+    "star_number" INTEGER NOT NULL CHECK ("star_number" BETWEEN 1 AND 5),
+    CONSTRAINT fk_volunteerrating_agreement FOREIGN KEY ("care_agreement_id") REFERENCES petbuddies_schema."CareAgreement"("care_agreement_id") ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- Create the AdditionalServices table
+CREATE TABLE petbuddies_schema."AdditionalServices" (
+    "additional_services_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "post_id" INTEGER NOT NULL,
+    "additional_service_id" INTEGER NOT NULL,
+    "service_date" DATE NOT NULL,
+    "service_time" TIME NOT NULL,
+    "cost" NUMERIC(10,2),
+    CONSTRAINT fk_additionalservices_post FOREIGN KEY ("post_id") REFERENCES petbuddies_schema."Post"("post_id") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_additionalservices_service FOREIGN KEY ("additional_service_id") REFERENCES petbuddies_schema."AdditionalServicesDict"("additional_services_dict_id") ON UPDATE CASCADE ON DELETE CASCADE
+);
