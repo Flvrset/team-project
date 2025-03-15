@@ -9,7 +9,7 @@ const AppBar = () =>
             <Toolbar>
                 <PetsIcon sx={{ mr: 2 }} />
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    PetCare Connect
+                    PetBuddies
                 </Typography>
 
                 <Button

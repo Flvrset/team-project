@@ -323,38 +323,9 @@ const LandingPage = () => {
 
       <Box sx={{ width: '100%', bgcolor: 'primary.dark', color: 'white', py: 3, mt: 6 }}>
         <Container maxWidth="lg">
-          <Grid container spacing={4}>
-            <Grid item xs={12} sm={4}>
-              <Typography variant="h6" gutterBottom>
-                PetCare Connect
-              </Typography>
-              <Typography variant="body2">
-                Łączymy pasjonatów zwierząt, oferując bezpieczną platformę do znalezienia idealnej opieki.
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Typography variant="h6" gutterBottom>
-                Kontakt
-              </Typography>
-              <Typography variant="body2">
-                Email: kontakt@petcare-connect.pl<br />
-                Tel: +48 123 456 789
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Typography variant="h6" gutterBottom>
-                Śledź nas
-              </Typography>
-              <Stack direction="row" spacing={2}>
-                <Button size="small" color="inherit">Facebook</Button>
-                <Button size="small" color="inherit">Instagram</Button>
-                <Button size="small" color="inherit">Twitter</Button>
-              </Stack>
-            </Grid>
-          </Grid>
-          <Box sx={{ mt: 3, textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.1)', pt: 2 }}>
+          <Box sx={{textAlign: 'center'}}>
             <Typography variant="body2" color="inherit">
-              © {new Date().getFullYear()} PetCare Connect. Wszystkie prawa zastrzeżone.
+              © {new Date().getFullYear()} PetBuddies. Wszystkie prawa zastrzeżone.
             </Typography>
           </Box>
         </Container>

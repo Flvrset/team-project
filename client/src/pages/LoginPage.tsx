@@ -61,7 +61,7 @@ const LoginPage = () => {
           >
             <PetsIcon sx={{ fontSize: 50, mb: 2 }} />
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-              PetCare Connect
+              PetBuddies
             </Typography>
             <Typography variant="subtitle1">
               Zaloguj się, aby kontynuować
