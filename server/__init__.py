@@ -21,10 +21,10 @@ def get_locale():
     return request.accept_languages.best_match(LANGUAGES)
 
 
-def create_app(config_class="app.config.Config"):
+def create_app():
 
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    # app.config.from_object(config_class)
 
     db.init_app(app)
     # mail.init_app(app)
