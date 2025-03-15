@@ -4,7 +4,7 @@ from server.db_models.database_tables import User
 from server.routes import routes
 
 
-@routes.route("/register", methods=["GET"])
+@routes.route("/register", methods=["POST"])
 def register_user_page():
     if request.method == "POST":
         username = request.form["username"]
