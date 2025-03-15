@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  backend:
+    build: ./server
+    ports:
+      - "5000:5000"
+    env_file: .env
+    depends_on:
+      - database
+
+  frontend:
+    build: ./client
+    ports:
+      - "3000:4173"
+    depends_on:
+      - backend
+
+  database:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: dummy_user
+      POSTGRES_USER: dummy_password
+      POSTGRES_PASSWORD: dummy_secure_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
