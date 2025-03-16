@@ -7,19 +7,19 @@ workers = multiprocessing.cpu_count() * 2 + 1
 threads = 2
 
 # Address and port to bind Gunicorn to
-bind = '0.0.0.0:8000'  # Accessible on all IPs, port 8000
+bind = "0.0.0.0:8000"  # Accessible on all IPs, port 8000
 
 # Timeout for workers
 timeout = 30
 
 # Access log location (- means logging to stdout)
-accesslog = '-'
+accesslog = "-"
 
 # Error log location (- means logging to stderr)
-errorlog = '-'
+errorlog = "-"
 
 # Log level (info, debug, warning, error, critical)
-loglevel = 'info'
+loglevel = "info"
 
 # Daemon mode (True will make Gunicorn run in the background)
 daemon = False
@@ -28,4 +28,4 @@ daemon = False
 preload_app = True
 
 # Sync worker class (you can change to 'gevent' or 'eventlet' for async processing)
-worker_class = 'sync'
+worker_class = "sync"

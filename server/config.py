@@ -1,2 +1,4 @@
 class Config:
-    pass
+    # TO BE REMOVED INTO ENV OR SECRETS
+    # JUST FOR THE TESTS
+    JWT_SECRET_KEY = "0ce63f6a5a7cfc56221c6aa1d0550f720dea54b863f78259a8b39f9214f9fba2"

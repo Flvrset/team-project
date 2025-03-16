@@ -13,18 +13,18 @@ SET search_path TO petbuddies_schema;
 -- Create the User table
 CREATE TABLE petbuddies_schema."User" (
     "user_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    "name" VARCHAR(255) NOT NULL,
-    "surname" VARCHAR(255) NOT NULL,
+    "name" VARCHAR(255),
+    "surname" VARCHAR(255),
     "login" VARCHAR(255) NOT NULL UNIQUE,
     "join_date" DATE NOT NULL,
-    "country" VARCHAR(255) NOT NULL,
-    "city" VARCHAR(255) NOT NULL,
-    "postal_code" VARCHAR(255) NOT NULL,
-    "street" VARCHAR(255) NOT NULL,
-    "house_number" VARCHAR(255) NOT NULL,
+    "country" VARCHAR(255),
+    "city" VARCHAR(255),
+    "postal_code" VARCHAR(255),
+    "street" VARCHAR(255),
+    "house_number" VARCHAR(255),
     "apartment_number" INTEGER,
-    "phone_number" VARCHAR(20) NOT NULL,
-    "email_address" VARCHAR(255) NOT NULL UNIQUE,
+    "phone_number" VARCHAR(20),
+    "email" VARCHAR(255) NOT NULL UNIQUE,
     "is_banned" BOOLEAN NOT NULL DEFAULT false
 );
 

@@ -1,0 +1,132 @@
+from flask import request, jsonify, session
+from server import db, bcrypt, limiter
+from server.db_models.database_tables import User
+from server.auth import auth
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
+import sqlalchemy
+
+
+@auth.route("/register", methods=["POST"])
+def register_user_page():
+    login = request.json.get("login", None)
+    password = request.json.get("password", None)
+    email = request.json.get("email", None)
+    name = request.json.ge("name", None)
+    surname = request.json.get("surname", None)
+
+    hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+
+    new_user = User(
+        email_address=email,
+        password=hashed_password,
+        login=login,
+        name=name,
+        surname=surname,
+    )
+
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        access_token = create_access_token(
+            identity={
+                "email": new_user.email,
+                "login": new_user.login,
+                "name": new_user.name,
+                "surname": new_user.surname,
+            }
+        )
+        session["petbuddies_user"] = new_user.id
+        return jsonify({"access_token": access_token}), 201
+    except sqlalchemy.exc.IntegrityError:
+        return jsonify({"msg": "Login or Password already in use!"})
+
+    # this will add to user session (cookies?) this variable
+    # session["kumply_user_id"] = new_user.user_id
+
+
+@auth.route("/login", methods=["POST"])
+@limiter.limit("5 per 5 minutes")
+def login_mail_page():
+    email = request.json.get("email", None)
+    login = request.json.get("login", None)
+    password = request.json.get("password", None)
+
+    if not email and not login:
+        return jsonify({"msg": "Username and Email were not provided"}), 401
+
+    user = (
+        User.query.filter_by(email=email).first()
+        if email
+        else User.query.filter_by(login=login).first()
+    )
+
+    if not user:
+        return jsonify({"msg": "Provided user does not exist!"}), 401
+
+    if bcrypt.check_password_hash(
+        user.password.encode("utf-8"), password.encode("utf-8")
+    ):
+        access_token = create_access_token(
+            identity={
+                "name": user.name,
+                "surname": user.surname,
+                "email": user.email,
+                "login": user.login,
+            }
+        )
+        session["petbuddies_user"] = user.id
+        return jsonify(access_token=access_token)
+
+    return jsonify({"msg": "Incorrect Password!"}), 401
+
+
+@auth.route("/protected", methods=["GET"])
+@jwt_required()
+def protected():
+    current_user = get_jwt_identity()
+    return jsonify(logged_in_as=current_user)
+
+
+@auth.route("/edit_user", methods=["POST"])
+def edit_user():
+    user_id = session.get("petbuddies_user")
+
+    if not user_id:
+        return jsonify({"msg": "Unauthorized user"}), 401
+
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    new_country = request.json.get("country", None)
+    new_city = request.json.get("city", None)
+    new_postal_code = request.json.get("postal_code", None)
+    new_street = request.json.get("street", None)
+    new_house_number = request.json.get("house_number", None)
+    new_apartment_number = request.json.get("apartment_number", None)
+    new_phone_number = request.json.get("phone_number", None)
+
+    # for changing email and password we should use other paths with special authorization?
+    # new_email = request.json.get("email", None)
+
+    if new_country:
+        user.country = new_country
+    if new_city:
+        user.city = new_city
+    if new_postal_code:
+        user.postal_code = new_postal_code
+    if new_street:
+        user.street = new_street
+    if new_house_number:
+        user.house_number = new_house_number
+    if new_apartment_number:
+        user.apartment_number = new_apartment_number
+    if new_phone_number:
+        user.phone_number = new_phone_number
+
+    try:
+        db.session.commit()
+        return jsonify({"msg": "User data updated sucessfully"}), 200
+    except sqlalchemy.exc.IntegrityError:
+        return jsonify({"msg": "User data cannot be updated!"}), 400

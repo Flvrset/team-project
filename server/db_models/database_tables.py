@@ -16,19 +16,19 @@ class User(db.Model):
     __table_args__ = {"schema": "petbuddies_schema"}
 
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    name = db.Column(db.String(255), nullable=False)
-    surname = db.Column(db.String(255), nullable=False)
+    name = db.Column(db.String(255))
+    surname = db.Column(db.String(255))
     login = db.Column(db.String(255), nullable=False, unique=True)
     password_hash = db.Column(db.String(64), nullable=False)  # SHA-256 hashed password
     join_date = db.Column(db.Date, nullable=False, default=date.today)
-    country = db.Column(db.String(255), nullable=False)
-    city = db.Column(db.String(255), nullable=False)
-    postal_code = db.Column(db.String(255), nullable=False)
-    street = db.Column(db.String(255), nullable=False)
-    house_number = db.Column(db.String(255), nullable=False)
-    apartment_number = db.Column(db.Integer, nullable=True)
-    phone_number = db.Column(db.String(20), nullable=False)
-    email_address = db.Column(db.String(255), nullable=False, unique=True)
+    country = db.Column(db.String(255))
+    city = db.Column(db.String(255))
+    postal_code = db.Column(db.String(255))
+    street = db.Column(db.String(255))
+    house_number = db.Column(db.String(255))
+    apartment_number = db.Column(db.Integer)
+    phone_number = db.Column(db.String(20))
+    email = db.Column(db.String(255), nullable=False, unique=True)
     is_banned = db.Column(db.Boolean, nullable=False, default=False)
 
 

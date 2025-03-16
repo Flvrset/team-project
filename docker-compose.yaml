@@ -11,8 +11,8 @@ services:
     build: ./client
     ports:
       - "3000:4173"
-    # depends_on:
-    #   - backend
+    depends_on:
+      - backend
 
   database:
     image: postgres:15
