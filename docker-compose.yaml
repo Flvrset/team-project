@@ -3,7 +3,6 @@ services:
   backend:
     build:
       context: ./server
-      dockerfile: Dockerfile
     command: gunicorn --config gunicorn_config.py wsgi:app
     container_name: server
     volumes:
