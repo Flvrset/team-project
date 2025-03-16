@@ -35,7 +35,7 @@ def create_app(config_class="config.Config"):
     jwt.init_app(app)
     # babel.init_app(app, locale_selector=get_locale)
 
-    from .auth import auth
+    from auth import auth
 
     app.register_blueprint(auth)
 
