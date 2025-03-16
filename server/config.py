@@ -7,5 +7,5 @@ class Config:
     JWT_COOKIE_HTTPONLY = True  # Prevent JavaScript access
     JWT_COOKIE_SAMESITE = "Lax"  # Prevent CSRF issues
 
-    SQLALCHEMY_DATABASE_URI = "postgresql://dummy_user:dummy_secure_password@0.0.0.0:5432/petbuddies"
+    SQLALCHEMY_DATABASE_URI = "postgresql://dummy_user:dummy_secure_password@database:5432/petbuddies"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
