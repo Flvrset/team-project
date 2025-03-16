@@ -1,5 +1,5 @@
 from flask import request, jsonify, session, make_response, Blueprint
-from ..app import db, bcrypt, limiter
+from app import db, bcrypt, limiter
 from server.db_models.database_tables import User
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, set_access_cookies, unset_jwt_cookies
 import sqlalchemy

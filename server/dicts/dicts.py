@@ -1,5 +1,5 @@
 from flask import request, jsonify, session, make_response, Blueprint
-from ..app import db
+from app import db
 from server.db_models.database_tables import DPostalCode
 # from server.dicts import dicts
 
