@@ -1,8 +1,8 @@
-from flask import request, jsonify, session
+from flask import request, jsonify, session, make_response
 from ..app import db, bcrypt, limiter
 from server.db_models.database_tables import User
 from server.auth import auth
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, set_access_cookies, unset_jwt_cookies
 import sqlalchemy
 
 
@@ -36,12 +36,12 @@ def register_user_page():
             }
         )
         session["petbuddies_user"] = new_user.id
-        return jsonify({"access_token": access_token}), 201
+
+        response = make_response(jsonify({"msg": "Login successful"}))
+        set_access_cookies(response, access_token)
+        return jsonify(response), 201
     except sqlalchemy.exc.IntegrityError:
         return jsonify({"msg": "Login or Password already in use!"})
-
-    # this will add to user session (cookies?) this variable
-    # session["kumply_user_id"] = new_user.user_id
 
 
 @auth.route("/login", methods=["POST"])
@@ -75,16 +75,25 @@ def login_mail_page():
             }
         )
         session["petbuddies_user"] = user.id
+        response = make_response(jsonify({"msg": "Login successful"}))
+        set_access_cookies(response, access_token)
         return jsonify(access_token=access_token)
 
     return jsonify({"msg": "Incorrect Password!"}), 401
+
+
+@auth.route("/logout", methods=["POST"])
+def logout():
+    response = make_response(jsonify({"msg": "Logout successful"}))
+    unset_jwt_cookies(response)  # Remove JWT cookie
+    return response
 
 
 @auth.route("/protected", methods=["GET"])
 @jwt_required()
 def protected():
     current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user)
+    return jsonify(user=current_user)
 
 
 @auth.route("/edit_user", methods=["POST"])
@@ -127,6 +136,6 @@ def edit_user():
 
     try:
         db.session.commit()
-        return jsonify({"msg": "User data updated sucessfully"}), 200
+        return jsonify({"msg": "User data updated successfully"}), 200
     except sqlalchemy.exc.IntegrityError:
         return jsonify({"msg": "User data cannot be updated!"}), 400
