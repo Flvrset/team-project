@@ -36,7 +36,9 @@ def create_app(config_class="config.Config"):
     # babel.init_app(app, locale_selector=get_locale)
 
     from auth import auth
+    from dicts import dicts
 
     app.register_blueprint(auth)
+    app.register_blueprint(dicts)
 
     return app
