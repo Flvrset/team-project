@@ -39,6 +39,6 @@ def create_app(config_class="config.Config"):
     from dicts.dicts import dicts
 
     app.register_blueprint(auth)
-    app.register_blueprint(dicts, url_prefix="/dicts")
+    app.register_blueprint(dicts)
 
     return app
