@@ -4,6 +4,7 @@ services:
     build:
       context: ./server
     command: gunicorn wsgi:app
+    container_name: server
     volumes:
       - ./server:/app
     ports:
