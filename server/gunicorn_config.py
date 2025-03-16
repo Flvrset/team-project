@@ -7,7 +7,7 @@ workers = multiprocessing.cpu_count() * 2 + 1
 threads = 2
 
 # Address and port to bind Gunicorn to
-bind = "0.0.0.0:8000"  # Accessible on all IPs, port 8000
+bind = "0.0.0.0:5000"  # Accessible on all IPs, port 8000
 
 # Timeout for workers
 timeout = 30
