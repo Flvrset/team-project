@@ -2,4 +2,4 @@ from flask import Blueprint
 
 auth = Blueprint("auth", __name__)
 
-from server.auth import auth
+# from . import auth
