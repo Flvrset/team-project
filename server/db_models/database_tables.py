@@ -190,3 +190,12 @@ class ReportType(db.Model):
         db.Integer, primary_key=True, autoincrement=True, unique=True
     )
     report_type_name = db.Column(db.String(255), nullable=False)
+
+
+class DPostalCode(db.Model):
+    __tablename__ = 'DPostalCode'
+    __table_args__ = {"schema": "petbuddies_schema"}
+
+    postal_code_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    postal_code = db.Column(db.String(6), nullable=False)
+    place = db.Column(db.String(255), nullable=False)
