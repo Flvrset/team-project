@@ -2,7 +2,7 @@ version: '3.8'
 services:
   backend:
     build:
-      context: .
+      context: ./server
     command: gunicorn --config gunicorn_config.py wsgi:app
     container_name: server
     volumes:
