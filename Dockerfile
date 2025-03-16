@@ -5,14 +5,11 @@ FROM python:3.9
 WORKDIR /app
 
 # Copy requirements file and install dependencies
-COPY requirements.txt /app/
+COPY ./server/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire backend code
-COPY . /app
-
-# Set environment variables for Python path
-ENV PYTHONPATH="/app"
+COPY ./server /app
 
 # Expose port 5000 (Flask default)
 EXPOSE 5000
