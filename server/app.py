@@ -23,7 +23,7 @@ def get_locale():
     return request.accept_languages.best_match(LANGUAGES)
 
 
-def create_app(config_class="server.config.Config"):
+def create_app(config_class="config.Config"):
 
     app = Flask(__name__)
     app.config.from_object(config_class)
