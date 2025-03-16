@@ -2,3 +2,5 @@ class Config:
     # TO BE REMOVED INTO ENV OR SECRETS
     # JUST FOR THE TESTS
     JWT_SECRET_KEY = "0ce63f6a5a7cfc56221c6aa1d0550f720dea54b863f78259a8b39f9214f9fba2"
+    SQLALCHEMY_DATABASE_URI = "postgresql://dummy_user:dummy_secure_password@localhost:5432/petbuddies"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False

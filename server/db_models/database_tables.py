@@ -1,15 +1,5 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from datetime import date, time
-
-app = Flask(__name__)
-# TO BE CHANGE AND SENT INTO .ENV FILE
-app.config[
-    "SQLALCHEMY_DATABASE_URI"
-] = "postgresql://dummy_user:dummy_secure_password@localhost:5432/petbuddies"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-db = SQLAlchemy(app)
+from ..app import db
 
 
 class User(db.Model):
