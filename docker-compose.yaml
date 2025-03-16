@@ -3,7 +3,7 @@ services:
   backend:
     build:
       context: ./server
-    command: gunicorn server.wsgi:app
+    command: gunicorn wsgi:app
     volumes:
       - ./server:/app
     ports:
