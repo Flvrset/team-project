@@ -154,3 +154,16 @@ CREATE TABLE petbuddies_schema."AdditionalServices" (
     CONSTRAINT fk_additionalservices_post FOREIGN KEY ("post_id") REFERENCES petbuddies_schema."Post"("post_id") ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_additionalservices_service FOREIGN KEY ("additional_service_id") REFERENCES petbuddies_schema."AdditionalServicesDict"("additional_services_dict_id") ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+-- Create the Postal Codes Dictionary table
+CREATE TABLE petbuddies_schema."DPostalCode" (
+    "postal_code_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "postal_code" VARCHAR(6) NOT NULL,
+    "place" VARCHAR(255) NOT NULL
+);
+
+-- Read Postal Codes from file
+COPY petbuddies_schema."DPostalCode" (postal_code, place)
+FROM './data/postal_codes.csv'
+DELIMITER ','
+CSV HEADER;
