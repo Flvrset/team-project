@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 5000
 
 # Command to run Flask with Gunicorn
-CMD ["gunicorn", "--config", "gunicorn_config.py", "wsgi:app"]
+CMD ["gunicorn", "--config", "gunicorn_config.py", "server.wsgi:app"]
