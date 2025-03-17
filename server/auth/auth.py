@@ -48,7 +48,7 @@ def register_user_page():
 
         response = make_response(jsonify({"msg": "Login successful"}))
         set_access_cookies(response, access_token)
-        return jsonify(response), 201
+        return response, 201
     except sqlalchemy.exc.IntegrityError:
         return jsonify({"msg": "Login lub adres e-mail jest już zajęty."}), 406
 
@@ -87,7 +87,7 @@ def login_mail_page():
         session["petbuddies_user"] = user.user_id
         response = make_response(jsonify({"msg": "Login successful"}))
         set_access_cookies(response, access_token)
-        return jsonify(access_token=access_token)
+        return response
 
     return jsonify({"msg": "Incorrect Password!"}), 401
 
@@ -105,12 +105,10 @@ def protected():
     current_user = get_jwt_identity()
     claims = get_jwt()
     return jsonify(
-        {
-            "name": claims.get("name"),
-            "surname": claims.get("surname"),
-            "email": claims.get("email"),
-            "login": claims.get("login"),
-        }
+        name=claims.get("name"),
+        surname=claims.get("surname"),
+        email=claims.get("email"),
+        login=claims.get("login"),
     )
 
 
