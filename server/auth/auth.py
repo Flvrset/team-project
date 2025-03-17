@@ -110,6 +110,7 @@ def protected():
 
 
 @auth.route("/edit_user", methods=["POST"])
+@jwt_required()
 def edit_user():
     user_id = get_jwt_identity()
 
