@@ -2,7 +2,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import PetsIcon from '@mui/icons-material/Pets';
 import SearchIcon from '@mui/icons-material/Search';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
-import { Container, Typography, Button, Grid, Box, Card, CardContent, CardMedia, Stack, Avatar, Rating } from '@mui/material';
+import { Container, Typography, Button, Grid, Box, Card, CardContent, CardMedia, Stack, Avatar, Rating, Toolbar, AppBar } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -10,7 +10,7 @@ import heroImage from '../assets/hero-image.webp';
 import petBoardingImage from '../assets/pet-boarding.webp';
 import petSittingImage from '../assets/pet-sitting.webp';
 import petWalkingImage from '../assets/pet-walking.webp';
-import AppBar from '../components/AppBar';
+import Footer from '../components/Footer';
 
 
 const LandingPage = () => {
@@ -38,7 +38,57 @@ const LandingPage = () => {
 
   return (
     <>
-      <AppBar />
+      <AppBar position="sticky" color="primary" elevation={0} sx={{ top: 0, zIndex: 1100 }}>
+        <Toolbar>
+          <PetsIcon sx={{ mr: 2 }} />
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            PetBuddies
+          </Typography>
+
+          <Button
+            color="inherit"
+            component={Link}
+            to="/login"
+            startIcon={<AccountCircleIcon />}
+            sx={{
+              bgcolor: 'rgba(255,255,255,0.1)',
+              borderRadius: 2,
+              px: 2,
+              py: 0.7,
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                bgcolor: 'rgba(255,255,255,0.2)',
+                transform: 'translateY(-2px)'
+              }
+            }}
+          >
+            Logowanie
+          </Button>
+
+          <Button
+            color="secondary"
+            variant="contained"
+            component={Link}
+            to="/register"
+            sx={{
+              ml: 2,
+              borderRadius: 2,
+              px: 2,
+              py: 0.7,
+              fontWeight: 600,
+              boxShadow: '0 2px 8px rgba(255, 152, 0, 0.3)',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                boxShadow: '0 4px 12px rgba(255, 152, 0, 0.5)',
+                transform: 'translateY(-2px)'
+              }
+            }}
+          >
+            Rejestracja
+          </Button>
+        </Toolbar>
+      </AppBar>
+
       <Box
         sx={{
           width: '100%',
@@ -320,16 +370,7 @@ const LandingPage = () => {
           Załóż konto za darmo
         </Button>
       </Container>
-
-      <Box sx={{ width: '100%', bgcolor: 'primary.dark', color: 'white', py: 3, mt: 6 }}>
-        <Container maxWidth="lg">
-          <Box sx={{textAlign: 'center'}}>
-            <Typography variant="body2" color="inherit">
-              © {new Date().getFullYear()} PetBuddies. Wszystkie prawa zastrzeżone.
-            </Typography>
-          </Box>
-        </Container>
-      </Box>
+      <Footer />
     </>
   );
 };
