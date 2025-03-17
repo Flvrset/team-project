@@ -1,4 +1,4 @@
-from flask import request, jsonify, session, make_response, Blueprint
+from flask import request, jsonify, make_response, Blueprint
 from app import db, bcrypt, limiter
 from db_models.database_tables import User
 from flask_jwt_extended import (
@@ -44,7 +44,6 @@ def register_user_page():
                 "surname": new_user.surname,
             },
         )
-        session["petbuddies_user"] = new_user.user_id
 
         response = make_response(jsonify({"msg": "Login successful"}))
         set_access_cookies(response, access_token)
@@ -84,7 +83,6 @@ def login_mail_page():
                 "login": user.login,
             },
         )
-        session["petbuddies_user"] = user.user_id
         response = make_response(jsonify({"msg": "Login successful"}))
         set_access_cookies(response, access_token)
         return response
@@ -102,7 +100,6 @@ def logout():
 @auth.route("/protected", methods=["GET"])
 @jwt_required()
 def protected():
-    current_user = get_jwt_identity()
     claims = get_jwt()
     return jsonify(
         name=claims.get("name"),
@@ -114,7 +111,7 @@ def protected():
 
 @auth.route("/edit_user", methods=["POST"])
 def edit_user():
-    user_id = session.get("petbuddies_user")
+    user_id = get_jwt_identity()
 
     if not user_id:
         return jsonify({"msg": "Unauthorized user"}), 401
