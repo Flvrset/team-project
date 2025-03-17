@@ -7,9 +7,11 @@ import { useAuth } from '../hooks/AuthProvider';
 
 const ProtectedRoute = () => {
     const auth = useAuth();
+
     useEffect(() => {
         auth.checkAuthStatus();
-    }, []);
+    }, [auth]);
+    
     return !auth.isAuthenticated ? <Navigate to="/login" replace /> : <Outlet />;
 };
 

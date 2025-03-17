@@ -9,7 +9,7 @@ const PublicRoute = () => {
     
     useEffect(() => {
         auth.checkAuthStatus();
-    }, []);
+    }, [auth]);
 
     return auth.isAuthenticated ? <Navigate to="/dashboard" replace /> : <Outlet />;
 };

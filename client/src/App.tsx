@@ -2,7 +2,9 @@ import './style/App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import { AuthProvider } from './hooks/AuthProvider';
+import DashboardLayout from './layouts/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
+import EditDataPage from './pages/EditDataPage';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -23,7 +25,10 @@ function App() {
             </Route>
 
             <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
+            <Route element={<DashboardLayout />}>
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/dashboard/editData" element={<EditDataPage />} />
+              </Route>
             </Route>
           </Routes>
         </AuthProvider>
