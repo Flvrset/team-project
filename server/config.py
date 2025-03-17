@@ -10,5 +10,7 @@ class Config:
     # session secret key
     SECRET_KEY = "my_secret_key"
 
-    SQLALCHEMY_DATABASE_URI = "postgresql://dummy_user:dummy_secure_password@database:5432/petbuddies"
+    SQLALCHEMY_DATABASE_URI = (
+        "postgresql://dummy_user:dummy_secure_password@database:5432/petbuddies"
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False

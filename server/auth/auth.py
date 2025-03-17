@@ -1,7 +1,14 @@
 from flask import request, jsonify, session, make_response, Blueprint
 from app import db, bcrypt, limiter
 from db_models.database_tables import User
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, set_access_cookies, unset_jwt_cookies
+from flask_jwt_extended import (
+    jwt_required,
+    create_access_token,
+    get_jwt_identity,
+    set_access_cookies,
+    get_jwt,
+    unset_jwt_cookies,
+)
 import sqlalchemy
 
 auth = Blueprint("auth", __name__)
@@ -29,12 +36,13 @@ def register_user_page():
         db.session.add(new_user)
         db.session.commit()
         access_token = create_access_token(
-            identity={
+            identity=str(new_user.user_id),
+            additional_claims={
                 "email": new_user.email,
                 "login": new_user.login,
                 "name": new_user.name,
                 "surname": new_user.surname,
-            }
+            },
         )
         session["petbuddies_user"] = new_user.user_id
 
@@ -68,12 +76,13 @@ def login_mail_page():
         user.password_hash.encode("utf-8"), password.encode("utf-8")
     ):
         access_token = create_access_token(
-            identity={
+            identity=str(user.user_id),
+            additional_claims={
                 "name": user.name,
                 "surname": user.surname,
                 "email": user.email,
                 "login": user.login,
-            }
+            },
         )
         session["petbuddies_user"] = user.user_id
         response = make_response(jsonify({"msg": "Login successful"}))
@@ -94,7 +103,15 @@ def logout():
 @jwt_required()
 def protected():
     current_user = get_jwt_identity()
-    return jsonify(user=current_user)
+    claims = get_jwt()
+    return jsonify(
+        {
+            "name": claims.get("name"),
+            "surname": claims.get("surname"),
+            "email": claims.get("email"),
+            "login": claims.get("login"),
+        }
+    )
 
 
 @auth.route("/edit_user", methods=["POST"])

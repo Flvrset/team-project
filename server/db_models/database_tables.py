@@ -184,7 +184,7 @@ class ReportType(db.Model):
 
 
 class DPostalCode(db.Model):
-    __tablename__ = 'DPostalCode'
+    __tablename__ = "DPostalCode"
     __table_args__ = {"schema": "petbuddies_schema"}
 
     postal_code_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
