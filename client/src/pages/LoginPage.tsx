@@ -54,7 +54,7 @@ const LoginPage = () => {
         navigate('/dashboard');
       } else {
         const data = await response.json();
-        setError(data.message);
+        setError(data.msg);
       }
     } catch {
       setError('Wystąpił błąd podczas logowania - spróbuj ponownie później');

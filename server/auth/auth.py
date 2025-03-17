@@ -12,14 +12,14 @@ def register_user_page():
     login = request.json.get("login", None)
     password = request.json.get("password", None)
     email = request.json.get("email", None)
-    name = request.json.ge("name", None)
+    name = request.json.get("name", None)
     surname = request.json.get("surname", None)
 
-    hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+    new_hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
     new_user = User(
-        email_address=email,
-        hashed_password=hashed_password,
+        email=email,
+        password_hash=new_hashed_password,
         login=login,
         name=name,
         surname=surname,
@@ -36,13 +36,13 @@ def register_user_page():
                 "surname": new_user.surname,
             }
         )
-        session["petbuddies_user"] = new_user.id
+        session["petbuddies_user"] = new_user.user_id
 
         response = make_response(jsonify({"msg": "Login successful"}))
         set_access_cookies(response, access_token)
         return jsonify(response), 201
     except sqlalchemy.exc.IntegrityError:
-        return jsonify({"msg": "Login or Password already in use!"})
+        return jsonify({"msg": "Login lub adres e-mail jest już zajęty."}), 406
 
 
 @auth.route("/login", methods=["POST"])
@@ -65,7 +65,7 @@ def login_mail_page():
         return jsonify({"msg": "Provided user does not exist!"}), 401
 
     if bcrypt.check_password_hash(
-        user.hashed_password.encode("utf-8"), password.encode("utf-8")
+        user.password_hash.encode("utf-8"), password.encode("utf-8")
     ):
         access_token = create_access_token(
             identity={

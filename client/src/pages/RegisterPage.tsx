@@ -3,10 +3,12 @@ import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import PetsIcon from '@mui/icons-material/Pets';
 import {
+    Alert,
     Box,
     Button,
     Card,
     CardContent,
+    CircularProgress,
     Container,
     Divider,
     Grid,
@@ -16,20 +18,67 @@ import {
     TextField,
     Typography
 } from '@mui/material';
-import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { FormEvent, useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { isValidEmail } from '../utils/validation';
 
 const RegisterPage = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
+    const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-    const handleSubmit = (event: React.FormEvent) => {
+    const [formErrors, setFormErrors] = useState({
+        email: ''
+    });
+
+    const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
-        console.log('Registration attempt with:', { firstName, lastName, email, password });
-        // Add registration logic here
+
+        // Form validation
+        if (email && !isValidEmail(email)) {
+            setFormErrors({ email: 'Podano nieprawidłowy adres email' });
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            return; // Already has error message in the UI
+        }
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: firstName,
+                    surname: lastName,
+                    email: email,
+                    login: login,
+                    password: password,
+                }),
+            });
+
+            if (response.ok) {
+                navigate('/dashboard');
+            } else {
+                const data = await response.json();
+                setError(data.msg || 'Wystąpił błąd podczas rejestracji');
+            }
+        } catch (err) {
+            setError('Wystąpił błąd podczas rejestracji - spróbuj ponownie później');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -135,12 +184,38 @@ const RegisterPage = () => {
                                 margin="normal"
                                 required
                                 fullWidth
+                                id="login"
+                                label="Login"
+                                name="login"
+                                autoComplete="username"
+                                value={login}
+                                onChange={(e) => setLogin(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <PersonIcon color="primary" />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: 2,
+                                    },
+                                }}
+                            />
+
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
                                 id="email"
                                 label="Email"
                                 name="email"
                                 autoComplete="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                error={!!formErrors.email}
+                                helperText={formErrors.email}
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
@@ -215,11 +290,18 @@ const RegisterPage = () => {
                                 }
                             />
 
+                            {error && (
+                                <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
+                                    {error}
+                                </Alert>
+                            )}
+
                             <Button
                                 type="submit"
                                 fullWidth
                                 variant="contained"
                                 size="large"
+                                disabled={loading}
                                 sx={{
                                     mt: 3,
                                     mb: 2,
@@ -234,7 +316,7 @@ const RegisterPage = () => {
                                     }
                                 }}
                             >
-                                Zarejestruj się
+                                {loading ? <CircularProgress size={24} color="inherit" /> : 'Zarejestruj się'}
                             </Button>
 
                             <Grid container justifyContent="center" sx={{ mt: 3 }}>
