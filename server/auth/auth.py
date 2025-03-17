@@ -75,7 +75,7 @@ def login_mail_page():
                 "login": user.login,
             }
         )
-        session["petbuddies_user"] = user.id
+        session["petbuddies_user"] = user.user_id
         response = make_response(jsonify({"msg": "Login successful"}))
         set_access_cookies(response, access_token)
         return jsonify(access_token=access_token)

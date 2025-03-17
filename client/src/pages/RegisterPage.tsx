@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import { FormEvent, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+
 import { isValidEmail } from '../utils/validation';
 
 const RegisterPage = () => {
@@ -40,7 +41,6 @@ const RegisterPage = () => {
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
 
-        // Form validation
         if (email && !isValidEmail(email)) {
             setFormErrors({ email: 'Podano nieprawidłowy adres email' });
             return;
@@ -74,7 +74,7 @@ const RegisterPage = () => {
                 const data = await response.json();
                 setError(data.msg || 'Wystąpił błąd podczas rejestracji');
             }
-        } catch (err) {
+        } catch {
             setError('Wystąpił błąd podczas rejestracji - spróbuj ponownie później');
         } finally {
             setLoading(false);
