@@ -2,77 +2,24 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import LogoutIcon from '@mui/icons-material/Logout';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PetsIcon from '@mui/icons-material/Pets';
-import { Avatar, Box, Button, CircularProgress, Container, Divider, IconButton, Menu, MenuItem, Toolbar, Typography, AppBar, useTheme } from '@mui/material';
-import { useEffect, useState, MouseEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Avatar, Box, Button, Container, Divider, IconButton, Menu, MenuItem, Toolbar, Typography, AppBar, useTheme } from '@mui/material';
+import { useState, MouseEvent } from 'react';
 
 import Footer from '../components/Footer';
-
-interface UserData {
-    name: string;
-    surname: string;
-    email: string;
-    login: string;
-}
+import { useAuth } from '../hooks/AuthProvider';
 
 const DashboardPage = () => {
-    const [userData, setUserData] = useState<UserData | null>(null);
-    const [loading, setLoading] = useState(true);
+    const auth = useAuth();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const navigate = useNavigate();
     const theme = useTheme();
 
-    useEffect(() => {
-        const checkAuthentication = async () => {
-            try {
-                const response = await fetch('/api/protected', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'include',
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setUserData(data.user);
-                } else {
-                    // User is not authenticated, redirect to login
-                    navigate('/login');
-                }
-            } catch (error) {
-                console.error('Authentication check failed:', error);
-                navigate('/login');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        checkAuthentication();
-    }, [navigate]);
-
     const handleLogout = async () => {
-        try {
-            setLoading(true);
-            const response = await fetch('/api/logout', {
-                method: 'POST',
-            });
-
-            if (response.ok) {
-                navigate('/login');
-            } else {
-                console.error('Logout failed');
-            }
-        } catch (error) {
-            console.error('Logout error:', error);
-        } finally {
-            setLoading(false);
-        }
+        auth.logout();
     };
 
     const getInitials = () => {
-        if (!userData) return '';
-        return `${userData.name.charAt(0)}${userData.surname.charAt(0)}`;
+        if (!auth.userData) return '';
+        return `${auth.userData.name.charAt(0)}${auth.userData.surname.charAt(0)}`;
     };
 
     const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
@@ -82,22 +29,6 @@ const DashboardPage = () => {
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
-
-    if (loading) {
-        return (
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100vh',
-                    bgcolor: 'background.default',
-                }}
-            >
-                <CircularProgress color="primary" size={60} />
-            </Box>
-        );
-    }
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -166,10 +97,10 @@ const DashboardPage = () => {
                         >
                             <Box sx={{ px: 2, py: 1.5 }}>
                                 <Typography variant="subtitle1" fontWeight="bold" noWrap>
-                                    {userData?.name} {userData?.surname}
+                                    {auth.userData?.name} {auth.userData?.surname}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary" noWrap>
-                                    {userData?.email}
+                                    {auth.userData?.email}
                                 </Typography>
                             </Box>
                             <Divider />
@@ -198,7 +129,7 @@ const DashboardPage = () => {
                             Dashboard
                         </Typography>
                         <Typography variant="body1" color="text.secondary" paragraph>
-                            Witaj, {userData?.name}! Oto Twój panel główny w aplikacji PetBuddies.
+                            Witaj, {auth.userData?.name}! Oto Twój panel główny w aplikacji PetBuddies.
                         </Typography>
 
                         <Box

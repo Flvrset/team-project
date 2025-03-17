@@ -18,8 +18,9 @@ import {
   Typography
 } from '@mui/material';
 import { FormEvent, useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 
+import { useAuth } from '../hooks/AuthProvider';
 import { isValidEmail } from '../utils/validation';
 
 const LoginPage = () => {
@@ -27,10 +28,10 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
   const [formErrors, setFormErrors] = useState({
     email: ''
   });
+  const auth = useAuth();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -51,7 +52,7 @@ const LoginPage = () => {
       });
 
       if (response.ok) {
-        navigate('/dashboard');
+        auth.checkAuthStatus();
       } else {
         const data = await response.json();
         setError(data.msg);
