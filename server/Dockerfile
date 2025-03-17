@@ -9,10 +9,7 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire backend code
-COPY ./server /app
+COPY . .
 
 # Expose port 5000 (Flask default)
 EXPOSE 5000
-
-# Command to run Flask with Gunicorn
-CMD ["gunicorn", "--config", "gunicorn_config.py", "wsgi:app"]

@@ -10,7 +10,7 @@ class User(db.Model):
     name = db.Column(db.String(255))
     surname = db.Column(db.String(255))
     login = db.Column(db.String(255), nullable=False, unique=True)
-    password_hash = db.Column(db.String(64), nullable=False)  # SHA-256 hashed password
+    password_hash = db.Column(db.String(255), nullable=False)  # SHA-256 hashed password
     join_date = db.Column(db.Date, nullable=False, default=date.today)
     country = db.Column(db.String(255))
     city = db.Column(db.String(255))

@@ -19,7 +19,7 @@ def register_user_page():
 
     new_user = User(
         email_address=email,
-        password=hashed_password,
+        hashed_password=hashed_password,
         login=login,
         name=name,
         surname=surname,
@@ -65,7 +65,7 @@ def login_mail_page():
         return jsonify({"msg": "Provided user does not exist!"}), 401
 
     if bcrypt.check_password_hash(
-        user.password.encode("utf-8"), password.encode("utf-8")
+        user.hashed_password.encode("utf-8"), password.encode("utf-8")
     ):
         access_token = create_access_token(
             identity={

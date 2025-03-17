@@ -2,10 +2,12 @@ import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import PetsIcon from '@mui/icons-material/Pets';
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Container,
   Divider,
   Grid,
@@ -15,17 +17,50 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { FormEvent, useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+
+import { isValidEmail } from '../utils/validation';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const [formErrors, setFormErrors] = useState({
+    email: ''
+  });
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    console.log('Login attempt with:', { email, password });
-    // Handle login logic here
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (email && !isValidEmail(email)) {
+      setFormErrors({ email: 'Podano nieprawidłowy adres email' });
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        navigate('/dashboard');
+      } else {
+        const data = await response.json();
+        setError(data.message);
+      }
+    } catch {
+      setError('Wystąpił błąd podczas logowania - spróbuj ponownie później');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,6 +70,7 @@ const LoginPage = () => {
         background: 'linear-gradient(120deg, #e0f7fa 0%, #f3e5f5 100%)',
         display: 'flex',
         alignItems: 'center',
+        py: 8,
       }}
     >
       <Container maxWidth="sm">
@@ -90,6 +126,8 @@ const LoginPage = () => {
                     ),
                   },
                 }}
+                error={!!formErrors.email}
+                helperText={formErrors.email}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
@@ -130,6 +168,12 @@ const LoginPage = () => {
                 }}
               />
 
+              {error && (
+                <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
+                  {error}
+                </Alert>
+              )}
+
               <Button
                 type="submit"
                 fullWidth
@@ -149,7 +193,7 @@ const LoginPage = () => {
                   }
                 }}
               >
-                Zaloguj się
+                {loading ? <CircularProgress size={24} color='inherit' /> : 'Zaloguj się'}
               </Button>
 
               <Grid container justifyContent="center" sx={{ mt: 3 }}>
