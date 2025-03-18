@@ -1,5 +1,6 @@
 import { createContext, useState, ReactNode, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { getWithAuth } from '../utils/auth';
 
 interface UserData {

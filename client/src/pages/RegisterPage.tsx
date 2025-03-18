@@ -22,8 +22,8 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../hooks/AuthProvider';
-import { isValidEmail } from '../utils/validation';
 import { postWithAuth } from '../utils/auth';
+import { isValidEmail } from '../utils/validation';
 
 const RegisterPage = () => {
     const [firstName, setFirstName] = useState('');
