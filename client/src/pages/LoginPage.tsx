@@ -51,9 +51,7 @@ const LoginPage = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await postWithAuth('/api/login', {
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await postWithAuth('/api/login', JSON.stringify({ email, password }));
 
       if (response.ok) {
         auth.checkAuthStatus();

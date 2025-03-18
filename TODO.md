@@ -23,5 +23,7 @@
 - [ ] `/createPost` endpoint
 - [ ] `/getUserData` endpoint do pobierania PEŁNYCH danych użytkownika żebym mógł mu je uzupełnić przy editData
 - [ ] `/addPet` do dodawania peta
-- [ ] `/editPet` do edycji peta
+- [ ] `/editPet/:petId` do edycji peta
+- [ ] `/getPets` dostań wszystkie pety użytkownika
+- [ ] `/deletePet/:petId` usuwanie zwierząt
 - [ ] 

@@ -65,15 +65,15 @@ const RegisterPage = () => {
         setError('');
 
         try {
-            const response = await postWithAuth('/api/register', {
-                body: JSON.stringify({
+            const response = await postWithAuth('/api/register',
+                JSON.stringify({
                     name: firstName,
                     surname: lastName,
                     email: email,
                     login: login,
                     password: password,
                 }),
-            });
+            );
 
             if (response.ok) {
                 navigate('/dashboard');

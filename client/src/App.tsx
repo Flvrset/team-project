@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage';
 import EditDataPage from './pages/EditDataPage';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import PetsPage from './pages/PetsPage';
 import RegisterPage from './pages/RegisterPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 
@@ -25,6 +26,7 @@ function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/dashboard/edit-data" element={<EditDataPage />} />
                 <Route path='/dashboard/create-post' element={<EditDataPage />} />
+                <Route path='/dashboard/pets' element={<PetsPage />} />
               </Route>
             </Route>
           </Routes>

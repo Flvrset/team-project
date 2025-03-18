@@ -1,4 +1,5 @@
 import HomeIcon from '@mui/icons-material/Home';
+import PetsIcon from '@mui/icons-material/Pets';
 import PhoneIcon from '@mui/icons-material/Phone';
 import SaveIcon from '@mui/icons-material/Save';
 import SecurityIcon from '@mui/icons-material/Security';
@@ -18,6 +19,7 @@ import {
     alpha,
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import CitySearchSelect from '../components/CitySearchSelect';
 import { useAuth } from '../hooks/AuthProvider';
@@ -41,6 +43,7 @@ const EditDataPage = () => {
         message: '',
         severity: 'success' as 'success' | 'error',
     });
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState<UserFormData>({
         city: '',
@@ -84,14 +87,16 @@ const EditDataPage = () => {
         }));
     };
 
+    const handleAddPet = () => {
+        navigate('/dashboard/pets');
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         setLoading(true);
         try {
-            const response = await postWithAuth('/api/edit_user', {
-                body: JSON.stringify(formData)
-            });
+            const response = await postWithAuth('/api/edit_user', JSON.stringify(formData));
 
             if (response.ok) {
                 setNotification({
@@ -301,7 +306,7 @@ const EditDataPage = () => {
                             </Grid>
                         </Grid>
 
-                        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+                        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
                             <Button
                                 type="submit"
                                 variant="contained"
@@ -321,6 +326,25 @@ const EditDataPage = () => {
                                 }}
                             >
                                 {loading ? 'Zapisywanie...' : 'Zapisz zmiany'}
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                size="large"
+                                onClick={handleAddPet}
+                                startIcon={<PetsIcon />}
+                                sx={{
+                                    px: 5,
+                                    py: 1.5,
+                                    borderRadius: 3,
+                                    fontWeight: 'bold',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                                    '&:hover': {
+                                        transform: 'translateY(-2px)',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                                    },
+                                }}
+                            >
+                                Twoje zwierzaki
                             </Button>
                         </Box>
                     </Box>
