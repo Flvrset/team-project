@@ -25,5 +25,21 @@
 - [ ] `/addPet` do dodawania peta
 - [ ] `/editPet/:petId` do edycji peta
 - [ ] `/getPets` dostań wszystkie pety użytkownika
-- [ ] `/deletePet/:petId` usuwanie zwierząt
-- [ ] 
+- [ ] `/deletePet/:petId` usuwanie zwierząt (albo flaga deleted)
+- [ ] `/searchPosts/:postalCode&:maxDistanceFrom`
+- [ ] `/editPost/:postId` (jakaś walidacja żeby nie można było zedytować posta w przeszłości)
+- [ ] `/deletePost/:postId` (znowu walidacja na przeszłość)
+- [ ] `/report/:userId`
+- [ ] `/addReportType` (dla admina)
+- [ ] `/applyForCare/:postId`
+- [ ] `/acceptCareAgreement/:careId`
+- [ ] `/declineCareAgreement/:careId` [POTRZEBNA NOWA KOLUMNA W "CareAgreement" typu STATUS = "ACCEPTED" | "DECLINED", albo zniesienie "agreement_date" NOT NULL  (ustawienie "agreement_date" mówi nam że careAgreement został zawarty)]
+- [ ] `/getAllCareAgreementsAsVolunteer` pokazuje wszystkie care agreement na które się zapisaliśmy
+- [ ] `/getAllCareAgreements` pokazuje wszystkie nasze care posty i agreementy
+- [ ] `/rateOwner/:careAgreementId` oceniamy właściciela na bazie agreementu
+- [ ] `/rateVolunteer/:careAgreementId`
+- [ ] `/ownerRating` daje nam oceny jako właściciel
+- [ ] `/volunteerRating` daje nam oceny jako volunteer
+- [ ] Ten `AdditionalServices` tabele to bym wyjebał ???
+- [ ] ogarnięcie uprawnień administratora i możliwości zarządzania tym
+ 
