@@ -1,4 +1,4 @@
-import { createContext, useState, ReactNode, useContext } from 'react';
+import { createContext, useState, ReactNode, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface UserData {
@@ -83,6 +83,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        checkAuthStatus();
+    });
 
     return (
         <AuthContext.Provider value={{
