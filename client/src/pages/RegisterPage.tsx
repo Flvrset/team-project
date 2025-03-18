@@ -18,9 +18,10 @@ import {
     TextField,
     Typography
 } from '@mui/material';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
+import { useAuth } from '../hooks/AuthProvider';
 import { isValidEmail } from '../utils/validation';
 
 const RegisterPage = () => {
@@ -34,9 +35,18 @@ const RegisterPage = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    const auth = useAuth();
+
     const [formErrors, setFormErrors] = useState({
         email: ''
     });
+
+    useEffect(() => {
+        if (auth.isAuthenticated) {
+            navigate('/dashboard');
+        }
+    }, [auth, navigate]);
+
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();

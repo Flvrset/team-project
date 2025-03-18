@@ -122,7 +122,6 @@ def edit_user():
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
-    new_country = request.json.get("country", None)
     new_city = request.json.get("city", None)
     new_postal_code = request.json.get("postal_code", None)
     new_street = request.json.get("street", None)
@@ -133,8 +132,6 @@ def edit_user():
     # for changing email and password we should use other paths with special authorization?
     # new_email = request.json.get("email", None)
 
-    if new_country:
-        user.country = new_country
     if new_city:
         user.city = new_city
     if new_postal_code:

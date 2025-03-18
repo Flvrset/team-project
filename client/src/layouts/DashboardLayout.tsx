@@ -1,10 +1,9 @@
 import EditIcon from '@mui/icons-material/Edit';
 import LogoutIcon from '@mui/icons-material/Logout';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import PetsIcon from '@mui/icons-material/Pets';
-import { Avatar, Box, Container, Divider, IconButton, Menu, MenuItem, Toolbar, Typography, AppBar, useTheme } from '@mui/material';
+import { Avatar, Box, Container, Divider, Menu, MenuItem, Toolbar, Typography, AppBar, useTheme, Button } from '@mui/material';
 import { useState, MouseEvent } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 
 import Footer from '../components/Footer';
 import { useAuth } from '../hooks/AuthProvider';
@@ -30,7 +29,7 @@ const DashboardLayout = () => {
 
     const handleEditData = () => {
         setAnchorEl(null);
-        navigate('/dashboard/editData');
+        navigate('/dashboard/edit-data');
     };
 
     const handleMenuClose = () => {
@@ -42,16 +41,48 @@ const DashboardLayout = () => {
             <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                 <Toolbar sx={{ justifyContent: 'space-between' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <PetsIcon sx={{ mr: 2, fontSize: 28 }} />
-                        <Typography variant="h6" noWrap component="div">
-                            PetBuddies
-                        </Typography>
+                        <Button
+                            component={Link}
+                            to='/dashboard'
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                textTransform: 'none',
+                                color: 'inherit',
+                                borderRadius: '12px',
+                                py: 1,
+                                px: 1.5,
+                                transition: 'all 0.2s ease',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                                    transform: 'translateY(-2px)',
+                                },
+                            }}
+                            startIcon={
+                                <PetsIcon
+                                    sx={{
+                                        fontSize: 32,
+                                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                                    }}
+                                />
+                            }
+                        >
+                            <Typography
+                                variant="h6"
+                                noWrap
+                                component="div"
+                                sx={{
+                                    fontWeight: 'bold',
+                                    letterSpacing: '0.5px',
+                                    textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                }}
+                            >
+                                PetBuddies
+                            </Typography>
+                        </Button>
                     </Box>
 
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <IconButton size="large" color="inherit" sx={{ mr: 2 }}>
-                            <NotificationsIcon />
-                        </IconButton>
 
                         <Avatar
                             onClick={handleMenuClick}

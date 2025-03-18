@@ -9,7 +9,6 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProtectedRoute from './routes/ProtectedRoute';
-import PublicRoute from './routes/PublicRoute';
 
 function App() {
   return (
@@ -18,16 +17,14 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-
-            <Route element={<PublicRoute />}>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-            </Route>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
             <Route element={<ProtectedRoute />}>
-            <Route element={<DashboardLayout />}>
+              <Route element={<DashboardLayout />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/dashboard/editData" element={<EditDataPage />} />
+                <Route path="/dashboard/edit-data" element={<EditDataPage />} />
+                <Route path='/dashboard/create-post' element={<EditDataPage />} />
               </Route>
             </Route>
           </Routes>

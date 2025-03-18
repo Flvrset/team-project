@@ -18,7 +18,6 @@ CREATE TABLE petbuddies_schema."User" (
     "login" VARCHAR(255) NOT NULL UNIQUE,
     "password_hash" VARCHAR(255) NOT NULL,
     "join_date" DATE NOT NULL,
-    "country" VARCHAR(255),
     "city" VARCHAR(255),
     "postal_code" VARCHAR(255),
     "street" VARCHAR(255),
