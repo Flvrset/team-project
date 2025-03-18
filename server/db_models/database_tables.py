@@ -34,19 +34,8 @@ class Pet(db.Model):
     size = db.Column(db.String(255), nullable=True)
     age = db.Column(db.Integer, nullable=True)
 
-
-class Ownership(db.Model):
-    __tablename__ = "Ownership"
-    __table_args__ = {"schema": "petbuddies_schema"}
-
-    ownership_id = db.Column(
-        db.Integer, primary_key=True, autoincrement=True, unique=True
-    )
     user_id = db.Column(
         db.Integer, db.ForeignKey("petbuddies_schema.User.user_id", ondelete="CASCADE")
-    )
-    pet_id = db.Column(
-        db.Integer, db.ForeignKey("petbuddies_schema.Pet.pet_id", ondelete="CASCADE")
     )
 
 

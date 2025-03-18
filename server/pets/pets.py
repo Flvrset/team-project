@@ -1,5 +1,5 @@
 from flask import request, jsonify, Blueprint
-from db_models.database_tables import Pet, Ownership, User
+from db_models.database_tables import Pet, User
 from app import db
 from flask_jwt_extended import (
     jwt_required,
@@ -24,13 +24,11 @@ def add_pet():
     except ValueError:
         return jsonify({"msg": "Podany wiek nie jest liczbą"})
 
-    new_pet = Pet(pet_name=pet_name, type=type, race=race, size=size, age=age)
+    new_pet = Pet(pet_name=pet_name, type=type, race=race, size=size, age=age, user_id=get_jwt_identity())
 
     try:
         db.session.add(new_pet)
 
-        ownership = Ownership(user_id=get_jwt_identity(), pet_id=new_pet.pet_id)
-        db.session.add(ownership)
         db.session.commit()
 
         return jsonify({"msg": "Profil zwierzaka dodany!"}), 201
@@ -43,8 +41,7 @@ def add_pet():
 def get_pet_data(pet_id):
     pet_info = (
         db.session.query(Pet, func.array_agg(User.login).label("user_login"))
-        .join(Ownership, Pet.pet_id == Ownership.pet_id)
-        .join(User, Ownership.user_id == User.user_id)
+        .join(User, Pet.user_id == User.user_id)
         .filter(Pet.pet_id == pet_id)
         .group_by(Pet.pet_id)
         .all()

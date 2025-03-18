@@ -31,12 +31,15 @@ CREATE TABLE petbuddies_schema."User" (
 -- Create the Pet table
 CREATE TABLE petbuddies_schema."Pet" (
     "pet_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "user_id" INTEGER NOT NULL,
     "pet_name" VARCHAR(255) NOT NULL,
     "creation_date" DATE NOT NULL,
     "type" VARCHAR(255) NOT NULL,
     "race" VARCHAR(255) NOT NULL,
     "size" VARCHAR(255),
     "age" INTEGER
+
+    CONSTRAINT fk_ownership_user FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE,
 );
 
 -- Create the ReportType table
@@ -49,15 +52,6 @@ CREATE TABLE petbuddies_schema."ReportType" (
 CREATE TABLE petbuddies_schema."MedDocDict" (
     "doc_type_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "doc_name" VARCHAR(255) NOT NULL
-);
-
--- Create the Ownership table
-CREATE TABLE petbuddies_schema."Ownership" (
-    "ownership_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    "user_id" INTEGER NOT NULL,
-    "pet_id" INTEGER NOT NULL,
-    CONSTRAINT fk_ownership_user FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_ownership_pet FOREIGN KEY ("pet_id") REFERENCES petbuddies_schema."Pet"("pet_id") ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Create the Post table

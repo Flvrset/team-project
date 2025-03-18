@@ -21,8 +21,12 @@
   - do zmiany hasła i/lub emailu powinnismy dac inna sciezke z jakąs autoryzacja??
 - [ ] GET `/city/:input` służący do zwrócenia ID miasta i nazwy tak, aby użytkownik mógł wpisać w `input` pierwsze litery swojego miasta LUB kod pocztowy i znajdziemy mu w słowniku to miasto abyśmy mogli przypisać je i ogarniać odległość od użytkownika
 - [ ] `/createPost` endpoint
-- [ ] `/userData` endpoint do pobierania PEŁNYCH danych użytkownika żebym mógł mu je uzupełnić przy editData
-- [ ] `/addPet` do dodawania peta
+- [x] `/userData` endpoint do pobierania PEŁNYCH danych użytkownika żebym mógł mu je uzupełnić przy editData
+  - done endpoint /edit_user przy metodzie GET
+  - plik server/auth/auth.py
+- [x] `/addPet` do dodawania peta
+  - endpoint /add_pet przyjmuje wszystkie dane jak z tabeli sql
+  - plik server/pets/pets.py
 - [ ] `/editPet/:petId` do edycji peta
 - [ ] `/getPets` dostań wszystkie pety użytkownika
 - [ ] `/deletePet/:petId` usuwanie zwierząt (albo flaga deleted)

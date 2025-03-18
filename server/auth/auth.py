@@ -109,7 +109,7 @@ def protected():
     )
 
 
-@auth.route("/edit_user", methods=["POST"])
+@auth.route("/edit_user", methods=["POST", "GET"])
 @jwt_required()
 def edit_user():
     user_id = get_jwt_identity()
@@ -121,6 +121,17 @@ def edit_user():
 
     if not user:
         return jsonify({"msg": "User not found"}), 404
+
+    if request.method == "GET":
+        return jsonify({
+            "city": user.city,
+            "postal_code": user.postal_code,
+            "street": user.street,
+            "house_number": user.house_number,
+            "apartment_number": user.apartment_number,
+            "phone_number": user.phone_number,
+            "email": user.email
+        })
 
     new_city = request.json.get("city", None)
     new_postal_code = request.json.get("postal_code", None)
