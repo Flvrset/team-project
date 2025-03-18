@@ -37,9 +37,9 @@ CREATE TABLE petbuddies_schema."Pet" (
     "type" VARCHAR(255) NOT NULL,
     "race" VARCHAR(255) NOT NULL,
     "size" VARCHAR(255),
-    "age" INTEGER
+    "age" INTEGER,
 
-    CONSTRAINT fk_ownership_user FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_ownership_user FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Create the ReportType table
