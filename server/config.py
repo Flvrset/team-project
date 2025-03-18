@@ -8,7 +8,7 @@ class Config:
     JWT_COOKIE_SAMESITE = "Lax"  # Prevent CSRF issues
 
     # session secret key
-    CSRF_ENABLED = True
+    CSRF_ENABLED = False
 
     SQLALCHEMY_DATABASE_URI = (
         "postgresql://dummy_user:dummy_secure_password@database:5432/petbuddies"
