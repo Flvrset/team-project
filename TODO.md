@@ -21,7 +21,7 @@
   - do zmiany hasła i/lub emailu powinnismy dac inna sciezke z jakąs autoryzacja??
 - [ ] GET `/city/:input` służący do zwrócenia ID miasta i nazwy tak, aby użytkownik mógł wpisać w `input` pierwsze litery swojego miasta LUB kod pocztowy i znajdziemy mu w słowniku to miasto abyśmy mogli przypisać je i ogarniać odległość od użytkownika
 - [ ] `/createPost` endpoint
-- [ ] `/getUserData` endpoint do pobierania PEŁNYCH danych użytkownika żebym mógł mu je uzupełnić przy editData
+- [ ] `/userData` endpoint do pobierania PEŁNYCH danych użytkownika żebym mógł mu je uzupełnić przy editData
 - [ ] `/addPet` do dodawania peta
 - [ ] `/editPet/:petId` do edycji peta
 - [ ] `/getPets` dostań wszystkie pety użytkownika
@@ -34,12 +34,13 @@
 - [ ] `/applyForCare/:postId`
 - [ ] `/acceptCareAgreement/:careId`
 - [ ] `/declineCareAgreement/:careId` [POTRZEBNA NOWA KOLUMNA W "CareAgreement" typu STATUS = "ACCEPTED" | "DECLINED", albo zniesienie "agreement_date" NOT NULL  (ustawienie "agreement_date" mówi nam że careAgreement został zawarty)]
+- [ ] `/careAgreementStatus/:careId` zwracający status jako odrzucona lub zaakceptowana
+- [ ] `/careFullData` zwracający pełne dane z umowy (imo nie powinniśmy zwracać czyjegoś adresu dokładnie xd troche za risky security wise... Ja bym zwrócił tylko adres email i numer kontaktowy i niech się już osoby dogadają... Jeśli nie chcemy zwracać pełnego adresu użytkownika w umowach to można go też wywalić z `User` tabeli i zostawić tylko postal_code i city)
 - [ ] `/getAllCareAgreementsAsVolunteer` pokazuje wszystkie care agreement na które się zapisaliśmy
 - [ ] `/getAllCareAgreements` pokazuje wszystkie nasze care posty i agreementy
 - [ ] `/rateOwner/:careAgreementId` oceniamy właściciela na bazie agreementu
 - [ ] `/rateVolunteer/:careAgreementId`
-- [ ] `/ownerRating` daje nam oceny jako właściciel
-- [ ] `/volunteerRating` daje nam oceny jako volunteer
-- [ ] Ten `AdditionalServices` tabele to bym wyjebał ???
+- [ ] Tą `AdditionalServices` tabele to bym wyjebał ???
 - [ ] ogarnięcie uprawnień administratora i możliwości zarządzania tym
- 
+- [ ] `/user/:userId` ale nie zwracaj jego danych osobowych, tylko imię, nazwisko, rating jako volunteer, rating jako owner, i ewentualnie zwierzaki ( to jest jak ktoś wchodzi na czyjś profil )
+- [ ] `/ban/:userId` (dla admina)
