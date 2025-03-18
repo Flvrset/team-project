@@ -21,6 +21,7 @@ import React, { useState, useEffect } from 'react';
 
 import CitySearchSelect from '../components/CitySearchSelect';
 import { useAuth } from '../hooks/AuthProvider';
+import { postWithAuth } from '../utils/auth';
 
 interface UserFormData {
     city: string;
@@ -88,13 +89,8 @@ const EditDataPage = () => {
 
         setLoading(true);
         try {
-            const response = await fetch('/api/edit_user', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-                credentials: 'include',
+            const response = await postWithAuth('/api/edit_user', {
+                body: JSON.stringify(formData)
             });
 
             if (response.ok) {

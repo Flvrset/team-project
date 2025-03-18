@@ -22,6 +22,7 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../hooks/AuthProvider';
 import { isValidEmail } from '../utils/validation';
+import { postWithAuth } from '../utils/auth';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -50,11 +51,7 @@ const LoginPage = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const response = await postWithAuth('/api/login', {
         body: JSON.stringify({ email, password }),
       });
 

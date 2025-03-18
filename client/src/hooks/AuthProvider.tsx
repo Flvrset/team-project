@@ -1,5 +1,6 @@
 import { createContext, useState, ReactNode, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getWithAuth } from '../utils/auth';
 
 interface UserData {
     name: string;
@@ -35,15 +36,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (userData) {
             return true;
         }
-        
+
         try {
-            const response = await fetch('/api/protected', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-            });
+            const response = await getWithAuth('/api/protected');
 
             if (response.ok) {
                 const data = await response.json();
@@ -66,10 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/logout', {
-                method: 'POST',
-                credentials: 'include', // Important for cookies
-            });
+            const response = await getWithAuth('/api/logout');
 
             if (response.ok) {
                 setUserData(null);

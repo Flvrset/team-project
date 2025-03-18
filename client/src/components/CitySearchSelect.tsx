@@ -6,6 +6,7 @@ import {
     Box
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
+import { getWithAuth } from '../utils/auth';
 
 interface CityOption {
     place: string;
@@ -56,13 +57,7 @@ const CitySearchSelect = <T,>({
         const timeoutId = setTimeout(() => {
             if (searchTerm.length >= 3) {
                 setLoading(true);
-                fetch(`/api/city/${searchTerm}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'include',
-                })
+                getWithAuth(`/api/city/${searchTerm}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
@@ -153,7 +148,7 @@ const CitySearchSelect = <T,>({
                 />
             )}
             renderOption={(props, option) => {
-                const {key, ...rest} = props;
+                const { key, ...rest } = props;
                 return <Box component="li" key={key} {...rest}>
                     <Typography variant="body1">{option.place}</Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>

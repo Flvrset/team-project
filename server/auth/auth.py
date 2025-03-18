@@ -90,7 +90,7 @@ def login_mail_page():
     return jsonify({"msg": "Incorrect Password!"}), 401
 
 
-@auth.route("/logout", methods=["POST"])
+@auth.route("/logout", methods=["GET"])
 def logout():
     response = make_response(jsonify({"msg": "Logout successful"}))
     unset_jwt_cookies(response)  # Remove JWT cookie
