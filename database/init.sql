@@ -159,7 +159,7 @@ CREATE TABLE petbuddies_schema."DPostalCode" (
 );
 
 -- Read Postal Codes from file
-COPY petbuddies_schema."DPostalCode" (postal_code, place)
+COPY petbuddies_schema."DPostalCode" (postal_code, place, latitude, longitude)
 FROM '/var/lib/postgresql/data_files/postal_codes.csv'
 DELIMITER ','
 CSV HEADER;
