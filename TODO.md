@@ -20,7 +20,7 @@
     - phone_number
   - do zmiany hasła i/lub emailu powinnismy dac inna sciezke z jakąs autoryzacja??
 - [ ] GET `/city/:input` służący do zwrócenia ID miasta i nazwy tak, aby użytkownik mógł wpisać w `input` pierwsze litery swojego miasta LUB kod pocztowy i znajdziemy mu w słowniku to miasto abyśmy mogli przypisać je i ogarniać odległość od użytkownika
-- [ ] `/createPost` endpoint
+- [x] `/createPost` endpoint
 - [x] `/userData` endpoint do pobierania PEŁNYCH danych użytkownika żebym mógł mu je uzupełnić przy editData
   - done endpoint /edit_user przy metodzie GET
   - plik server/auth/auth.py
