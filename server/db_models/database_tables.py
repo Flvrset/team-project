@@ -33,6 +33,7 @@ class Pet(db.Model):
     race = db.Column(db.String(255), nullable=False)
     size = db.Column(db.String(255), nullable=True)
     age = db.Column(db.Integer, nullable=True)
+    is_deleted = db.Column(db.Boolean, nullable=False, default=False)
 
     user_id = db.Column(
         db.Integer, db.ForeignKey("petbuddies_schema.User.user_id", ondelete="CASCADE")

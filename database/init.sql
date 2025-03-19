@@ -38,6 +38,7 @@ CREATE TABLE petbuddies_schema."Pet" (
     "race" VARCHAR(255) NOT NULL,
     "size" VARCHAR(255),
     "age" INTEGER,
+    "is_deleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT fk_ownership_user FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE
 );

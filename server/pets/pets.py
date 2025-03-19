@@ -50,6 +50,9 @@ def get_pet_data(pet_id):
     if not pet_info:
         return jsonify({"msg": "Zwierzak nie został znaleziony!"}), 404
 
+    if pet_info[0].is_deleted:
+        return jsonify({"msg": "Podany zwierzak został usunięty!"}), 404
+
     if len(pet_info) > 1:
         return (
             jsonify(
@@ -74,10 +77,11 @@ def get_pet_data(pet_id):
 
 
 @pet.route("/getPets/<int:user_id>", methods=["GET"])
-def get_pet_data(user_id):
+def get_pets(user_id):
     pet_list = (
         Pet.querry
-        .filter(user_id == user_id)
+        .filter(Pet.user_id == user_id)
+        .filter(Pet.is_deleted == False)
         .all()
     )
 
@@ -97,3 +101,19 @@ def get_pet_data(user_id):
             ]
         }
     ), 200
+
+
+@pet.route("/deletePet/<int:pet_id>", methods=["POST"])
+def delete_pet(pet_id):
+    pet_to_update = Pet.querry().filter(Pet.pet_id == pet_id)
+
+    if not pet_to_update:
+        return jsonify({"msg": "Zwierzak nie został znaleziony!"}), 404
+
+    try:
+        pet_to_update.is_deleted = True
+        db.session.commit()
+        return jsonify({"msg": "Zwierzak usunięty, przykro nam :("}), 200
+    except sqlalchemy.exc.IntegrityError:
+        db.session.rollback()
+        return jsonify({"msg": "Nie można w tej chwili usunać zwierzaka."}), 406

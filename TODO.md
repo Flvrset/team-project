@@ -28,10 +28,17 @@
   - endpoint /add_pet przyjmuje wszystkie dane jak z tabeli sql
   - plik server/pets/pets.py
 - [ ] `/editPet/:petId` do edycji peta
+  - a co w sumie chcemy mu tam edytować? xd
+  - te rzeczy po prostu nie powinny być stałe?
+  - no bo w sumie typu, rasy i rozmiaru zwierzak nie zmieni
+  - a imienia też się nie zmienia dla zwierzaka 
 - [x] `/getPets` dostań wszystkie pety użytkownika
   - done, /getPets/<user_id>
   - daj znać czy dodawać login użytkownika w odp, albo coś innego z nim związane
-- [ ] `/deletePet/:petId` usuwanie zwierząt (albo flaga deleted)
+- [x] `/deletePet/:petId` usuwanie zwierząt (albo flaga deleted)
+  - dodałem do bazy flagę is_deleted, bo jak usuniemy rekord to nam się wszystko inne posypie, bo baza jest zrobiona kaskadowo
+  - dobra czutka z tym, w poscie będzie tak samo jak go zrobię i przerobię xd
+  - endpoint done
 - [ ] `/searchPosts/:postalCode&:maxDistanceFrom`
 - [ ] `/editPost/:postId` (jakaś walidacja żeby nie można było zedytować posta w przeszłości)
 - [ ] `/deletePost/:postId` (znowu walidacja na przeszłość)
