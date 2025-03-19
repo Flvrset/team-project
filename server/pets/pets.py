@@ -105,7 +105,7 @@ def get_pets(user_id):
 
 @pet.route("/deletePet/<int:pet_id>", methods=["POST"])
 def delete_pet(pet_id):
-    pet_to_update = Pet.query().filter(Pet.pet_id == pet_id)
+    pet_to_update = Pet.query.filter(Pet.pet_id == pet_id)
 
     if not pet_to_update:
         return jsonify({"msg": "Zwierzak nie został znaleziony!"}), 404
