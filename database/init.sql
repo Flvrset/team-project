@@ -153,7 +153,9 @@ CREATE TABLE petbuddies_schema."AdditionalServices" (
 CREATE TABLE petbuddies_schema."DPostalCode" (
     "postal_code_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "postal_code" VARCHAR(6) NOT NULL,
-    "place" VARCHAR(255) NOT NULL
+    "place" VARCHAR(255) NOT NULL,
+    "latitude" FLOAT NOT NULL,
+    "longitude" FLOAT NOT NULL
 );
 
 -- Read Postal Codes from file

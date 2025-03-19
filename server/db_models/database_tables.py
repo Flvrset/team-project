@@ -178,3 +178,5 @@ class DPostalCode(db.Model):
     postal_code_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     postal_code = db.Column(db.String(6), nullable=False)
     place = db.Column(db.String(255), nullable=False)
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
