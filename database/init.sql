@@ -161,3 +161,15 @@ COPY petbuddies_schema."DPostalCode" (postal_code, place)
 FROM '/var/lib/postgresql/data_files/postal_codes.csv'
 DELIMITER ','
 CSV HEADER;
+
+-- Load users into database
+INSERT INTO petbuddies_schema."User" ("name", "surname", "login", "password_hash", "join_date", "city", "postal_code", "street", "house_number", "apartment_number", "phone_number", "email", "is_banned")
+FROM '/var/lib/postgresql/data_files/users.csv'
+DELIMITER ','
+CSV HEADER;
+
+-- Load pets into database
+INSERT INTO petbuddies_schema."Pet" ("user_id", "pet_name", "creation_date", "type", "race", "size", "age")
+FROM '/var/lib/postgresql/data_files/pets.csv'
+DELIMITER ','
+CSV HEADER;
