@@ -97,6 +97,17 @@ const CitySearchSelect = <T,>({
         }
     }, [inputValue]);
 
+    useEffect(() => {
+        if (model && model[fieldName] && model[postalCodeFieldName]) {
+            const cityOption: CityOption = {
+                place: model[fieldName] as string,
+                postal_code: model[postalCodeFieldName] as string
+            };
+
+            setSelectedOption(cityOption);
+        }
+    }, [model, fieldName, postalCodeFieldName]);
+
     const handleChange = useCallback((event: React.SyntheticEvent, newValue: CityOption | null) => {
         setSelectedOption(newValue);
 

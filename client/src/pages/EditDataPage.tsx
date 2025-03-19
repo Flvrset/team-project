@@ -1,3 +1,4 @@
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import HomeIcon from '@mui/icons-material/Home';
 import PetsIcon from '@mui/icons-material/Pets';
 import PhoneIcon from '@mui/icons-material/Phone';
@@ -17,13 +18,15 @@ import {
     CardContent,
     useTheme,
     alpha,
+    CircularProgress,
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import CitySearchSelect from '../components/CitySearchSelect';
 import { useAuth } from '../hooks/AuthProvider';
-import { postWithAuth } from '../utils/auth';
+import { getWithAuth, postWithAuth } from '../utils/auth';
+import { validateMaxLength, validatePhoneNumber } from '../utils/validation';
 
 interface UserFormData {
     city: string;
@@ -34,15 +37,24 @@ interface UserFormData {
     phone_number: string;
 }
 
+interface FormErrors {
+    street?: string;
+    house_number?: string;
+    apartment_number?: string;
+    phone_number?: string;
+}
+
 const EditDataPage = () => {
     const theme = useTheme();
     const auth = useAuth();
     const [loading, setLoading] = useState(false);
+    const [loadingData, setLoadingData] = useState(true);
     const [notification, setNotification] = useState({
         open: false,
         message: '',
         severity: 'success' as 'success' | 'error',
     });
+    const [errors, setErrors] = useState<FormErrors>({});
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState<UserFormData>({
@@ -55,28 +67,60 @@ const EditDataPage = () => {
     });
 
     useEffect(() => {
-        // Fetch current user data when component mounts
         const fetchUserData = async () => {
+            setLoadingData(true);
             try {
-                // Here you would typically fetch user data from an API endpoint
-                // For now, we'll just use what's in auth.userData
-                if (auth.userData) {
-                    setFormData(prevState => ({
-                        ...prevState,
-                        ...auth.userData,
-                    }));
+                const response = await getWithAuth('/api/edit_user');
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    setFormData({
+                        city: userData.city || '',
+                        postal_code: userData.postal_code || '',
+                        street: userData.street || '',
+                        house_number: userData.house_number || '',
+                        apartment_number: userData.apartment_number || '',
+                        phone_number: userData.phone_number || '',
+                    });
+                } else {
+                    console.error('Failed to fetch user data');
+                    setNotification({
+                        open: true,
+                        message: 'Nie udało się pobrać danych użytkownika',
+                        severity: 'error',
+                    });
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
+                setNotification({
+                    open: true,
+                    message: 'Wystąpił błąd podczas pobierania danych',
+                    severity: 'error',
+                });
+            } finally {
+                setLoadingData(false);
             }
         };
 
         fetchUserData();
-    }, [auth.userData]);
+    }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+
+        const newErrors = { ...errors };
+
+        if (name === 'phone_number') {
+            newErrors.phone_number = validatePhoneNumber(value);
+        } else if (name === 'street') {
+            newErrors.street = validateMaxLength(value, 'Ulica', 100);
+        } else if (name === 'house_number') {
+            newErrors.house_number = validateMaxLength(value, 'Numer domu', 10);
+        } else if (name === 'apartment_number') {
+            newErrors.apartment_number = validateMaxLength(value, 'Numer mieszkania', 10);
+        }
+        setErrors(newErrors);
     };
 
     const handleCityChange = (updatedModel: { city: string, postal_code: string }) => {
@@ -91,8 +135,34 @@ const EditDataPage = () => {
         navigate('/dashboard/pets');
     }
 
+    const handleBackToDashboard = () => {
+        navigate('/dashboard');
+    }
+
+    const validateForm = (): boolean => {
+        const newErrors: FormErrors = {};
+
+        newErrors.phone_number = validatePhoneNumber(formData.phone_number);
+        newErrors.street = validateMaxLength(formData.street, 'Ulica', 100);
+        newErrors.house_number = validateMaxLength(formData.house_number, 'Numer domu', 10);
+        newErrors.apartment_number = validateMaxLength(formData.apartment_number, 'Numer mieszkania', 10);
+
+        setErrors(newErrors);
+
+        return !Object.values(newErrors).some(error => error !== undefined);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validateForm()) {
+            setNotification({
+                open: true,
+                message: 'Formularz zawiera błędy. Sprawdź dane i spróbuj ponownie.',
+                severity: 'error',
+            });
+            return;
+        }
 
         setLoading(true);
         try {
@@ -175,179 +245,226 @@ const EditDataPage = () => {
                         </Typography>
                     </Box>
 
-                    <Box component="form" onSubmit={handleSubmit}>
-                        <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mb: 2 }}>
-                            Dane osobowe
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                            Twoje dane profilu: {auth.userData?.name} {auth.userData?.surname} ({auth.userData?.login})
-                        </Typography>
-
-                        <Divider sx={{ my: 3 }} />
-
-                        <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mb: 2 }}>
-                            Dane adresowe
-                        </Typography>
-
-                        <Grid container spacing={3}>
-                            <Grid item xs={12}>
-                                <CitySearchSelect
-                                    model={formData}
-                                    onModelChange={handleCityChange}
-                                    fieldName="city"
-                                    postalCodeFieldName="postal_code"
-                                    label="Miasto"
-                                />
-                            </Grid>
-
-                            <Grid item xs={12}>
-                                <TextField
-                                    fullWidth
-                                    id="street"
-                                    name="street"
-                                    label="Ulica"
-                                    value={formData.street}
-                                    onChange={handleInputChange}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <HomeIcon color="primary" />
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    sx={{
-                                        '& .MuiOutlinedInput-root': {
-                                            borderRadius: 2,
-                                        },
-                                    }}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    fullWidth
-                                    id="house_number"
-                                    name="house_number"
-                                    label="Numer domu"
-                                    value={formData.house_number}
-                                    onChange={handleInputChange}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <HomeIcon color="primary" />
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    sx={{
-                                        '& .MuiOutlinedInput-root': {
-                                            borderRadius: 2,
-                                        },
-                                    }}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    fullWidth
-                                    id="apartment_number"
-                                    name="apartment_number"
-                                    label="Numer mieszkania"
-                                    value={formData.apartment_number}
-                                    onChange={handleInputChange}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <HomeIcon color="primary" />
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    sx={{
-                                        '& .MuiOutlinedInput-root': {
-                                            borderRadius: 2,
-                                        },
-                                    }}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12}>
-                                <Divider sx={{ my: 2 }} />
-                                <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mb: 2 }}>
-                                    Dane kontaktowe
-                                </Typography>
-                                <TextField
-                                    fullWidth
-                                    id="phone_number"
-                                    name="phone_number"
-                                    label="Numer telefonu"
-                                    value={formData.phone_number}
-                                    onChange={handleInputChange}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <PhoneIcon color="primary" sx={{ mr: 0.5 }} />
-                                                <Typography
-                                                    variant="body1"
-                                                    sx={{
-                                                        fontWeight: 'medium',
-                                                        color: theme.palette.text.secondary
-                                                    }}
-                                                >
-                                                    +48
-                                                </Typography>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    sx={{
-                                        '& .MuiOutlinedInput-root': {
-                                            borderRadius: 2,
-                                        }
-                                    }}
-                                />
-                            </Grid>
-                        </Grid>
-
-                        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                size="large"
-                                disabled={loading}
-                                startIcon={<SaveIcon />}
-                                sx={{
-                                    px: 5,
-                                    py: 1.5,
-                                    borderRadius: 3,
-                                    fontWeight: 'bold',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                                    '&:hover': {
-                                        transform: 'translateY(-2px)',
-                                        boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
-                                    },
-                                }}
-                            >
-                                {loading ? 'Zapisywanie...' : 'Zapisz zmiany'}
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                size="large"
-                                onClick={handleAddPet}
-                                startIcon={<PetsIcon />}
-                                sx={{
-                                    px: 5,
-                                    py: 1.5,
-                                    borderRadius: 3,
-                                    fontWeight: 'bold',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                                    '&:hover': {
-                                        transform: 'translateY(-2px)',
-                                        boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-                                    },
-                                }}
-                            >
-                                Twoje zwierzaki
-                            </Button>
+                    {loadingData ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                            <CircularProgress />
                         </Box>
-                    </Box>
+
+                    ) : (
+                        <Box component="form" onSubmit={handleSubmit}>
+                            <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mb: 2 }}>
+                                Dane osobowe
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                                Twoje dane profilu: {auth.userData?.name} {auth.userData?.surname} ({auth.userData?.login})
+                            </Typography>
+
+                            <Divider sx={{ my: 3 }} />
+
+                            <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mb: 2 }}>
+                                Dane adresowe
+                            </Typography>
+
+                            <Grid container spacing={3}>
+                                <Grid item xs={12}>
+                                    <CitySearchSelect
+                                        model={formData}
+                                        onModelChange={handleCityChange}
+                                        fieldName="city"
+                                        postalCodeFieldName="postal_code"
+                                        label="Miasto"
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        id="street"
+                                        name="street"
+                                        label="Ulica"
+                                        value={formData.street}
+                                        onChange={handleInputChange}
+                                        error={!!errors.street}
+                                        helperText={errors.street}
+                                        slotProps={{
+                                            htmlInput: { maxLength: 100 },
+                                            input: {
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <HomeIcon color="primary" />
+                                                    </InputAdornment>
+                                                ),
+                                            }
+                                        }}
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                            },
+                                        }}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        id="house_number"
+                                        name="house_number"
+                                        label="Numer domu"
+                                        value={formData.house_number}
+                                        onChange={handleInputChange}
+                                        error={!!errors.house_number}
+                                        helperText={errors.house_number}
+                                        slotProps={{
+                                            htmlInput: { maxLength: 10 },
+                                            input: {
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <HomeIcon color="primary" />
+                                                    </InputAdornment>
+                                                ),
+                                            }
+                                        }}
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                            },
+                                        }}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={6}>
+                                    <TextField
+                                        fullWidth
+                                        id="apartment_number"
+                                        name="apartment_number"
+                                        label="Numer mieszkania"
+                                        value={formData.apartment_number}
+                                        onChange={handleInputChange}
+                                        error={!!errors.apartment_number}
+                                        helperText={errors.apartment_number}
+                                        slotProps={{
+                                            htmlInput: { maxLength: 10 },
+                                            input: {
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <HomeIcon color="primary" />
+                                                    </InputAdornment>
+                                                ),
+                                            }
+                                        }}
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                            },
+                                        }}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12}>
+                                    <Divider sx={{ my: 2 }} />
+                                    <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mb: 2 }}>
+                                        Dane kontaktowe
+                                    </Typography>
+                                    <TextField
+                                        fullWidth
+                                        id="phone_number"
+                                        name="phone_number"
+                                        label="Numer telefonu"
+                                        value={formData.phone_number}
+                                        onChange={handleInputChange}
+                                        error={!!errors.phone_number}
+                                        helperText={errors.phone_number || "Wprowadź 9 cyfr bez kierunkowego"}
+                                        slotProps={{
+                                            htmlInput: { maxLength: 9 },
+                                            input: {
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <PhoneIcon color="primary" sx={{ mr: 0.5 }} />
+                                                        <Typography
+                                                            variant="body1"
+                                                            sx={{
+                                                                fontWeight: 'medium',
+                                                                color: theme.palette.text.secondary
+                                                            }}
+                                                        >
+                                                            +48
+                                                        </Typography>
+                                                    </InputAdornment>
+                                                ),
+                                            }
+                                        }}
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+                            </Grid>
+
+                            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    size="large"
+                                    disabled={loading}
+                                    startIcon={<SaveIcon />}
+                                    sx={{
+                                        px: 5,
+                                        py: 1.5,
+                                        borderRadius: 3,
+                                        fontWeight: 'bold',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                        '&:hover': {
+                                            transform: 'translateY(-2px)',
+                                            boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
+                                        },
+                                    }}
+                                >
+                                    {loading ? 'Zapisywanie...' : 'Zapisz zmiany'}
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    size="large"
+                                    onClick={handleAddPet}
+                                    startIcon={<PetsIcon />}
+                                    sx={{
+                                        px: 5,
+                                        py: 1.5,
+                                        borderRadius: 3,
+                                        fontWeight: 'bold',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                                        '&:hover': {
+                                            transform: 'translateY(-2px)',
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                                        },
+                                    }}
+                                >
+                                    Twoje zwierzaki
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    size="large"
+                                    onClick={handleBackToDashboard}
+                                    startIcon={<ArrowBackIcon />}
+                                    color="secondary"
+                                    sx={{
+                                        px: 5,
+                                        py: 1.5,
+                                        borderRadius: 3,
+                                        fontWeight: 'bold',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                                        '&:hover': {
+                                            transform: 'translateY(-2px)',
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                                        },
+                                    }}
+                                >
+                                    Powrót do panelu
+                                </Button>
+                            </Box>
+                        </Box>
+                    )}
                 </CardContent>
             </Card>
 
