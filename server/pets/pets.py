@@ -71,3 +71,29 @@ def get_pet_data(pet_id):
             "user_logins": resp_users,
         }
     )
+
+
+@pet.route("/getPets/<int:user_id>", methods=["GET"])
+def get_pet_data(user_id):
+    pet_list = (
+        Pet.querry
+        .filter(user_id == user_id)
+        .all()
+    )
+
+    if not pet_list:
+        return jsonify({"msg": "Użytkownik nie posiada zwierząt!"}), 404
+
+    return jsonify(
+        {
+            "pet_list": [
+                {
+                    "pet_name": p.pet_name,
+                    "type": p.type,
+                    "race": p.race,
+                    "size": p.size,
+                }
+                for p in pet_list
+            ]
+        }
+    ), 200

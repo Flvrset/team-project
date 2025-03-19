@@ -28,7 +28,9 @@
   - endpoint /add_pet przyjmuje wszystkie dane jak z tabeli sql
   - plik server/pets/pets.py
 - [ ] `/editPet/:petId` do edycji peta
-- [ ] `/getPets` dostań wszystkie pety użytkownika
+- [x] `/getPets` dostań wszystkie pety użytkownika
+  - done, /getPets/<user_id>
+  - daj znać czy dodawać login użytkownika w odp, albo coś innego z nim związane
 - [ ] `/deletePet/:petId` usuwanie zwierząt (albo flaga deleted)
 - [ ] `/searchPosts/:postalCode&:maxDistanceFrom`
 - [ ] `/editPost/:postId` (jakaś walidacja żeby nie można było zedytować posta w przeszłości)
