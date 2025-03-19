@@ -10,7 +10,7 @@ import sqlalchemy
 post = Blueprint("post", __name__)
 
 
-@post.route("/createPost", method=["POST"])
+@post.route("/createPost", methods=["POST"])
 @jwt_required()
 def create_post():
     user_id = get_jwt_identity()
