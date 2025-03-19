@@ -50,7 +50,7 @@ def get_pet_data(pet_id):
     if not pet_info:
         return jsonify({"msg": "Zwierzak nie został znaleziony!"}), 404
 
-    if pet_info[0].is_deleted:
+    if pet_info[0][0].is_deleted:
         return jsonify({"msg": "Podany zwierzak został usunięty!"}), 404
 
     if len(pet_info) > 1:
