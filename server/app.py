@@ -38,9 +38,11 @@ def create_app(config_class="config.Config"):
     from auth.auth import auth
     from dicts.dicts import dicts
     from pets.pets import pet
+    from posts.posts import post
 
     app.register_blueprint(auth)
     app.register_blueprint(dicts)
     app.register_blueprint(pet)
+    app.register_blueprint(post)
 
     return app
