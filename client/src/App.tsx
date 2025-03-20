@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import { AuthProvider } from './hooks/AuthProvider';
 import DashboardLayout from './layouts/DashboardLayout';
+import CreatePostPage from './pages/CreatePostPage';
 import DashboardPage from './pages/DashboardPage';
 import EditDataPage from './pages/EditDataPage';
 import LandingPage from './pages/LandingPage';
@@ -25,7 +26,7 @@ function App() {
               <Route element={<DashboardLayout />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/dashboard/edit-data" element={<EditDataPage />} />
-                <Route path='/dashboard/create-post' element={<EditDataPage />} />
+                <Route path='/dashboard/create-post' element={<CreatePostPage />} />
                 <Route path='/dashboard/pets' element={<PetsPage />} />
               </Route>
             </Route>

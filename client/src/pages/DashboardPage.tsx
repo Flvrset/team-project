@@ -30,7 +30,7 @@ const DashboardPage = () => {
     };
 
     const handleAddPet = () => {
-        navigate('/dashboard/add-pet');
+        navigate('/dashboard/pets');
     }
 
 

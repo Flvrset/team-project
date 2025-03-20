@@ -78,6 +78,7 @@ def get_pet_data(pet_id):
 
 
 @pet.route("/getPets", methods=["GET"])
+@jwt_required()
 def get_pets():
     user_id = get_jwt_identity()
     

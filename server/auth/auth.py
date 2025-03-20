@@ -46,7 +46,7 @@ def register_user_page():
         )
 
         response = make_response(jsonify({"msg": "Login successful"}))
-        set_access_cookies(response, access_token)
+        set_access_cookies(response, access_token, 86400000)
         return response, 201
     except sqlalchemy.exc.IntegrityError:
         return jsonify({"msg": "Login lub adres e-mail jest już zajęty."}), 406
@@ -84,7 +84,7 @@ def login_mail_page():
             },
         )
         response = make_response(jsonify({"msg": "Login successful"}))
-        set_access_cookies(response, access_token)
+        set_access_cookies(response, access_token, 86400000)
         return response
 
     return jsonify({"msg": "Incorrect Password!"}), 401

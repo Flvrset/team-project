@@ -27,6 +27,7 @@ def create_post():
         return jsonify({"msg": "Nie podano wszystkich niezbędnych danych!"})
 
     post = Post(
+        user_id=user_id,
         start_date=start_date,
         end_date=end_date,
         start_time=start_time,
@@ -35,7 +36,7 @@ def create_post():
         cost=cost
     )
 
-    pet_care_lst = [PetCare(post_id=post.post_id, pet_id=p.pet_id) for p in pet_list]
+    pet_care_lst = [PetCare(post_id=post.post_id, pet_id=p.get('pet_id')) for p in pet_list]
 
     try:
         db.session.add(post)
