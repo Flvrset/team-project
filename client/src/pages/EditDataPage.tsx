@@ -21,7 +21,7 @@ import {
     CircularProgress,
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import CitySearchSelect from '../components/CitySearchSelect';
 import { useAuth } from '../hooks/AuthProvider';
@@ -130,14 +130,6 @@ const EditDataPage = () => {
             postal_code: updatedModel.postal_code,
         }));
     };
-
-    const handleAddPet = () => {
-        navigate('/dashboard/pets');
-    }
-
-    const handleBackToDashboard = () => {
-        navigate('/dashboard');
-    }
 
     const validateForm = (): boolean => {
         const newErrors: FormErrors = {};
@@ -426,7 +418,8 @@ const EditDataPage = () => {
                                 <Button
                                     variant="outlined"
                                     size="large"
-                                    onClick={handleAddPet}
+                                    component={Link}
+                                    to='/dashboard/pets'
                                     startIcon={<PetsIcon />}
                                     sx={{
                                         px: 5,
@@ -445,7 +438,8 @@ const EditDataPage = () => {
                                 <Button
                                     variant="outlined"
                                     size="large"
-                                    onClick={handleBackToDashboard}
+                                    component={Link}
+                                    to='/dashboard'
                                     startIcon={<ArrowBackIcon />}
                                     color="secondary"
                                     sx={{

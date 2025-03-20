@@ -12,27 +12,13 @@ import {
     Card,
     CardContent,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { useAuth } from '../hooks/AuthProvider';
 
 const DashboardPage = () => {
     const auth = useAuth();
     const theme = useTheme();
-    const navigate = useNavigate();
-
-    const handleCreatePost = () => {
-        navigate('/dashboard/create-post');
-    };
-
-    const handleSearchPosts = () => {
-        navigate('/dashboard/search-posts');
-    };
-
-    const handleAddPet = () => {
-        navigate('/dashboard/pets');
-    }
-
 
     return (
         <>
@@ -67,7 +53,8 @@ const DashboardPage = () => {
                 {/* Create Post Button Card */}
                 <Grid item xs={12} md={5}>
                     <Paper
-                        onClick={handleCreatePost}
+                        component={Link}
+                        to='/dashboard/create-post'
                         sx={{
                             p: 5,
                             height: '100%',
@@ -77,8 +64,8 @@ const DashboardPage = () => {
                             position: 'relative',
                             overflow: 'hidden',
                             transition: 'all 0.3s ease',
-                            cursor: 'pointer',
                             display: 'flex',
+                            textDecorationLine: 'none',
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -133,7 +120,6 @@ const DashboardPage = () => {
                                     boxShadow: '0 6px 15px rgba(0,0,0,0.2)',
                                 }
                             }}
-                            onClick={handleCreatePost}
                         >
                             Stwórz ogłoszenie
                         </Button>
@@ -143,7 +129,8 @@ const DashboardPage = () => {
                 {/* Search Posts Button Card */}
                 <Grid item xs={12} md={5}>
                     <Paper
-                        onClick={handleSearchPosts}
+                        component={Link}
+                        to='/dashboard/search-posts'
                         sx={{
                             p: 5,
                             height: '100%',
@@ -153,7 +140,7 @@ const DashboardPage = () => {
                             position: 'relative',
                             overflow: 'hidden',
                             transition: 'all 0.3s ease',
-                            cursor: 'pointer',
+                            textDecorationLine: 'none',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
@@ -212,7 +199,6 @@ const DashboardPage = () => {
                                     backgroundColor: '#fff',
                                 }
                             }}
-                            onClick={handleSearchPosts}
                         >
                             Wyszukaj
                         </Button>
@@ -228,7 +214,6 @@ const DashboardPage = () => {
                 }}
             >
                 <Card
-                    onClick={handleAddPet}
                     sx={{
                         maxWidth: 450,
                         borderRadius: 3,
@@ -236,14 +221,16 @@ const DashboardPage = () => {
                         backgroundColor: alpha(theme.palette.background.paper, 0.9),
                         boxShadow: '0 6px 20px rgba(0,0,0,0.09)',
                         transition: 'all 0.3s ease',
-                        cursor: 'pointer',
                         border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
                         '&:hover': {
                             boxShadow: '0 8px 25px rgba(0,0,0,0.12)',
                             transform: 'translateY(-4px)',
                             borderColor: alpha(theme.palette.primary.main, 0.5),
-                        }
+                        },
+                        textDecorationLine: 'none',
                     }}
+                    component={Link}
+                    to='/dashboard/pets'
                 >
                     <CardContent sx={{
                         display: 'flex',

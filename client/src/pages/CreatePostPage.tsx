@@ -25,7 +25,7 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale/pl';
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import PetCard from '../components/PetCard';
 import PetFormModal from '../components/PetFormModal';
@@ -218,11 +218,6 @@ const CreatePostPage = () => {
         setNotification(prev => ({ ...prev, open: false }));
     };
 
-    // Navigation handler
-    const handleBack = () => {
-        navigate(-1);
-    };
-
     // Form validation
     const validateForm = (): boolean => {
         const errors: Record<string, string> = {};
@@ -373,7 +368,8 @@ const CreatePostPage = () => {
                         variant="outlined"
                         color="secondary"
                         startIcon={<ArrowBackIcon />}
-                        onClick={handleBack}
+                        component={Link}
+                        to='/dashboard'
                         sx={{
                             borderRadius: 2,
                             py: 1,
