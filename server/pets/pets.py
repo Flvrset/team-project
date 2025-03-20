@@ -67,6 +67,7 @@ def get_pet_data(pet_id):
 
     return jsonify(
         {
+            "pet_id": resp_pet.pet_id,
             "pet_name": resp_pet.pet_name,
             "type": resp_pet.type,
             "race": resp_pet.race,
@@ -76,8 +77,10 @@ def get_pet_data(pet_id):
     )
 
 
-@pet.route("/getPets/<int:user_id>", methods=["GET"])
-def get_pets(user_id):
+@pet.route("/getPets", methods=["GET"])
+def get_pets():
+    user_id = get_jwt_identity()
+    
     pet_list = (
         Pet.query
         .filter(Pet.user_id == user_id)
@@ -92,10 +95,12 @@ def get_pets(user_id):
         {
             "pet_list": [
                 {
+                    "pet_id": p.pet_id,
                     "pet_name": p.pet_name,
                     "type": p.type,
                     "race": p.race,
                     "size": p.size,
+                    "age": p.age,
                 }
                 for p in pet_list
             ]
