@@ -27,9 +27,9 @@ const DashboardLayout = () => {
         setAnchorEl(event.currentTarget);
     };
 
-    const handleEditData = () => {
+    const navigateTo = (path: string) => {
         setAnchorEl(null);
-        navigate('/dashboard/edit-data');
+        navigate(path);
     };
 
     const handleMenuClose = () => {
@@ -142,9 +142,13 @@ const DashboardLayout = () => {
                                 </Typography>
                             </Box>
                             <Divider />
-                            <MenuItem onClick={handleEditData} sx={{ py: 1.5 }}>
+                            <MenuItem onClick={() => navigateTo('/dashboard/edit-data')} sx={{ py: 1.5 }}>
                                 <EditIcon fontSize="small" sx={{ mr: 1.5 }} />
                                 Edytuj dane
+                            </MenuItem>
+                            <MenuItem onClick={() => navigateTo('/dashboard/pets')} sx={{ py: 1.5 }}>
+                                <PetsIcon fontSize="small" sx={{ mr: 1.5 }} />
+                                Twoje zwierzaki
                             </MenuItem>
                             <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
                                 <LogoutIcon fontSize="small" sx={{ mr: 1.5 }} />
