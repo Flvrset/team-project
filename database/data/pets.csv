@@ -1,50 +1,50 @@
 ﻿user_id,pet_name,creation_date,type,race,size,age
-1,Buddy,2024-01-15,Pies,Labrador,Średni,3
-1,Max,2023-11-10,Pies,Buldog,Średni,5
-2,Whiskers,2023-12-20,Kot,Perski,Mały,2
-2,Mittens,2024-02-05,Kot,Syjamski,Mały,1
-3,Rex,2024-02-10,Pies,Owczarek Niemiecki,Duży,4
-3,Lucky,2023-09-22,Pies,Golden Retriever,Duży,6
-3,Burek,2023-08-18,Pies,Mieszaniec,Średni,5
-4,Milo,2023-11-05,Pies,Beagle,Średni,5
-4,Luna,2024-03-01,Kot,Syjamski,Mały,1
-4,Oreo,2023-07-18,Królik,Nederlandzki Karzełek,Mały,2
-5,Bella,2023-10-22,Królik,Hodowla Lopa,Mały,2
-5,Rocky,2024-02-25,Pies,Bokser,Średni,6
-6,Charlie,2024-04-14,Pies,Pudel,Średni,3
-6,Daisy,2023-09-18,Pies,Corgi,Mały,4
-6,Simba,2023-09-30,Kot,Maine Coon,Duży,4
-7,Tosia,2023-08-10,Kot,Brytyjski Krótkowłosy,Średni,3
-7,Fela,2024-03-15,Papuga,Żako,Mały,2
-7,Bruno,2023-07-11,Pies,Shih Tzu,Mały,4
-8,Nora,2024-02-17,Kot,Devon Rex,Mały,1
-8,Chico,2024-01-05,Papuga,Amazonka,Mały,5
-9,Ziggy,2024-01-28,Kot,Bengalski,Średni,2
-9,Loki,2023-06-15,Pies,Husky,Duży,3
-10,Toby,2024-02-09,Pies,Jamnik,Mały,6
-10,Nala,2023-12-01,Kot,Ragdoll,Średni,2
-10,Kropka,2023-10-05,Królik,Baranek,Mały,2
-11,Pluto,2024-01-19,Pies,Border Collie,Średni,3
-12,Puszek,2023-09-25,Kot,Norweski Leśny,Duży,5
-12,Kofi,2024-02-28,Kot,Sfinks,Mały,4
-13,Frodo,2023-11-12,Pies,Jack Russell Terrier,Mały,2
-14,Amber,2024-01-07,Kot,Tonkiński,Mały,3
-15,Borys,2023-08-15,Pies,Rottweiler,Duży,6
-15,Azor,2024-03-30,Pies,Mieszaniec,Średni,4
-16,Riko,2023-07-01,Kot,Maine Coon,Duży,5
-16,Lili,2024-02-14,Kot,Europejski,Mały,1
-17,Pixel,2023-06-29,Papuga,Kanarek,Mały,2
-17,Maniek,2024-03-05,Fretka,Standardowy,Mały,3
-18,Mika,2023-12-20,Pies,Samoyed,Duży,2
-19,Gizmo,2023-09-10,Kot,Bombajski,Mały,4
-19,Misia,2024-02-11,Pies,Bernejczyk,Duży,6
-20,Toffik,2023-10-01,Pies,Golden Retriever,Duży,3
-21,Nadia,2024-01-14,Kot,Szkocki Zwisłouchy,Mały,2
-22,Leo,2023-11-05,Pies,Owczarek Australijski,Duży,4
-23,Karmelek,2024-02-26,Kot,Perski,Mały,3
-24,Fluffy,2023-09-30,Królik,Mini Lop,Mały,1
-25,Brutus,2023-12-08,Pies,Doberman,Duży,5
-26,Maurycy,2024-03-15,Kot,Egzotyczny,Mały,3
-27,Pchełka,2023-10-10,Pies,Papillon,Mały,2
-28,Bobby,2024-02-07,Kot,Europejski,Mały,4
-29,Koda,2023-07-25,Pies,Chow Chow,Duży,5
+1,Buddy,2024-01-15,Pies,Labrador,Średni,2020-01-15
+1,Max,2023-11-10,Pies,Buldog,Średni,2018-11-10
+2,Whiskers,2023-12-20,Kot,Perski,Mały,2022-12-20
+2,Mittens,2024-02-05,Kot,Syjamski,Mały,2023-02-05
+3,Rex,2024-02-10,Pies,Owczarek Niemiecki,Duży,2020-02-10
+3,Lucky,2023-09-22,Pies,Golden Retriever,Duży,2017-09-22
+3,Burek,2023-08-18,Pies,Mieszaniec,Średni,2018-08-18
+4,Milo,2023-11-05,Pies,Beagle,Średni,2018-11-05
+4,Luna,2024-03-01,Kot,Syjamski,Mały,2023-03-01
+4,Oreo,2023-07-18,Królik,Nederlandzki Karzełek,Mały,2021-07-18
+5,Bella,2023-10-22,Królik,Hodowla Lopa,Mały,2021-10-22
+5,Rocky,2024-02-25,Pies,Bokser,Średni,2018-02-25
+6,Charlie,2024-04-14,Pies,Pudel,Średni,2020-04-14
+6,Daisy,2023-09-18,Pies,Corgi,Mały,2019-09-18
+6,Simba,2023-09-30,Kot,Maine Coon,Duży,2019-09-30
+7,Tosia,2023-08-10,Kot,Brytyjski Krótkowłosy,Średni,2020-08-10
+7,Fela,2024-03-15,Papuga,Żako,Mały,2023-03-15
+7,Bruno,2023-07-11,Pies,Shih Tzu,Mały,2019-07-11
+8,Nora,2024-02-17,Kot,Devon Rex,Mały,2023-02-17
+8,Chico,2024-01-05,Papuga,Amazonka,Mały,2018-01-05
+9,Ziggy,2024-01-28,Kot,Bengalski,Średni,2022-01-28
+9,Loki,2023-06-15,Pies,Husky,Duży,2021-06-15
+10,Toby,2024-02-09,Pies,Jamnik,Mały,2018-02-09
+10,Nala,2023-12-01,Kot,Ragdoll,Średni,2022-12-01
+10,Kropka,2023-10-05,Królik,Baranek,Mały,2021-10-05
+11,Pluto,2024-01-19,Pies,Border Collie,Średni,2020-01-19
+12,Puszek,2023-09-25,Kot,Norweski Leśny,Duży,2018-09-25
+12,Kofi,2024-02-28,Kot,Sfinks,Mały,2020-02-28
+13,Frodo,2023-11-12,Pies,Jack Russell Terrier,Mały,2021-11-12
+14,Amber,2024-01-07,Kot,Tonkiński,Mały,2020-01-07
+15,Borys,2023-08-15,Pies,Rottweiler,Duży,2017-08-15
+15,Azor,2024-03-30,Pies,Mieszaniec,Średni,2020-03-30
+16,Riko,2023-07-01,Kot,Maine Coon,Duży,2018-07-01
+16,Lili,2024-02-14,Kot,Europejski,Mały,2023-02-14
+17,Pixel,2023-06-29,Papuga,Kanarek,Mały,2021-06-29
+17,Maniek,2024-03-05,Fretka,Standardowy,Mały,2022-03-05
+18,Mika,2023-12-20,Pies,Samoyed,Duży,2021-12-20
+19,Gizmo,2023-09-10,Kot,Bombajski,Mały,2019-09-10
+19,Misia,2024-02-11,Pies,Bernejczyk,Duży,2018-02-11
+20,Toffik,2023-10-01,Pies,Golden Retriever,Duży,2020-10-01
+21,Nadia,2024-01-14,Kot,Szkocki Zwisłouchy,Mały,2022-01-14
+22,Leo,2023-11-05,Pies,Owczarek Australijski,Duży,2019-11-05
+23,Karmelek,2024-02-26,Kot,Perski,Mały,2020-02-26
+24,Fluffy,2023-09-30,Królik,Mini Lop,Mały,2022-09-30
+25,Brutus,2023-12-08,Pies,Doberman,Duży,2018-12-08
+26,Maurycy,2024-03-15,Kot,Egzotyczny,Mały,2020-03-15
+27,Pchełka,2023-10-10,Pies,Papillon,Mały,2021-10-10
+28,Bobby,2024-02-07,Kot,Europejski,Mały,2019-02-07
+29,Koda,2023-07-25,Pies,Chow Chow,Duży,2018-07-25
