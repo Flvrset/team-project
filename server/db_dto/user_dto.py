@@ -21,6 +21,20 @@ class EditUserDTO(ma.SQLAlchemyAutoSchema):
         load_instance = True
 
     user_id = ma.auto_field(dump_only=True)
+    city = ma.auto_field()
+    postal_code = ma.auto_field()
+    street = ma.auto_field()
+    house_number = ma.auto_field()
+    apartment_number = ma.auto_field()
+    phone_number = ma.auto_field()
+
+
+class LoginUserDTO(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
+        load_instance = True
+
+    user_id = ma.auto_field(dump_only=True)
     name = ma.auto_field()
     surname = ma.auto_field()
     login = ma.auto_field(required=True)
@@ -37,3 +51,4 @@ class EditUserDTO(ma.SQLAlchemyAutoSchema):
 
 
 create_user_dto = CreateUserDTO()
+edit_user_dto = EditUserDTO()

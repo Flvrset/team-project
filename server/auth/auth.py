@@ -10,18 +10,14 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
 )
 import sqlalchemy
-from db_dto.user_dto import create_user_dto
+from db_dto.user_dto import create_user_dto, edit_user_dto
+import marshmallow
 
 auth = Blueprint("auth", __name__)
 
 
 @auth.route("/register", methods=["POST"])
 def register_user_page():
-    # login = request.json.get("login", None)
-    # password = request.json.get("password", None)
-    # email = request.json.get("email", None)
-    # name = request.json.get("name", None)
-    # surname = request.json.get("surname", None)
     try:
         new_user = create_user_dto.load(request.json)
         new_user.password_hash = bcrypt.generate_password_hash(new_user.password_hash).decode("utf-8")
@@ -38,6 +34,8 @@ def register_user_page():
         return response, 201
     except sqlalchemy.exc.IntegrityError:
         return jsonify({"msg": "Login lub adres e-mail jest już zajęty."}), 406
+    except marshmallow.exceptions.ValidationError as ve:
+        return jsonify({"error": str(ve), "messages": ve.messages}), 400
 
 
 @auth.route("/login", methods=["POST"])
@@ -111,40 +109,10 @@ def edit_user():
         return jsonify({"msg": "User not found"}), 404
 
     if request.method == "GET":
-        return jsonify({
-            "city": user.city,
-            "postal_code": user.postal_code,
-            "street": user.street,
-            "house_number": user.house_number,
-            "apartment_number": user.apartment_number,
-            "phone_number": user.phone_number,
-            "email": user.email
-        })
-
-    new_city = request.json.get("city", None)
-    new_postal_code = request.json.get("postal_code", None)
-    new_street = request.json.get("street", None)
-    new_house_number = request.json.get("house_number", None)
-    new_apartment_number = request.json.get("apartment_number", None)
-    new_phone_number = request.json.get("phone_number", None)
-
-    # for changing email and password we should use other paths with special authorization?
-    # new_email = request.json.get("email", None)
-
-    if new_city:
-        user.city = new_city
-    if new_postal_code:
-        user.postal_code = new_postal_code
-    if new_street:
-        user.street = new_street
-    if new_house_number:
-        user.house_number = new_house_number
-    if new_apartment_number:
-        user.apartment_number = new_apartment_number
-    if new_phone_number:
-        user.phone_number = new_phone_number
+        return jsonify(edit_user_dto.dump(user))
 
     try:
+        upload_user = edit_user_dto.load(request.json, instance=user, partial=True)
         db.session.commit()
         return jsonify({"msg": "User data updated successfully"}), 200
     except sqlalchemy.exc.IntegrityError:
