@@ -1,11 +1,13 @@
 from flask import request, jsonify, Blueprint
 from db_models.database_tables import Pet, User
+from db_dto.pet_dto import create_pet_dto
 from app import db
 from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
 import sqlalchemy
+import marshmallow
 from sqlalchemy import func
 
 pet = Blueprint("pet", __name__)
@@ -14,27 +16,18 @@ pet = Blueprint("pet", __name__)
 @pet.route("/add_pet", methods=["POST"])
 @jwt_required()
 def add_pet():
-    pet_name = request.json.get("pet_name", None)
-    type = request.json.get("type", None)
-    race = request.json.get("race", None)
-    size = request.json.get("size", None)
-
     try:
-        age = int(request.json.get("age", None))
-    except ValueError:
-        return jsonify({"msg": "Podany wiek nie jest liczbą"})
+        new_pet = create_pet_dto.load(request.json)
 
-    new_pet = Pet(pet_name=pet_name, type=type, race=race, size=size, age=age, user_id=get_jwt_identity())
-
-    try:
         db.session.add(new_pet)
-
         db.session.commit()
 
         return jsonify({"msg": "Profil zwierzaka dodany!"}), 201
     except sqlalchemy.exc.IntegrityError:
         db.session.rollback()
         return jsonify({"msg": "Nie można w tej chwili dodać rekordu."}), 406
+    except marshmallow.exceptions.ValidationError as ve:
+        return jsonify({"error": str(ve), "messages": ve.messages}), 400
 
 
 @pet.route("/get_pet_data/<int:pet_id>", methods=["GET"])

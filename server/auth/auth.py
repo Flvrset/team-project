@@ -35,7 +35,7 @@ def register_user_page():
     except sqlalchemy.exc.IntegrityError:
         return jsonify({"msg": "Login lub adres e-mail jest już zajęty."}), 406
     except marshmallow.exceptions.ValidationError as ve:
-        return jsonify({"error": str(ve), "messages": ve.messages}), 400
+        return jsonify({"error": str(ve), "msg": ve.messages}), 400
 
 
 @auth.route("/login", methods=["POST"])
@@ -117,3 +117,5 @@ def edit_user():
         return jsonify({"msg": "User data updated successfully"}), 200
     except sqlalchemy.exc.IntegrityError:
         return jsonify({"msg": "User data cannot be updated!"}), 400
+    except marshmallow.exceptions.ValidationError as ve:
+        return jsonify({"error": str(ve), "msg": ve.messages}), 400
