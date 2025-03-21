@@ -29,7 +29,7 @@ def register_user_page():
 
         new_hashed_password = bcrypt.generate_password_hash(user_data["password_hash"]).decode("utf-8")
         user_data["password_hash"] = new_hashed_password
-    except marshmallow.exceptions.ValidamarshmallowtionError as ve:
+    except marshmallow.exceptions.ValidationError as ve:
         return jsonify({"error": str(ve), "messages": ve.messages}), 400
 
     new_user = User(
