@@ -71,7 +71,7 @@ const RegisterPage = () => {
                     surname: lastName,
                     email: email,
                     login: login,
-                    password: password,
+                    password_hash: password,
                 }),
             );
 
