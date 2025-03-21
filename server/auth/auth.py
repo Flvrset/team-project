@@ -32,7 +32,7 @@ def register_user_page():
         return jsonify({"error": str(ve), "messages": ve.messages}), 400
 
     new_user = User(
-        **user_data["password_hash"]
+        **user_data
         # email=email,
         # password_hash=new_hashed_password,
         # login=login,
