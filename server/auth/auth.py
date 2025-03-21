@@ -112,7 +112,7 @@ def edit_user():
         return jsonify(edit_user_dto.dump(user))
 
     try:
-        upload_user = edit_user_dto.load(request.json, instance=user, partial=True)
+        edit_user_dto.load(request.json, instance=user, partial=True)
         db.session.commit()
         return jsonify({"msg": "User data updated successfully"}), 200
     except sqlalchemy.exc.IntegrityError:
