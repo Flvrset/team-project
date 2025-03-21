@@ -1,7 +1,7 @@
 from flask import request, jsonify, make_response, Blueprint
 from app import db, bcrypt, limiter
 from db_models.database_tables import User
-from db_dto.user_dt import user_dto
+from db_dto.user_dto import user_dto
 from flask_jwt_extended import (
     jwt_required,
     create_access_token,
