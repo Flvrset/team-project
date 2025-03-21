@@ -22,6 +22,8 @@ def register_user_page():
     name = request.json.get("name", None)
     surname = request.json.get("surname", None)
 
+    print(request.json)
+
     new_hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
     new_user = User(
