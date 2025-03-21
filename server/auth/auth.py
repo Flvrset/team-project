@@ -1,6 +1,7 @@
 from flask import request, jsonify, make_response, Blueprint
 from app import db, bcrypt, limiter
 from db_models.database_tables import User
+from db_dto.user_dto import user_dto
 from flask_jwt_extended import (
     jwt_required,
     create_access_token,
@@ -10,26 +11,34 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
 )
 import sqlalchemy
+import marshmallow
 
 auth = Blueprint("auth", __name__)
 
 
 @auth.route("/register", methods=["POST"])
 def register_user_page():
-    login = request.json.get("login", None)
-    password = request.json.get("password", None)
-    email = request.json.get("email", None)
-    name = request.json.get("name", None)
-    surname = request.json.get("surname", None)
+    # login = request.json.get("login", None)
+    # password = request.json.get("password", None)
+    # email = request.json.get("email", None)
+    # name = request.json.get("name", None)
+    # surname = request.json.get("surname", None)
 
-    new_hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+    try:
+        user_data = user_dto.load(request.json)
+
+        new_hashed_password = bcrypt.generate_password_hash(user_data["password_hash"]).decode("utf-8")
+        user_data["password_hash"] = new_hashed_password
+    except marshmallow.exceptions.ValidamarshmallowtionError as ve:
+        return jsonify({"error": str(ve), "messages": ve.messages}), 400
 
     new_user = User(
-        email=email,
-        password_hash=new_hashed_password,
-        login=login,
-        name=name,
-        surname=surname,
+        **user_data
+        # email=email,
+        # password_hash=new_hashed_password,
+        # login=login,
+        # name=name,
+        # surname=surname,
     )
 
     try:
