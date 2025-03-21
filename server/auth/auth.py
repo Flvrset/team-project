@@ -27,7 +27,7 @@ def register_user_page():
     try:
         user_data = user_dto.load(request.json)
 
-        user_data["password_hash"] = bcrypt.generate_password_hash(user_data["password_hash"]).decode("utf-8")
+        user_data.password_hash = bcrypt.generate_password_hash(user_data.password_hash).decode("utf-8")
     except marshmallow.exceptions.ValidationError as ve:
         return jsonify({"error": str(ve), "messages": ve.messages}), 400
 
