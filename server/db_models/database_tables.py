@@ -32,11 +32,23 @@ class Pet(db.Model):
     type = db.Column(db.String(255), nullable=False)
     race = db.Column(db.String(255), nullable=False)
     size = db.Column(db.String(255), nullable=True)
-    age = db.Column(db.Integer, nullable=True)
+    age = db.Column(db.Date, nullable=True)
     is_deleted = db.Column(db.Boolean, nullable=False, default=False)
 
     user_id = db.Column(
         db.Integer, db.ForeignKey("petbuddies_schema.User.user_id", ondelete="CASCADE")
+    )
+
+
+class PetPhoto:
+    __tablename__ = "PetPhoto"
+    __table_args__ = {"schema": "petbuddies_schema"}
+
+    pet_photo_id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    photo = db.Column(db.LargeBinary, nullable=False)
+
+    pet_id = db.Column(
+        db.Integer, db.ForeignKey("petbuddies_schema.Pet.pet_id", ondelete="CASCADE")
     )
 
 

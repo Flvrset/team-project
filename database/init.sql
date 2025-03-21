@@ -37,10 +37,19 @@ CREATE TABLE petbuddies_schema."Pet" (
     "type" VARCHAR(255) NOT NULL,
     "race" VARCHAR(255) NOT NULL,
     "size" VARCHAR(255),
-    "age" INTEGER,
+    "age" DATE,
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT fk_ownership_user FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- Create the PetPhoto table
+CREATE TABLE petbuddies_schema."PetPhoto" (
+    "pet_photo_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "pet_id" INTEGER NOT NULL,
+    "photo" BYTEA NOT NULL,
+
+    CONSTRAINT fk_pet_photo FOREIGN KEY ("pet_id") REFERENCES petbuddies_schema."Pet"("pet_id") ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Create the ReportType table
