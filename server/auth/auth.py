@@ -10,39 +10,27 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
 )
 import sqlalchemy
+from db_dto.user_dto import create_user_dto
 
 auth = Blueprint("auth", __name__)
 
 
 @auth.route("/register", methods=["POST"])
 def register_user_page():
-    login = request.json.get("login", None)
-    password = request.json.get("password", None)
-    email = request.json.get("email", None)
-    name = request.json.get("name", None)
-    surname = request.json.get("surname", None)
-
-    new_hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
-
-    new_user = User(
-        email=email,
-        password_hash=new_hashed_password,
-        login=login,
-        name=name,
-        surname=surname,
-    )
-
+    # login = request.json.get("login", None)
+    # password = request.json.get("password", None)
+    # email = request.json.get("email", None)
+    # name = request.json.get("name", None)
+    # surname = request.json.get("surname", None)
     try:
+        new_user = create_user_dto.load(request.json)
+        new_user.password_hash = bcrypt.generate_password_hash(new_user.password_hash).decode("utf-8")
+
         db.session.add(new_user)
         db.session.commit()
         access_token = create_access_token(
             identity=str(new_user.user_id),
-            additional_claims={
-                "email": new_user.email,
-                "login": new_user.login,
-                "name": new_user.name,
-                "surname": new_user.surname,
-            },
+            additional_claims=create_user_dto.dump(new_user),
         )
 
         response = make_response(jsonify({"msg": "Login successful"}))

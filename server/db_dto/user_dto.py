@@ -2,7 +2,20 @@ from app import ma
 from db_models.database_tables import User
 
 
-class UserDTO(ma.SQLAlchemyAutoSchema):
+class CreateUserDTO(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
+        load_instance = True
+
+    user_id = ma.auto_field(dump_only=True, load_only=True)
+    name = ma.auto_field()
+    surname = ma.auto_field()
+    login = ma.auto_field(required=True)
+    password_hash = ma.auto_field(load_only=True)
+    email = ma.auto_field(required=True)
+
+
+class EditUserDTO(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         load_instance = True
@@ -23,4 +36,4 @@ class UserDTO(ma.SQLAlchemyAutoSchema):
     is_banned = ma.auto_field(dump_only=True)
 
 
-user_dto = UserDTO()
+create_user_dto = CreateUserDTO()
