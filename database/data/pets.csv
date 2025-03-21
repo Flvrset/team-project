@@ -1,4 +1,4 @@
-﻿user_id,pet_name,creation_date,type,race,size,age
+﻿user_id,pet_name,creation_date,type,race,size,birth_date
 1,Buddy,2024-01-15,Pies,Labrador,Średni,2020-01-15
 1,Max,2023-11-10,Pies,Buldog,Średni,2018-11-10
 2,Whiskers,2023-12-20,Kot,Perski,Mały,2022-12-20

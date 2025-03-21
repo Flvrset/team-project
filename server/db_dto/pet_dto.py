@@ -12,7 +12,7 @@ class CreatePetDTO(ma.SQLAlchemyAutoSchema):
     type = ma.auto_field(required=True)
     race = ma.auto_field(required=True)
     size = ma.auto_field(required=True)
-    age = ma.auto_field(required=True)
+    birth_date = ma.auto_field(required=True)
     user_id = ma.auto_field()
 
 create_pet_dto = CreatePetDTO()

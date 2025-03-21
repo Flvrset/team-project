@@ -95,7 +95,7 @@ def get_pets():
                     "type": p.type,
                     "race": p.race,
                     "size": p.size,
-                    "age": p.age,
+                    "birth_date": p.birth_date,
                 }
                 for p in pet_list
             ]

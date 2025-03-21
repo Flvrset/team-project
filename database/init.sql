@@ -37,7 +37,7 @@ CREATE TABLE petbuddies_schema."Pet" (
     "type" VARCHAR(255) NOT NULL,
     "race" VARCHAR(255) NOT NULL,
     "size" VARCHAR(255),
-    "age" DATE,
+    "birth_date" DATE,
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT fk_ownership_user FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE
@@ -181,7 +181,7 @@ DELIMITER ','
 CSV HEADER;
 
 -- Load pets into database
-COPY petbuddies_schema."Pet" (user_id, pet_name, creation_date, type, race, size, age)
+COPY petbuddies_schema."Pet" (user_id, pet_name, creation_date, type, race, size, birth_date)
 FROM '/var/lib/postgresql/data_files/pets.csv'
 DELIMITER ','
 CSV HEADER;

@@ -32,7 +32,7 @@ class Pet(db.Model):
     type = db.Column(db.String(255), nullable=False)
     race = db.Column(db.String(255), nullable=False)
     size = db.Column(db.String(255), nullable=True)
-    age = db.Column(db.Date, nullable=True)
+    birth_date = db.Column(db.Date, nullable=True)
     is_deleted = db.Column(db.Boolean, nullable=False, default=False)
 
     user_id = db.Column(
