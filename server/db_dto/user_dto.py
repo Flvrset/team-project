@@ -2,7 +2,7 @@ from app import ma
 from db_models.database_tables import User
 
 
-class UserDTO(ma.SQLAlchemySchema):
+class UserDTO(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         load_instance = True
