@@ -18,6 +18,7 @@ pet = Blueprint("pet", __name__)
 def add_pet():
     try:
         new_pet = create_pet_dto.load(request.json)
+        new_pet.user_id = get_jwt_identity()
 
         db.session.add(new_pet)
         db.session.commit()
@@ -27,7 +28,7 @@ def add_pet():
         db.session.rollback()
         return jsonify({"msg": "Nie można w tej chwili dodać rekordu."}), 406
     except marshmallow.exceptions.ValidationError as ve:
-        return jsonify({"error": str(ve), "messages": ve.messages}), 400
+        return jsonify({"error": str(ve), "msg": ve.messages}), 400
 
 
 @pet.route("/get_pet_data/<int:pet_id>", methods=["GET"])
