@@ -89,7 +89,7 @@ const CreatePostPage = () => {
         setLoadingPets(true);
 
         try {
-            const response = await getWithAuth('/api/getPets');
+            const response = await getWithAuth('/api/getMyPets');
 
             if (response.ok) {
                 const data = await response.json();
