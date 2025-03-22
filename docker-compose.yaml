@@ -47,7 +47,7 @@ services:
     ports:
       - "9000:9000"  # API
       - "9001:9001"  # Web UI
-    entrypoint: ["sh", "-c", "minio server /data --console-address ':9001' & /init-minio.sh"]
+    entrypoint: ["sh", "-c", "chmod +x /init-minio.sh && /init-minio.sh && minio server /data --console-address ':9001'"]
 
 volumes:
   postgres_data:
