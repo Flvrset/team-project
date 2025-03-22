@@ -123,7 +123,7 @@ const PetFormModal = ({
         setFormError(null);
 
         try {
-            const response = await postWithAuth('/api/add_pet', {
+            const response = await postWithAuth('/api/addPet', {
                 pet_name: formData.pet_name,
                 type: formData.type,
                 race: formData.race,
