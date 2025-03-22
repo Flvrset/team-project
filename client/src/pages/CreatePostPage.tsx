@@ -29,19 +29,9 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import PetCard from '../components/PetCard';
 import PetFormModal from '../components/PetFormModal';
+import { Pet } from '../types';
 import { getWithAuth, postWithAuth } from '../utils/auth';
 import { combineDateAndTime } from '../utils/utils';
-
-// Type definitions
-interface Pet {
-    pet_id: number;
-    pet_name: string;
-    type: string;
-    race: string;
-    size: string;
-    age: number;
-    user_id: number;
-}
 
 interface FormData {
     startDate: Date | null;
@@ -83,6 +73,7 @@ const CreatePostPage = () => {
         message: '',
         severity: 'success' as 'success' | 'error' | 'info' | 'warning',
     });
+    const [createButtonDisabled, setCreateButtonDisabled] = useState(false);
 
     // Fetch pets
     const fetchPets = async () => {
@@ -93,7 +84,7 @@ const CreatePostPage = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                setPets(data.pet_list || []);
+                setPets(data || []);
             } else {
                 // User has no pets or error occurred
                 if (response.status === 404) {
@@ -317,6 +308,7 @@ const CreatePostPage = () => {
                 });
 
                 // Redirect to dashboard or posts list
+                setCreateButtonDisabled(true);
                 setTimeout(() => {
                     navigate('/dashboard');
                 }, 2000);
@@ -643,7 +635,7 @@ const CreatePostPage = () => {
                             type="submit"
                             variant="contained"
                             size="large"
-                            disabled={submitting || pets.length === 0}
+                            disabled={submitting || pets.length === 0 || createButtonDisabled}
                             sx={{
                                 py: 1.5,
                                 px: 6,

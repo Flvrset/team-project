@@ -1,0 +1,14 @@
+// Pet types
+export interface Pet {
+    pet_id: number;
+    pet_name: string;
+    type: string;
+    race: string;
+    size: PetSize;
+    birth_date: string;
+    creation_date: string;
+}
+
+// Other shared types can be added here
+export type PetSize = 'Mały' | 'Średni' | 'Duży';
+export type PetType = 'Pies' | 'Kot' | 'Królik' | 'Papuga' | 'Fretka' | 'Inne';

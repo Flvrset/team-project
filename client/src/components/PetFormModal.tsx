@@ -19,6 +19,11 @@ import {
     SelectChangeEvent,
     Backdrop,
 } from '@mui/material';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { format } from 'date-fns';
+import { pl } from 'date-fns/locale/pl';
 import { useState, useEffect } from 'react';
 
 import { postWithAuth } from '../utils/auth';
@@ -32,7 +37,8 @@ export interface PetFormData {
     type: string;
     race: string;
     size: PetSize;
-    age: string;
+    birth_month: number;
+    birth_year: number;
 }
 
 const initialFormData: PetFormData = {
@@ -40,7 +46,8 @@ const initialFormData: PetFormData = {
     type: '',
     race: '',
     size: 'Średni',
-    age: '',
+    birth_month: new Date().getMonth() + 1,
+    birth_year: new Date().getFullYear() - 1,
 };
 
 // Pet type options
@@ -68,11 +75,15 @@ const PetFormModal = ({
     const [formData, setFormData] = useState<PetFormData>(initialFormData);
     const [formError, setFormError] = useState<string | null>(null);
     const [formSubmitting, setFormSubmitting] = useState(false);
+    const [birthDate, setBirthDate] = useState<Date | null>(
+        new Date(initialFormData.birth_year, initialFormData.birth_month - 1, 15)
+    );
 
     useEffect(() => {
         if (open) {
             // Reset form when modal opens
             setFormData(initialFormData);
+            setBirthDate(new Date(initialFormData.birth_year, initialFormData.birth_month - 1, 15));
             setFormError(null);
         }
     }, [open]);
@@ -82,6 +93,17 @@ const PetFormModal = ({
         const { name, value } = e.target;
         if (name) {
             setFormData((prev) => ({ ...prev, [name]: value }));
+        }
+    };
+
+    const handleDateChange = (date: Date | null) => {
+        if (date) {
+            setBirthDate(date);
+            setFormData(prev => ({
+                ...prev,
+                birth_month: date.getMonth() + 1,
+                birth_year: date.getFullYear()
+            }));
         }
     };
 
@@ -106,8 +128,14 @@ const PetFormModal = ({
             return false;
         }
 
-        if (!formData.age.trim() || isNaN(Number(formData.age)) || Number(formData.age) <= 0) {
-            setFormError('Wiek musi być liczbą większą od 0');
+        if (!formData.birth_month || !formData.birth_year) {
+            setFormError('Miesiąc i rok urodzenia są wymagane');
+            return false;
+        }
+
+        const currentYear = new Date().getFullYear();
+        if (formData.birth_year < 1900 || formData.birth_year > currentYear) {
+            setFormError(`Rok urodzenia musi być pomiędzy 1900 a ${currentYear}`);
             return false;
         }
 
@@ -123,12 +151,16 @@ const PetFormModal = ({
         setFormError(null);
 
         try {
+
+            const formattedDate = birthDate ?
+                format(birthDate, 'yyyy-MM-dd') :
+                `${formData.birth_year}-${String(formData.birth_month).padStart(2, '0')}-15`;
             const response = await postWithAuth('/api/addPet', {
                 pet_name: formData.pet_name,
                 type: formData.type,
                 race: formData.race,
                 size: formData.size,
-                age: parseInt(formData.age, 10),
+                birth_date: formattedDate,
             });
 
             if (response.ok) {
@@ -293,33 +325,28 @@ const PetFormModal = ({
                         </Select>
                     </FormControl>
 
-                    <TextField
-                        fullWidth
-                        required
-                        label="Wiek (w latach)"
-                        name="age"
-                        type="number"
-                        value={formData.age}
-                        onChange={handleFormChange}
-                        margin="normal"
-                        helperText={
-                            formData.age !== '' && (
-                                isNaN(Number(formData.age))
-                                    ? 'Wiek musi być liczbą'
-                                    : Number(formData.age) < 1
-                                        ? 'Wiek musi być większy od 0'
-                                        : Number(formData.age) > 100
-                                            ? 'Maksymalny wiek to 100 lat'
-                                            : ''
-                            )
-                        }
-                        inputProps={{ min: 1, max: 100, step: 1 }}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                borderRadius: 2,
-                            },
-                        }}
-                    />
+                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={pl}>
+                        <DatePicker
+                            views={['year', 'month']}
+                            label="Miesiąc i rok urodzenia"
+                            value={birthDate}
+                            onChange={handleDateChange}
+                            format="MM/yyyy"
+                            disableFuture
+                            slotProps={{
+                                textField: {
+                                    fullWidth: true,
+                                    required: true,
+                                    sx: {
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2,
+                                        },
+                                    },
+                                    margin: "normal"
+                                },
+                            }}
+                        />
+                    </LocalizationProvider>
 
                     <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                         <Button

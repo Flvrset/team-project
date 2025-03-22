@@ -13,15 +13,7 @@ import {
     useTheme 
 } from '@mui/material';
 
-// Type definitions
-interface Pet {
-    pet_id: number;
-    pet_name: string;
-    type: string;
-    race: string;
-    size: string;
-    age: number;
-}
+import { Pet } from '../types';
 
 interface PetCardProps {
     pet: Pet;
@@ -59,6 +51,8 @@ const PetCard: React.FC<PetCardProps> = ({
                 return theme.palette.grey[500];
         }
     };
+
+    const petAge: number = new Date().getFullYear() - new Date(pet.birth_date).getFullYear();
     
     const handleClick = () => {
         if (onSelect) {
@@ -133,7 +127,7 @@ const PetCard: React.FC<PetCardProps> = ({
                         <strong>{pet.type}</strong> • {pet.race}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        {pet.size} • {pet.age} {pet.age === 1 ? 'rok' : pet.age < 5 ? 'lata' : 'lat'}
+                        {pet.size} • {petAge} {petAge === 1 ? 'rok' : petAge < 5 ? 'lata' : 'lat'}
                     </Typography>
                 </CardContent>
             </Card>
@@ -201,7 +195,7 @@ const PetCard: React.FC<PetCardProps> = ({
                         <Box component="span" sx={{ fontWeight: 'bold', color: 'text.secondary' }}>Rozmiar:</Box> {pet.size}
                     </Typography>
                     <Typography variant="body1">
-                        <Box component="span" sx={{ fontWeight: 'bold', color: 'text.secondary' }}>Wiek:</Box> {pet.age} {pet.age === 1 ? 'rok' : pet.age < 5 ? 'lata' : 'lat'}
+                        <Box component="span" sx={{ fontWeight: 'bold', color: 'text.secondary' }}>Wiek:</Box> {petAge} {petAge === 1 ? 'rok' : petAge < 5 ? 'lata' : 'lat'}
                     </Typography>
                 </Box>
             </CardContent>

@@ -19,27 +19,15 @@ import {
     alpha,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import PetCard from '../components/PetCard';
 import PetFormModal from '../components/PetFormModal';
+import { Pet } from '../types';
 import { getWithAuth, postWithAuth } from '../utils/auth';
-
-// Type definitions
-type PetSize = 'Mały' | 'Średni' | 'Duży';
-
-interface Pet {
-    pet_id: number;
-    pet_name: string;
-    type: string;
-    race: string;
-    size: PetSize;
-    age: number;
-}
 
 const PetsPage = () => {
     const theme = useTheme();
-    const navigate = useNavigate();
 
     // State for pets data
     const [pets, setPets] = useState<Pet[]>([]);
@@ -68,7 +56,7 @@ const PetsPage = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                setPets(data.pet_list || []);
+                setPets(data || []);
             } else {
                 const errorData = await response.json();
                 if (response.status === 404) {
