@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   backend:
     build:
@@ -18,6 +17,7 @@ services:
       - "80:4173"
     depends_on:
       - backend
+      - storage
 
   database:
     image: postgres:15
@@ -33,5 +33,22 @@ services:
     ports:
       - "5432:5432"
 
+  storage:
+    image: minio/minio
+    container_name: storage
+    restart: always
+    volumes:
+      - minio_data:/data
+      - ./storage/bucket-policy.json:/bucket-policy.json  # Mount your policy file here
+      - ./storage/init-minio.sh:/init-minio.sh  # Mount the init script here
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: unpossible_to_guess_123  # Change this!
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Web UI
+    entrypoint: ["sh", "-c", "minio server /data --console-address ':9001' & /init-minio.sh"]
+
 volumes:
   postgres_data:
+  minio_data:
