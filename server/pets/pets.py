@@ -1,6 +1,6 @@
 from flask import request, jsonify, Blueprint
 from db_models.database_tables import Pet, User
-from db_dto.pet_dto import create_pet_dto, get_pet_dto
+from db_dto.pet_dto import create_pet_dto, get_pet_dto, get_pets_dto
 from app import db
 from flask_jwt_extended import (
     jwt_required,
@@ -74,7 +74,7 @@ def get_pets():
         return jsonify({"msg": "Użytkownik nie posiada zwierząt!"}), 404
 
     return jsonify(
-        get_pet_dto.dump(pet_list)
+        get_pets_dto.dump(pet_list)
     ), 200
 
 
