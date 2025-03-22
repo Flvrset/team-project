@@ -70,6 +70,8 @@ def get_pets():
         .all()
     )
 
+    print(pet_list)
+
     if not pet_list:
         return jsonify({"msg": "Użytkownik nie posiada zwierząt!"}), 404
 
