@@ -1,6 +1,6 @@
 from flask import request, jsonify, make_response, Blueprint
 from app import db, bcrypt, limiter
-from db_models.database_tables import User
+from db_models.database_tables import User, UserPhoto
 from flask_jwt_extended import (
     jwt_required,
     create_access_token,
@@ -11,7 +11,9 @@ from flask_jwt_extended import (
 )
 import sqlalchemy
 from db_dto.user_dto import create_user_dto, edit_user_dto
+from utils.s3_utils import create_thumbnail_and_upload
 import marshmallow
+from minio.error import S3Error
 
 auth = Blueprint("routes", __name__)
 
@@ -113,11 +115,47 @@ def edit_user():
     if request.method == "GET":
         return jsonify(edit_user_dto.dump(user))
 
+    file = request.files.get("photo")
+    if not file:
+        print("File was not uploaded")
+
     try:
         edit_user_dto.load(request.json, instance=user, partial=True)
+
+        storage_name = "user-photo"
+        filename = f"user_{str(user.user_id)}.jpeg"
+
+        user_photo = UserPhoto.query.filter(
+            UserPhoto.postal_code.like(f"%{filename}%")
+        ).first()
+
+        if not user_photo:
+            user_photo = UserPhoto(
+                user_id=user.user_id, photo_name=filename, photo_storage=storage_name
+            )
+            db.session.add(user_photo)
+
+        create_thumbnail_and_upload(
+            file, storage_name, filename, thumbnail_size=(400, 400)
+        )
+
         db.session.commit()
-        return jsonify({"msg": "User data updated successfully"}), 200
+        return jsonify({"msg": "Zapisano zmiany!"}), 200
     except sqlalchemy.exc.IntegrityError:
-        return jsonify({"msg": "User data cannot be updated!"}), 400
+        db.session.rollback()
+        return (
+            jsonify(
+                {
+                    "msg": "Nie można zmienić danych w tym momencie! Sprubój ponownie za chwile!"
+                }
+            ),
+            400,
+        )
     except marshmallow.exceptions.ValidationError as ve:
+        db.session.rollback()
         return jsonify({"error": str(ve), "msg": ve.messages}), 400
+    except S3Error:
+        db.session.rollback()
+        return jsonify(
+            {"msg": "Nie można zapisać aktualnie zdjęcia! Spróbuj jeszcze raz."}
+        )
