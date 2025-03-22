@@ -116,7 +116,7 @@ def edit_user():
     filename = f"user_{str(user.user_id)}.jpeg"
 
     if request.method == "GET":
-        return jsonify({**edit_user_dto.dump(user), "file_link": f"{request.host_url}{storage_name}/{filename}"})
+        return jsonify({**edit_user_dto.dump(user), "file_link": f"http://localhost:9000/{storage_name}/{filename}"})
 
     file = request.files.get("photo")
     if not file:
