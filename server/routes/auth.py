@@ -125,21 +125,22 @@ def edit_user():
     try:
         edit_user_dto.load(request.json, instance=user, partial=True)
 
-        user_photo = UserPhoto.query.filter(
-            UserPhoto.postal_code.like(f"%{filename}%")
-        ).first()
+        if file:
+            user_photo = UserPhoto.query.filter(
+                UserPhoto.postal_code.like(f"%{filename}%")
+            ).first()
 
-        if not user_photo:
-            user_photo = UserPhoto(
-                user_id=user.user_id, photo_name=filename, photo_storage=storage_name
-            )
-            db.session.add(user_photo)
+            if not user_photo:
+                user_photo = UserPhoto(
+                    user_id=user.user_id, photo_name=filename, photo_storage=storage_name
+                )
+                db.session.add(user_photo)
 
-        file_to_save = resize_image(file)
+            file_to_save = resize_image(file)
 
-        file_path = os.path.join(storage_name, filename)
-        with open(file_path, "wb") as f:
-            f.write(file_to_save.read())
+            file_path = os.path.join(storage_name, filename)
+            with open(file_path, "wb") as f:
+                f.write(file_to_save.read())
 
         db.session.commit()
         return jsonify({"msg": "Zapisano zmiany!"}), 200
