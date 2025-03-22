@@ -38,10 +38,10 @@ def create_app(config_class="config.Config"):
     ma.init_app(app)
     # babel.init_app(app, locale_selector=get_locale)
 
-    from auth.auth import auth
-    from dicts.dicts import dicts
-    from pets.pets import pet
-    from posts.posts import post
+    from routes.auth import auth
+    from routes.dicts import dicts
+    from routes.pets import pet
+    from routes.posts import post
 
     app.register_blueprint(auth)
     app.register_blueprint(dicts)

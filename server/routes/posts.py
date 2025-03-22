@@ -33,10 +33,12 @@ def create_post():
         start_time=start_time,
         end_time=end_time,
         description=description,
-        cost=cost
+        cost=cost,
     )
 
-    pet_care_lst = [PetCare(post_id=post.post_id, pet_id=p.get('pet_id')) for p in pet_list]
+    pet_care_lst = [
+        PetCare(post_id=post.post_id, pet_id=p.get("pet_id")) for p in pet_list
+    ]
 
     try:
         db.session.add(post)

@@ -13,7 +13,7 @@ import sqlalchemy
 from db_dto.user_dto import create_user_dto, edit_user_dto
 import marshmallow
 
-auth = Blueprint("auth", __name__)
+auth = Blueprint("routes", __name__)
 
 
 @auth.route("/register", methods=["POST"])
