@@ -11,7 +11,3 @@ class Config:
         "postgresql://dummy_user:dummy_secure_password@database:5432/petbuddies"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    MINIO_HOST = "localhost:9000"
-    MINIO_KEY = "myappuser"
-    MINIO_SECRET_KEY = "app_user_password"

@@ -11,9 +11,9 @@ from flask_jwt_extended import (
 )
 import sqlalchemy
 from db_dto.user_dto import create_user_dto, edit_user_dto
-from utils.s3_utils import create_thumbnail_and_upload
 import marshmallow
-from minio.error import S3Error
+import os
+from utils.utils_photo import resize_image
 
 auth = Blueprint("routes", __name__)
 
@@ -122,7 +122,7 @@ def edit_user():
     try:
         edit_user_dto.load(request.json, instance=user, partial=True)
 
-        storage_name = "user-photo"
+        storage_name = "/files/user_photo"
         filename = f"user_{str(user.user_id)}.jpeg"
 
         user_photo = UserPhoto.query.filter(
@@ -135,9 +135,11 @@ def edit_user():
             )
             db.session.add(user_photo)
 
-        create_thumbnail_and_upload(
-            file, storage_name, filename, thumbnail_size=(400, 400)
-        )
+        file_to_save = resize_image(file)
+
+        file_path = os.path.join(storage_name, filename)
+        with open(file_path, "wb") as f:
+            f.write(file_to_save.read())
 
         db.session.commit()
         return jsonify({"msg": "Zapisano zmiany!"}), 200
@@ -154,8 +156,3 @@ def edit_user():
     except marshmallow.exceptions.ValidationError as ve:
         db.session.rollback()
         return jsonify({"error": str(ve), "msg": ve.messages}), 400
-    except S3Error:
-        db.session.rollback()
-        return jsonify(
-            {"msg": "Nie można zapisać aktualnie zdjęcia! Spróbuj jeszcze raz."}
-        )
