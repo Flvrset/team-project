@@ -8,8 +8,8 @@ dicts = Blueprint("dicts", __name__)
 def city(place):
     places = DPostalCode.query.filter(
         DPostalCode.postal_code.like(f"%{place}%")
-        if place[0].isnumeric() else
-        DPostalCode.place.like(f"%{place}%")
+        if place[0].isnumeric()
+        else DPostalCode.place.like(f"%{place}%")
     ).all()
     response = [
         {"place": place.place, "postal_code": place.postal_code} for place in places

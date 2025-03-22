@@ -44,7 +44,9 @@ class PetPhoto:
     __tablename__ = "PetPhoto"
     __table_args__ = {"schema": "petbuddies_schema"}
 
-    pet_photo_id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    pet_photo_id = db.Column(
+        db.Integer, primary_key=True, autoincrement=True, unique=True
+    )
     photo = db.Column(db.LargeBinary, nullable=False)
 
     pet_id = db.Column(

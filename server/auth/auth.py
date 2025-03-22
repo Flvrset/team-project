@@ -20,7 +20,9 @@ auth = Blueprint("auth", __name__)
 def register_user_page():
     try:
         new_user = create_user_dto.load(request.json)
-        new_user.password_hash = bcrypt.generate_password_hash(new_user.password_hash).decode("utf-8")
+        new_user.password_hash = bcrypt.generate_password_hash(
+            new_user.password_hash
+        ).decode("utf-8")
 
         db.session.add(new_user)
         db.session.commit()

@@ -6,6 +6,7 @@ class CreatePetDTO(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Pet
         load_instance = True
+        exclude = ("is_deleted",)
 
     pet_id = ma.auto_field(dump_only=True, load_only=True)
     pet_name = ma.auto_field(required=True)

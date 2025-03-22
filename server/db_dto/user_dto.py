@@ -6,6 +6,16 @@ class CreateUserDTO(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         load_instance = True
+        exclude = (
+            "city",
+            "postal_code",
+            "street",
+            "house_number",
+            "apartment_number",
+            "phone_number",
+            "join_date",
+            "is_banned",
+        )
 
     user_id = ma.auto_field(dump_only=True, load_only=True)
     name = ma.auto_field()
@@ -19,6 +29,15 @@ class EditUserDTO(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         load_instance = True
+        exclude = (
+            "name",
+            "surname",
+            "login",
+            "password_hash",
+            "email",
+            "join_date",
+            "is_banned",
+        )
 
     user_id = ma.auto_field(dump_only=True)
     city = ma.auto_field()

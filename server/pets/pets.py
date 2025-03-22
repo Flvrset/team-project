@@ -51,23 +51,16 @@ def get_pet_data(pet_id):
             403,
         )
 
-    return jsonify(
-        {
-            get_pet_dto.dump(pet_info)
-        }
-    )
+    return jsonify({get_pet_dto.dump(pet_info)})
 
 
 @pet.route("/getMyPets", methods=["GET"])
 @jwt_required()
 def get_pets():
     user_id = get_jwt_identity()
-    
+
     pet_list = (
-        Pet.query
-        .filter(Pet.user_id == user_id)
-        .filter(Pet.is_deleted == False)
-        .all()
+        Pet.query.filter(Pet.user_id == user_id).filter(Pet.is_deleted == False).all()
     )
 
     print(get_pets_dto.dump(pet_list))
@@ -75,9 +68,7 @@ def get_pets():
     if not pet_list:
         return jsonify({"msg": "Użytkownik nie posiada zwierząt!"}), 404
 
-    return jsonify(
-        get_pets_dto.dump(pet_list)
-    ), 200
+    return jsonify(get_pets_dto.dump(pet_list)), 200
 
 
 @pet.route("/deletePet/<int:pet_id>", methods=["POST"])
