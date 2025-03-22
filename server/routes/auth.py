@@ -112,8 +112,11 @@ def edit_user():
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
+    storage_name = "/files/user_photo"
+    filename = f"user_{str(user.user_id)}.jpeg"
+
     if request.method == "GET":
-        return jsonify(edit_user_dto.dump(user))
+        return jsonify({**edit_user_dto.dump(user), "file_link": f"{request.host_url}{storage_name}/{filename}"})
 
     file = request.files.get("photo")
     if not file:
@@ -121,9 +124,6 @@ def edit_user():
 
     try:
         edit_user_dto.load(request.json, instance=user, partial=True)
-
-        storage_name = "/files/user_photo"
-        filename = f"user_{str(user.user_id)}.jpeg"
 
         user_photo = UserPhoto.query.filter(
             UserPhoto.postal_code.like(f"%{filename}%")
