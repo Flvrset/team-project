@@ -114,7 +114,7 @@ def edit_user():
         return jsonify({"msg": "User not found"}), 404
 
     storage_name = "files/user_photo"
-    filename = f"user_{str(user.user_id)}.jpeg"
+    filename = f"user_{str(user.user_id)}.jpeg" # zahashujmy tą nazwę zdjęcia
 
     if request.method == "GET":
         return jsonify({**edit_user_dto.dump(user), "file_link": f"{storage_name}/{filename}"})
@@ -134,22 +134,8 @@ def edit_user():
         if json_data:
             edit_user_dto.load(json_data, instance=user, partial=True)
 
-        if file:
-            user_photo = UserPhoto.query.filter(
-                UserPhoto.photo_name.like(f"%{filename}%")
-            ).first()
-
-            if not user_photo:
-                user_photo = UserPhoto(
-                    user_id=user.user_id, photo_name=filename, photo_storage=storage_name
-                )
-                db.session.add(user_photo)
-
-            file_to_save = resize_image(file)
-
-            file_path = os.path.join(storage_name, filename)
-            # with open(file_path, "wb") as f:
-            #     f.write(file_to_save.read())
+        # if file:
+            # ZAPISANIE ZDJĘCIA NA SERWERZE LUB ZMIANA NA NOWE ZDJĘCIE I ZAPISANIE/AKTUALIZACJA W TABELI
 
         db.session.commit()
         return jsonify({"msg": "Zapisano zmiany!"}), 200
