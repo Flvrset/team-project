@@ -126,15 +126,12 @@ def edit_user():
 
     try:
         json_data = {}
-        
-        print(request.form)
-        
+                
         if 'json' in request.form:
             import json
             json_data = json.loads(request.form['json'])
         
         if json_data:
-            print(json_data)
             edit_user_dto.load(json_data, instance=user, partial=True)
 
         if file:
