@@ -21,18 +21,38 @@ export const fetchWithAuth = async (
 
     const csrfToken = csrfCookie ? csrfCookie.split('=')[1] : '';
 
+    const headerEntries: Record<string, string> = {
+        'X-CSRF-TOKEN': csrfToken,
+    };
+
+    if (options.headers) {
+        if (options.headers instanceof Headers) {
+            options.headers.forEach((value, key) => {
+                headerEntries[key] = value;
+            });
+        } else if (Array.isArray(options.headers)) {
+            options.headers.forEach(([key, value]) => {
+                headerEntries[key] = value;
+            });
+        } else {
+            Object.assign(headerEntries, options.headers);
+        }
+    }
+
+    if (!(options.body instanceof FormData)) {
+        headerEntries['Content-Type'] = 'application/json';
+    }
+
     const requestOptions: RequestInit = {
         method,
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-            ...(options.headers || {})
-        },
+        headers: headerEntries,
         credentials: 'include',
         ...options
     };
 
-    if (requestOptions.body && typeof requestOptions.body !== 'string') {
+    if (requestOptions.body && 
+        !(requestOptions.body instanceof FormData) && 
+        typeof requestOptions.body !== 'string') {
         requestOptions.body = JSON.stringify(requestOptions.body);
     }
 

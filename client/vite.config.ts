@@ -13,6 +13,12 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
+      '/storage': {
+        target: 'http://localhost:9000',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/storage/, ''),
+      }
     }
   },
   preview: {
@@ -22,6 +28,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/storage': {
+        target: 'http://storage:9000',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/storage/, ''),
       }
     }
   }

@@ -90,7 +90,7 @@ const EditDataPage = () => {
                     });
 
                     if (userData.file_link) {
-                        setPhotoPreview(`${userData.file_link}?${new Date().getTime()}`); // Add timestamp to prevent caching
+                        setPhotoPreview(`/storage/${userData.file_link}`);
                     }
                 } else {
                     console.error('Failed to fetch user data');
@@ -212,7 +212,7 @@ const EditDataPage = () => {
         try {
             const formDataToSend = new FormData();
 
-            formDataToSend.append('json', new Blob([JSON.stringify(formData)], { type: 'application/json' }));
+            formDataToSend.append('json', JSON.stringify(formData));
 
             if (photoFile) {
                 formDataToSend.append('photo', photoFile);
@@ -338,7 +338,7 @@ const EditDataPage = () => {
                                     {photoPreview ? (
                                         <Box
                                             component="img"
-                                            src={`/api/get_photo/${photoPreview}`}
+                                            src={photoPreview}
                                             alt="Zdjęcie profilowe"
                                             onError={() => {
                                                 setPhotoPreview('');

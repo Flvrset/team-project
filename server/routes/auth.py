@@ -122,9 +122,20 @@ def edit_user():
     file = request.files.get("photo")
     if not file:
         print("File was not uploaded")
+        # USUNIĘCIE ZDJĘCIA Z SERWERA
 
     try:
-        edit_user_dto.load(request.json, instance=user, partial=True)
+        json_data = {}
+        
+        print(request.form)
+        
+        if 'json' in request.form:
+            import json
+            json_data = json.loads(request.form['json'])
+        
+        if json_data:
+            print(json_data)
+            edit_user_dto.load(json_data, instance=user, partial=True)
 
         if file:
             user_photo = UserPhoto.query.filter(
@@ -140,8 +151,8 @@ def edit_user():
             file_to_save = resize_image(file)
 
             file_path = os.path.join(storage_name, filename)
-            with open(file_path, "wb") as f:
-                f.write(file_to_save.read())
+            # with open(file_path, "wb") as f:
+            #     f.write(file_to_save.read())
 
         db.session.commit()
         return jsonify({"msg": "Zapisano zmiany!"}), 200
@@ -158,36 +169,7 @@ def edit_user():
     except marshmallow.exceptions.ValidationError as ve:
         db.session.rollback()
         return jsonify({"error": str(ve), "msg": ve.messages}), 400
-
-@auth.route("/get_photo/<path:filename>", methods=["GET"])
-@jwt_required()
-def get_photo(filename):
-    try:
-        storage_url = f"http://localhost:9000/{filename}"
-        resp = requests.get(
-            storage_url, 
-            stream=True,
-            headers={'Host': 'localhost'}
-        )
-        if resp.status_code != 200:
-            if resp.status_code == 403:
-                return jsonify({"msg": "Storage access denied"}), 403
-            elif resp.status_code == 404:
-                return jsonify({"msg": "Photo not found"}), 404
-            else:
-                return jsonify({"msg": f"Storage error: {resp.status_code}"}), 500
-            
-        return Response(
-            stream_with_context(resp.iter_content(chunk_size=1024)),
-            content_type=resp.headers.get('content-type', 'image/jpeg'),
-            status=resp.status_code
-        )
-    except (IndexError, ValueError):
-        return jsonify({"msg": "Invalid photo filename format"}), 400
-    except requests.RequestException as e:
-        print(f"Error accessing storage: {str(e)}")
-        return jsonify({"msg": "Error retrieving photo from storage"}), 500
     except Exception as e:
-        print(f"Unexpected error serving photo: {str(e)}")
-        return jsonify({"msg": "Error retrieving photo"}), 500
-        
+        db.session.rollback()
+        print(f"Unexpected error: {str(e)}")
+        return jsonify({"msg": f"Wystąpił błąd: {str(e)}"}), 500

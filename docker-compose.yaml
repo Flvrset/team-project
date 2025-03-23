@@ -6,8 +6,6 @@ services:
     container_name: server
     volumes:
       - ./server:/app
-      - ./files/user_photo:/user_photo
-      - ./files/pet_photo:/pet_photo
     ports:
       - "5000:5000"
     depends_on:
@@ -48,4 +46,3 @@ services:
 
 volumes:
   postgres_data:
-  files:
