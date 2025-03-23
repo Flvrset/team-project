@@ -13,7 +13,7 @@ import {
     useTheme 
 } from '@mui/material';
 
-import { Pet } from '../types';
+import { Pet, PetType } from '../types';
 
 interface PetCardProps {
     pet: Pet;
@@ -35,17 +35,17 @@ const PetCard: React.FC<PetCardProps> = ({
     const theme = useTheme();
     
     // Get pet icon color
-    const getPetIconColor = (type: string) => {
-        switch (type.toLowerCase()) {
-            case 'pies':
+    const getPetIconColor = (type: PetType) => {
+        switch (type) {
+            case 'Pies':
                 return theme.palette.primary.main;
-            case 'kot':
+            case 'Kot':
                 return theme.palette.secondary.main;
-            case 'królik':
+            case 'Królik':
                 return theme.palette.info.main;
-            case 'papuga':
+            case 'Papuga':
                 return theme.palette.success.main;
-            case 'fretka':
+            case 'Fretka':
                 return theme.palette.warning.main;
             default:
                 return theme.palette.grey[500];
@@ -90,13 +90,36 @@ const PetCard: React.FC<PetCardProps> = ({
                 }}
                 onClick={handleClick}
             >
-                <Box
-                    sx={{
-                        height: 8,
-                        width: '100%',
-                        backgroundColor: iconColor,
-                    }}
-                />
+                {pet.photo ? (
+                    <Box sx={{ 
+                        height: 80, 
+                        width: '100%', 
+                        overflow: 'hidden',
+                        position: 'relative'
+                    }}>
+                        <Box 
+                            component="img"
+                            src={`/storage/${pet.photo}`}
+                            alt={pet.pet_name}
+                            onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                                e.currentTarget.style.display = 'none';
+                            }}
+                            sx={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                            }}
+                        />
+                    </Box>
+                ) : (
+                    <Box
+                        sx={{
+                            height: 8,
+                            width: '100%',
+                            backgroundColor: iconColor,
+                        }}
+                    />
+                )}
                 <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                         <Box
@@ -134,7 +157,6 @@ const PetCard: React.FC<PetCardProps> = ({
         );
     }
     
-    // Medium variant (for PetsPage)
     return (
         <Card
             sx={{
@@ -151,13 +173,44 @@ const PetCard: React.FC<PetCardProps> = ({
                 overflow: 'hidden',
             }}
         >
-            <Box
-                sx={{
-                    height: 8,
-                    width: '100%',
-                    backgroundColor: iconColor,
-                }}
-            />
+            {pet.photo ? (
+                <Box sx={{ 
+                    height: 180, 
+                    width: '100%', 
+                    overflow: 'hidden',
+                    position: 'relative'
+                }}>
+                    <Box 
+                        component="img"
+                        src={`/storage/${pet.photo}`}
+                        alt={pet.pet_name}
+                        onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                            e.currentTarget.style.display = 'none';
+                            const parent = e.currentTarget.parentElement;
+                            if (parent) {
+                                const fallbackStripe = document.createElement('div');
+                                fallbackStripe.style.height = '8px';
+                                fallbackStripe.style.width = '100%';
+                                fallbackStripe.style.backgroundColor = iconColor;
+                                parent.appendChild(fallbackStripe);
+                            }
+                        }}
+                        sx={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                        }}
+                    />
+                </Box>
+            ) : (
+                <Box
+                    sx={{
+                        height: 8,
+                        width: '100%',
+                        backgroundColor: iconColor,
+                    }}
+                />
+            )}
             <CardContent sx={{ flexGrow: 1, pb: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Box

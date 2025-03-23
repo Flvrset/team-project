@@ -59,12 +59,7 @@ const PetsPage = () => {
                 setPets(data || []);
             } else {
                 const errorData = await response.json();
-                if (response.status === 404) {
-                    // User has no pets, not an error condition
-                    setPets([]);
-                } else {
-                    setError(errorData.msg || 'Nie udało się pobrać danych zwierząt');
-                }
+                setError(errorData.msg || 'Nie udało się pobrać danych zwierząt');   
             }
         } catch (err) {
             setError('Wystąpił błąd podczas pobierania danych zwierząt');
@@ -86,15 +81,6 @@ const PetsPage = () => {
             severity: 'success',
         });
         fetchPets(); // Refresh pets list
-    };
-
-    // Handle error from PetFormModal
-    const handlePetAddError = (errorMessage: string) => {
-        setNotification({
-            open: true,
-            message: errorMessage,
-            severity: 'error',
-        });
     };
 
     const handleDeletePet = async () => {
@@ -295,7 +281,6 @@ const PetsPage = () => {
                 open={openAddModal}
                 onClose={handleCloseAddModal}
                 onSuccess={handlePetAddSuccess}
-                onError={handlePetAddError}
             />
 
             {/* Delete Confirmation Dialog */}

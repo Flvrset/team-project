@@ -65,9 +65,6 @@ def get_pets():
 
     print(get_pets_dto.dump(pet_list))
 
-    if not pet_list:
-        return jsonify({"msg": "Użytkownik nie posiada zwierząt!"}), 404
-
     return jsonify(get_pets_dto.dump(pet_list)), 200
 
 

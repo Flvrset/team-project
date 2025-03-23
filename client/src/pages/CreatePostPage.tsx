@@ -86,17 +86,13 @@ const CreatePostPage = () => {
                 const data = await response.json();
                 setPets(data || []);
             } else {
-                // User has no pets or error occurred
-                if (response.status === 404) {
-                    setPets([]);
-                } else {
-                    const errorData = await response.json();
-                    setNotification({
-                        open: true,
-                        message: errorData.msg || 'Nie udało się pobrać danych zwierząt',
-                        severity: 'error',
-                    });
-                }
+                const errorData = await response.json();
+                setNotification({
+                    open: true,
+                    message: errorData.msg || 'Nie udało się pobrać danych zwierząt',
+                    severity: 'error',
+                });
+                
             }
         } catch (err) {
             console.error('Error fetching pets:', err);
@@ -194,14 +190,6 @@ const CreatePostPage = () => {
         });
         fetchPets(); // Refresh pets list
         setOpenPetModal(false);
-    };
-
-    const handlePetAddError = (errorMessage: string) => {
-        setNotification({
-            open: true,
-            message: errorMessage,
-            severity: 'error',
-        });
     };
 
     // Notification handler
@@ -657,7 +645,6 @@ const CreatePostPage = () => {
                     open={openPetModal}
                     onClose={handleClosePetModal}
                     onSuccess={handlePetAddSuccess}
-                    onError={handlePetAddError}
                 />
 
                 {/* Notification Snackbar */}
