@@ -1,4 +1,7 @@
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DeleteIcon from '@mui/icons-material/Delete';
 import HomeIcon from '@mui/icons-material/Home';
 import PetsIcon from '@mui/icons-material/Pets';
 import PhoneIcon from '@mui/icons-material/Phone';
@@ -21,7 +24,7 @@ import {
     CircularProgress,
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import CitySearchSelect from '../components/CitySearchSelect';
 import { useAuth } from '../hooks/AuthProvider';
@@ -42,6 +45,7 @@ interface FormErrors {
     house_number?: string;
     apartment_number?: string;
     phone_number?: string;
+    photo?: string;
 }
 
 const EditDataPage = () => {
@@ -55,7 +59,9 @@ const EditDataPage = () => {
         severity: 'success' as 'success' | 'error',
     });
     const [errors, setErrors] = useState<FormErrors>({});
-    const navigate = useNavigate();
+    const [photoFile, setPhotoFile] = useState<File | null>(null);
+    const [photoPreview, setPhotoPreview] = useState<string>('');
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState<UserFormData>({
         city: '',
@@ -82,6 +88,10 @@ const EditDataPage = () => {
                         apartment_number: userData.apartment_number || '',
                         phone_number: userData.phone_number || '',
                     });
+
+                    if (userData.file_link) {
+                        setPhotoPreview(`${userData.file_link}?${new Date().getTime()}`); // Add timestamp to prevent caching
+                    }
                 } else {
                     console.error('Failed to fetch user data');
                     setNotification({
@@ -104,6 +114,48 @@ const EditDataPage = () => {
 
         fetchUserData();
     }, []);
+
+    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file size (less than 1MB)
+        if (file.size > 1024 * 1024) {
+            setErrors(prev => ({
+                ...prev,
+                photo: 'Zdjęcie musi być mniejsze niż 1MB'
+            }));
+            return;
+        }
+
+        // Clear any previous errors
+        setErrors(prev => ({
+            ...prev,
+            photo: undefined
+        }));
+
+        // Set the file
+        setPhotoFile(file);
+
+        // Create a preview URL
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPhotoPreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleRemovePhoto = () => {
+        setPhotoFile(null);
+        setPhotoPreview('');
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const handlePhotoClick = () => {
+        fileInputRef.current?.click();
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -158,7 +210,15 @@ const EditDataPage = () => {
 
         setLoading(true);
         try {
-            const response = await postWithAuth('/api/edit_user', JSON.stringify(formData));
+            const formDataToSend = new FormData();
+
+            formDataToSend.append('json', new Blob([JSON.stringify(formData)], { type: 'application/json' }));
+
+            if (photoFile) {
+                formDataToSend.append('photo', photoFile);
+            }
+
+            const response = await postWithAuth('/api/edit_user', formDataToSend);
 
             if (response.ok) {
                 setNotification({
@@ -250,6 +310,137 @@ const EditDataPage = () => {
                             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                                 Twoje dane profilu: {auth.userData?.name} {auth.userData?.surname} ({auth.userData?.login})
                             </Typography>
+
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                mb: 3,
+                                mt: 2
+                            }}>
+                                <Typography
+                                    variant="subtitle1"
+                                    color="text.secondary"
+                                    align="center"
+                                    sx={{ mb: 2 }}
+                                >
+                                    Zdjęcie profilowe
+                                </Typography>
+
+                                <Box
+                                    sx={{
+                                        position: 'relative',
+                                        width: 150,
+                                        height: 150,
+                                        mb: 1
+                                    }}
+                                >
+                                    {photoPreview ? (
+                                        <Box
+                                            component="img"
+                                            src={`/api/get_photo/${photoPreview}`}
+                                            alt="Zdjęcie profilowe"
+                                            onError={() => {
+                                                setPhotoPreview('');
+                                            }}
+                                            sx={{
+                                                width: 150,
+                                                height: 150,
+                                                borderRadius: '50%',
+                                                objectFit: 'cover',
+                                                border: `3px solid ${theme.palette.primary.main}`,
+                                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                                cursor: 'pointer',
+                                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                                '&:hover': {
+                                                    transform: 'scale(1.05)',
+                                                    boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+                                                }
+                                            }}
+                                            onClick={handlePhotoClick}
+                                        />
+                                    ) : (
+                                        <Box
+                                            sx={{
+                                                width: 150,
+                                                height: 150,
+                                                borderRadius: '50%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                backgroundColor: alpha(theme.palette.primary.light, 0.1),
+                                                border: `2px dashed ${theme.palette.primary.main}`,
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s',
+                                                '&:hover': {
+                                                    backgroundColor: alpha(theme.palette.primary.light, 0.2),
+                                                    transform: 'scale(1.05)',
+                                                }
+                                            }}
+                                            onClick={handlePhotoClick}
+                                        >
+                                            <AccountCircleIcon
+                                                sx={{
+                                                    fontSize: 80,
+                                                    color: theme.palette.primary.main,
+                                                    opacity: 0.7
+                                                }}
+                                            />
+                                        </Box>
+                                    )}
+
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        ref={fileInputRef}
+                                        style={{ display: 'none' }}
+                                        onChange={handlePhotoChange}
+                                    />
+                                </Box>
+
+                                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        onClick={handlePhotoClick}
+                                        startIcon={<AddAPhotoIcon />}
+                                        sx={{ borderRadius: 2 }}
+                                    >
+                                        {photoPreview ? 'Zmień zdjęcie' : 'Dodaj zdjęcie'}
+                                    </Button>
+
+                                    {photoPreview && (
+                                        <Button
+                                            variant="outlined"
+                                            size="small"
+                                            color="error"
+                                            onClick={handleRemovePhoto}
+                                            startIcon={<DeleteIcon />}
+                                            sx={{ borderRadius: 2 }}
+                                        >
+                                            Usuń
+                                        </Button>
+                                    )}
+                                </Box>
+
+                                {errors.photo && (
+                                    <Typography
+                                        variant="caption"
+                                        color="error"
+                                        sx={{ mt: 1 }}
+                                    >
+                                        {errors.photo}
+                                    </Typography>
+                                )}
+
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{ mt: 1, textAlign: 'center' }}
+                                >
+                                    Dodaj zdjęcie profilowe (maks. 1MB)
+                                </Typography>
+                            </Box>
 
                             <Divider sx={{ my: 3 }} />
 

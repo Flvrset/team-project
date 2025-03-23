@@ -1,4 +1,4 @@
-from flask import request, jsonify, make_response, Blueprint
+from flask import request, jsonify, make_response, Blueprint, Response, stream_with_context
 from app import db, bcrypt, limiter
 from db_models.database_tables import User, UserPhoto
 from flask_jwt_extended import (
@@ -13,6 +13,7 @@ import sqlalchemy
 from db_dto.user_dto import create_user_dto, edit_user_dto
 import marshmallow
 import os
+import requests
 from utils.utils_photo import resize_image
 
 auth = Blueprint("routes", __name__)
@@ -112,11 +113,11 @@ def edit_user():
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
-    storage_name = "/files/user_photo"
+    storage_name = "files/user_photo"
     filename = f"user_{str(user.user_id)}.jpeg"
 
     if request.method == "GET":
-        return jsonify({**edit_user_dto.dump(user), "file_link": f"http://localhost:9000/{storage_name}/{filename}"})
+        return jsonify({**edit_user_dto.dump(user), "file_link": f"{storage_name}/{filename}"})
 
     file = request.files.get("photo")
     if not file:
@@ -127,7 +128,7 @@ def edit_user():
 
         if file:
             user_photo = UserPhoto.query.filter(
-                UserPhoto.postal_code.like(f"%{filename}%")
+                UserPhoto.photo_name.like(f"%{filename}%")
             ).first()
 
             if not user_photo:
@@ -157,3 +158,36 @@ def edit_user():
     except marshmallow.exceptions.ValidationError as ve:
         db.session.rollback()
         return jsonify({"error": str(ve), "msg": ve.messages}), 400
+
+@auth.route("/get_photo/<path:filename>", methods=["GET"])
+@jwt_required()
+def get_photo(filename):
+    try:
+        storage_url = f"http://localhost:9000/{filename}"
+        resp = requests.get(
+            storage_url, 
+            stream=True,
+            headers={'Host': 'localhost'}
+        )
+        if resp.status_code != 200:
+            if resp.status_code == 403:
+                return jsonify({"msg": "Storage access denied"}), 403
+            elif resp.status_code == 404:
+                return jsonify({"msg": "Photo not found"}), 404
+            else:
+                return jsonify({"msg": f"Storage error: {resp.status_code}"}), 500
+            
+        return Response(
+            stream_with_context(resp.iter_content(chunk_size=1024)),
+            content_type=resp.headers.get('content-type', 'image/jpeg'),
+            status=resp.status_code
+        )
+    except (IndexError, ValueError):
+        return jsonify({"msg": "Invalid photo filename format"}), 400
+    except requests.RequestException as e:
+        print(f"Error accessing storage: {str(e)}")
+        return jsonify({"msg": "Error retrieving photo from storage"}), 500
+    except Exception as e:
+        print(f"Unexpected error serving photo: {str(e)}")
+        return jsonify({"msg": "Error retrieving photo"}), 500
+        
