@@ -1,4 +1,4 @@
-from flask import request, jsonify, make_response, Blueprint, Response, stream_with_context
+from flask import request, jsonify, make_response, Blueprint
 from app import db, bcrypt, limiter
 from db_models.database_tables import User, UserPhoto
 from flask_jwt_extended import (
@@ -12,11 +12,21 @@ from flask_jwt_extended import (
 import sqlalchemy
 from db_dto.user_dto import create_user_dto, edit_user_dto
 import marshmallow
-import os
-import requests
 from utils.utils_photo import resize_image
 
+import boto3
+from botocore.client import Config
+
 auth = Blueprint("routes", __name__)
+
+
+s3_client = boto3.client(
+    's3',
+    endpoint_url='http://storage:9000',
+    aws_access_key_id='myappuser',
+    aws_secret_access_key='app_user_password',
+    config=Config(signature_version='s3v4')
+)
 
 
 @auth.route("/register", methods=["POST"])
@@ -113,11 +123,13 @@ def edit_user():
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
-    storage_name = "files/user_photo"
-    filename = f"user_{str(user.user_id)}.jpeg" # zahashujmy tą nazwę zdjęcia
-
     if request.method == "GET":
-        return jsonify({**edit_user_dto.dump(user), "file_link": f"{storage_name}/{filename}"})
+        link = s3_client.generate_presigned_url(
+            "get_object",
+            Params={'Bucket': 'upload', 'Key': 'user_photo/abc.webp'},
+            ExpiresIn=3600
+        )
+        return jsonify({**edit_user_dto.dump(user), "file_link": link})
 
     file = request.files.get("photo")
     if not file:
@@ -134,8 +146,19 @@ def edit_user():
         if json_data:
             edit_user_dto.load(json_data, instance=user, partial=True)
 
-        # if file:
+        from io import BytesIO
+
+        if file:
+            print("file in request")
             # ZAPISANIE ZDJĘCIA NA SERWERZE LUB ZMIANA NA NOWE ZDJĘCIE I ZAPISANIE/AKTUALIZACJA W TABELI
+            file_to_save = resize_image(file)
+
+            s3_client.put_object(
+                Bucket="upload",
+                Key='user_photo/abc.webp',
+                Body=file_to_save.getvalue(),
+                ContentType='image/webp'
+            )
 
         db.session.commit()
         return jsonify({"msg": "Zapisano zmiany!"}), 200
