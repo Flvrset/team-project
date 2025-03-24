@@ -22,7 +22,7 @@ auth = Blueprint("routes", __name__)
 
 s3_client = boto3.client(
     's3',
-    endpoint_url='http://206.189.53.216:9000',
+    endpoint_url='http://storage:9000',
     aws_access_key_id='myappuser',
     aws_secret_access_key='app_user_password',
     config=Config(signature_version='s3v4')
@@ -128,7 +128,7 @@ def edit_user():
             "get_object",
             Params={'Bucket': 'upload', 'Key': 'user_photo/abc.webp'},
             ExpiresIn=3600
-        )
+        ).replace("http://storage:9000", "/storage")
         return jsonify({**edit_user_dto.dump(user), "file_link": link})
 
     file = request.files.get("photo")
