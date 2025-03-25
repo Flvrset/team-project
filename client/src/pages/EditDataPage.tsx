@@ -29,7 +29,7 @@ import { Link } from 'react-router-dom';
 import CitySearchSelect from '../components/CitySearchSelect';
 import { useAuth } from '../hooks/AuthProvider';
 import { getWithAuth, postWithAuth } from '../utils/auth';
-import { validateMaxLength, validatePhoneNumber } from '../utils/validation';
+import { validateChain, validateMaxLength, validateNumber, validatePhoneNumber } from '../utils/validation';
 
 interface UserFormData {
     city: string;
@@ -62,6 +62,7 @@ const EditDataPage = () => {
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string>('');
     const fileInputRef = React.useRef<HTMLInputElement>(null);
+    const [photoDeleted, setPhotoDeleted] = useState<boolean>(false);
 
     const [formData, setFormData] = useState<UserFormData>({
         city: '',
@@ -136,6 +137,7 @@ const EditDataPage = () => {
 
         // Set the file
         setPhotoFile(file);
+        setPhotoDeleted(false);
 
         // Create a preview URL
         const reader = new FileReader();
@@ -148,6 +150,7 @@ const EditDataPage = () => {
     const handleRemovePhoto = () => {
         setPhotoFile(null);
         setPhotoPreview('');
+        setPhotoDeleted(true);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -170,7 +173,7 @@ const EditDataPage = () => {
         } else if (name === 'house_number') {
             newErrors.house_number = validateMaxLength(value, 'Numer domu', 10);
         } else if (name === 'apartment_number') {
-            newErrors.apartment_number = validateMaxLength(value, 'Numer mieszkania', 10);
+            newErrors.apartment_number = validateChain(validateMaxLength(value, 'Numer mieszkania', 10), validateNumber(value, 'Numer mieszkania'));
         }
         setErrors(newErrors);
     };
@@ -189,7 +192,7 @@ const EditDataPage = () => {
         newErrors.phone_number = validatePhoneNumber(formData.phone_number);
         newErrors.street = validateMaxLength(formData.street, 'Ulica', 100);
         newErrors.house_number = validateMaxLength(formData.house_number, 'Numer domu', 10);
-        newErrors.apartment_number = validateMaxLength(formData.apartment_number, 'Numer mieszkania', 10);
+        newErrors.apartment_number = validateChain(validateMaxLength(formData.apartment_number, 'Numer mieszkania', 10), validateNumber(formData.apartment_number, 'Numer mieszkania'));
 
         setErrors(newErrors);
 
@@ -212,7 +215,7 @@ const EditDataPage = () => {
         try {
             const formDataToSend = new FormData();
 
-            formDataToSend.append('json', JSON.stringify(formData));
+            formDataToSend.append('json', JSON.stringify({ photo_deleted: photoDeleted, ...formData }));
 
             if (photoFile) {
                 formDataToSend.append('photo', photoFile);

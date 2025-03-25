@@ -15,10 +15,25 @@ export const validatePhoneNumber = (phone: string): string | undefined => {
     return undefined;
 };
 
+export const validateNumber = (value: string, field: string): string | undefined => {
+    const numberRegex = /^[0-9]+$/;
+    if (!value) return "Pole jest wymagane";
+    if (!numberRegex.test(value)) return `${field} musi zawierać tylko cyfry`;
+    return undefined;
+}
 
 export const validateMaxLength = (value: string, field: string, maxLength: number): string | undefined => {
     if (value && value.length > maxLength) {
         return `${field} nie może przekraczać ${maxLength} znaków`;
+    }
+    return undefined;
+};
+
+export const validateChain = (
+    ...validations: Array<string | undefined>
+): string | undefined => {
+    for (const validation of validations) {
+        if (validation) return validation;
     }
     return undefined;
 };
