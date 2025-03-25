@@ -1,10 +1,11 @@
 from flask import request, jsonify, Blueprint
-from db_models.database_tables import Post, User, Pet, PetCare
 from app import db
 from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
+from db_models.database_tables import User, Post, PetCare
+from db_dto.post_dto import create_post_dto, create_petcare_dto
 import sqlalchemy
 
 post = Blueprint("post", __name__)
@@ -15,37 +16,61 @@ post = Blueprint("post", __name__)
 def create_post():
     user_id = get_jwt_identity()
 
-    start_date = request.json.get("start_date", None)
-    end_date = request.json.get("end_date", None)
-    start_time = request.json.get("start_time", None)
-    end_time = request.json.get("end_time", None)
-    description = request.json.get("description", "")
-    cost = request.json.get("cost", 0)
-    pet_list = request.json.get("pet_list", None)
-
-    if not (start_time and start_date and end_time and end_date and pet_list):
-        return jsonify({"msg": "Nie podano wszystkich niezbędnych danych!"})
-
-    post = Post(
-        user_id=user_id,
-        start_date=start_date,
-        end_date=end_date,
-        start_time=start_time,
-        end_time=end_time,
-        description=description,
-        cost=cost,
-    )
-
-    pet_care_lst = [
-        PetCare(post_id=post.post_id, pet_id=p.get("pet_id")) for p in pet_list
-    ]
+    post_dto = create_post_dto.load(request.json)
+    post_dto.user_id = user_id
 
     try:
-        db.session.add(post)
-        for pet_care in pet_care_lst:
-            db.session.add(pet_care)
+        # post_db = Post(**create_post_dto.dump(post_dto))
+        db.session.add(post_dto)
+        db.session.flush()
+        print(post_dto.post_id)
 
-        return jsonify({"msg": "Post został utworzony! Trzyamy kciuki :)"})
+
+        for pet_care in request.json.get("pet_list", None):
+            # pet_care = PetCare(**create_petcare_dto.load(
+            #     {"pet_id": pet_care["pet_id"], "post_id": post_dto.post_id}
+            # ))
+            db.session.add(
+                create_petcare_dto.load(
+                    {"pet_id": pet_care["pet_id"], "post_id": post_dto.post_id}
+                )
+            )
+        db.session.commit()
+        return jsonify({"msg": "Post został utworzony! Trzyamy kciuki :)"}), 200
     except sqlalchemy.exc.IntegrityError:
         db.session.rollback()
         return jsonify({"msg": "Nie można w tej chwili dodać ogłoszenia."}), 406
+
+
+@post.route("/getDashboardPost", methods=["GET"])
+@jwt_required()
+def get_dashboard_post():
+    # dodac logike do wybierania 10 (albo wiecej) dla uzytkownika
+    post_lst = (
+        db.session.query(
+            Post, User, sqlalchemy.func.count(PetCare.pet_id).label("pet_count")
+        )
+        .join(User, Post.user_id == User.user_id, isouter=True)
+        .join(PetCare, Post.post_id == PetCare.post_id, isouter=True)
+        .group_by(Post.post_id, User.user_id)
+        .limit(10)
+        .all()
+    )
+
+    resp_lst = [
+        {
+            "city": user.city,
+            "postal_code": user.postal_code,
+            "name": user.name,
+            "surname": user.surname,
+            "start_date": post_dashboard.start_date,
+            "end_date": post_dashboard.end_date,
+            "start_time": str(post_dashboard.start_time),
+            "end_time": str(post_dashboard.end_time),
+            "cost": post_dashboard.cost,
+            "pet_count": pet_cnt
+        }
+        for post_dashboard, user, pet_cnt in post_lst
+    ]
+
+    return jsonify(resp_lst), 200

@@ -11,7 +11,7 @@ def resize_image(image, size=(400, 400)):
 
     # Save the resized image to a BytesIO object (in-memory file)
     img_io = io.BytesIO()
-    img.save(img_io, 'WEBP', quality=80)
+    img.save(img_io, "WEBP", quality=80)
     img_io.seek(0)  # Go to the beginning of the BytesIO object
 
     return img_io

@@ -124,28 +124,32 @@ def edit_user():
     if request.method == "GET":
         user_dict = {**edit_user_dto.dump(user)}
         if photo:
-            user_dict["file_link"] = generate_presigned_url('user_photo', photo.photo_name)
+            user_dict["file_link"] = generate_presigned_url(
+                "user_photo", photo.photo_name
+            )
         return jsonify(user_dict)
 
     try:
         json_data = {}
-        if 'json' in request.form:
-            json_data = json.loads(request.form['json'])
+        if "json" in request.form:
+            json_data = json.loads(request.form["json"])
 
         if json_data:
             edit_user_dto.load(json_data, instance=user, partial=True)
 
         if json_data.get("photo_deleted", None) and photo:
-            delete_object('user_photo', photo.photo_name)
+            delete_object("user_photo", photo.photo_name)
             db.session.delete(photo)
 
-        if 'photo' in request.files:
-            file = request.files['photo']
+        if "photo" in request.files:
+            file = request.files["photo"]
             if not photo:
                 characters = string.ascii_letters + string.digits
                 while True:
-                    filename = ''.join(random.choices(characters, k=20))
-                    resp = UserPhoto.query.filter(UserPhoto.photo_name.like(f'%filename%')).first()
+                    filename = "".join(random.choices(characters, k=20))
+                    resp = UserPhoto.query.filter(
+                        UserPhoto.photo_name.like(f"%filename%")
+                    ).first()
                     if not resp:
                         break
 

@@ -20,21 +20,23 @@ pet = Blueprint("pet", __name__)
 @pet.route("/addPet", methods=["POST"])
 @jwt_required()
 def add_pet():
-    if 'json' not in request.form:
+    if "json" not in request.form:
         return jsonify({"msg": "Wymagane dane nie zostały podane!"}), 400
 
     try:
-        new_pet = create_pet_dto.load(json.loads(request.form['json']))
+        new_pet = create_pet_dto.load(json.loads(request.form["json"]))
         new_pet.user_id = get_jwt_identity()
         db.session.add(new_pet)
 
-        file = request.files.get('photo', None)
+        file = request.files.get("photo", None)
 
         if file:
             characters = string.ascii_letters + string.digits
             while True:
-                filename = ''.join(random.choices(characters, k=20))
-                resp = PetPhoto.query.filter(PetPhoto.photo_name.like(f'%filename%')).first()
+                filename = "".join(random.choices(characters, k=20))
+                resp = PetPhoto.query.filter(
+                    PetPhoto.photo_name.like(f"%filename%")
+                ).first()
                 if not resp:
                     break
 
@@ -81,9 +83,23 @@ def get_pet_data(pet_id):
 def get_pets():
     user_id = get_jwt_identity()
     pet_list = (
-        db.session.query(Pet, PetPhoto.photo_name.label("photo")).outerjoin(PetPhoto).filter(Pet.user_id == user_id).filter(Pet.is_deleted == False).all()
+        db.session.query(Pet, PetPhoto.photo_name.label("photo"))
+        .outerjoin(PetPhoto)
+        .filter(Pet.user_id == user_id)
+        .filter(Pet.is_deleted == False)
+        .all()
     )
-    resp = [({**get_pet_dto.dump(pet_obj), "photo": generate_presigned_url('pet_photo', photo)} if photo else get_pet_dto.dump(pet_obj)) for pet_obj, photo in pet_list]
+    resp = [
+        (
+            {
+                **get_pet_dto.dump(pet_obj),
+                "photo": generate_presigned_url("pet_photo", photo),
+            }
+            if photo
+            else get_pet_dto.dump(pet_obj)
+        )
+        for pet_obj, photo in pet_list
+    ]
     return jsonify(resp), 200
 
 
@@ -99,7 +115,7 @@ def delete_pet(pet_id):
 
         pet_photo = PetPhoto.query.filter(PetPhoto.pet_id == pet_id).first()
         if pet_photo:
-            delete_object('pet_photo', pet_photo.photo_name)
+            delete_object("pet_photo", pet_photo.photo_name)
         db.session.delete(pet_photo)
         db.session.commit()
         return jsonify({"msg": "Zwierzak usunięty, przykro nam :("}), 200

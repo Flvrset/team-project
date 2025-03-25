@@ -4,7 +4,6 @@ from app import ma
 from db_models.database_tables import User
 
 
-
 class CreateUserDTO(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
