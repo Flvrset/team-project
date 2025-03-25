@@ -28,7 +28,7 @@ def add_pet():
         db.session.rollback()
         return jsonify({"msg": "Nie można w tej chwili dodać rekordu."}), 406
     except marshmallow.exceptions.ValidationError as ve:
-        return jsonify({"error": str(ve), "msg": ve.messages}), 400
+        return jsonify({"error": ve.messages}), 400
 
 
 @pet.route("/getPetData/<int:pet_id>", methods=["GET"])

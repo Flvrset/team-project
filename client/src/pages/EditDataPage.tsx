@@ -38,6 +38,7 @@ interface UserFormData {
     house_number: string;
     apartment_number: string;
     phone_number: string;
+    photo_deleted?: boolean;
 }
 
 interface FormErrors {
@@ -62,7 +63,6 @@ const EditDataPage = () => {
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string>('');
     const fileInputRef = React.useRef<HTMLInputElement>(null);
-    const [photoDeleted, setPhotoDeleted] = useState<boolean>(false);
 
     const [formData, setFormData] = useState<UserFormData>({
         city: '',
@@ -72,6 +72,10 @@ const EditDataPage = () => {
         apartment_number: '',
         phone_number: '',
     });
+
+    const setPhotoDeleted = (value: boolean) => {
+        setFormData(prev => ({ ...prev, photo_deleted: value }));
+    }
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -215,7 +219,7 @@ const EditDataPage = () => {
         try {
             const formDataToSend = new FormData();
 
-            formDataToSend.append('json', JSON.stringify({ photo_deleted: photoDeleted, ...formData }));
+            formDataToSend.append('json', JSON.stringify(formData));
 
             if (photoFile) {
                 formDataToSend.append('photo', photoFile);
