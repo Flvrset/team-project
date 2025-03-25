@@ -91,7 +91,7 @@ const EditDataPage = () => {
                     });
 
                     if (userData.file_link) {
-                        setPhotoPreview(`/storage/${userData.file_link}`);
+                        setPhotoPreview(userData.file_link);
                     }
                 } else {
                     console.error('Failed to fetch user data');

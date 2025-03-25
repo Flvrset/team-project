@@ -1,4 +1,9 @@
-from flask import request, jsonify, make_response, Blueprint, Response, stream_with_context
+import random
+import string
+import sqlalchemy
+import marshmallow
+
+from flask import request, jsonify, make_response, Blueprint
 from app import db, bcrypt, limiter
 from db_models.database_tables import User, UserPhoto
 from flask_jwt_extended import (
@@ -9,12 +14,9 @@ from flask_jwt_extended import (
     get_jwt,
     unset_jwt_cookies,
 )
-import sqlalchemy
 from db_dto.user_dto import create_user_dto, edit_user_dto
-import marshmallow
-import os
-import requests
-from utils.utils_photo import resize_image
+from utils.file_storage import generate_presigned_url, upload_object, delete_object
+
 
 auth = Blueprint("routes", __name__)
 
@@ -113,20 +115,20 @@ def edit_user():
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
-    storage_name = "files/user_photo"
-    filename = f"user_{str(user.user_id)}.jpeg" # zahashujmy tą nazwę zdjęcia
+    photo = UserPhoto.query.filter_by(user_id=user_id).first()
 
     if request.method == "GET":
-        return jsonify({**edit_user_dto.dump(user), "file_link": f"{storage_name}/{filename}"})
+        user_dict = {**edit_user_dto.dump(user)}
+        if photo:
+            user_dict["file_link"] = generate_presigned_url('user_photo', photo.photo_name)
+        return jsonify(user_dict)
 
     file = request.files.get("photo")
-    if not file:
-        print("File was not uploaded")
-        # USUNIĘCIE ZDJĘCIA Z SERWERA
+    if not file and photo:
+        delete_object('user_photo', photo.photo_name)
 
     try:
         json_data = {}
-                
         if 'json' in request.form:
             import json
             json_data = json.loads(request.form['json'])
@@ -134,8 +136,21 @@ def edit_user():
         if json_data:
             edit_user_dto.load(json_data, instance=user, partial=True)
 
-        # if file:
-            # ZAPISANIE ZDJĘCIA NA SERWERZE LUB ZMIANA NA NOWE ZDJĘCIE I ZAPISANIE/AKTUALIZACJA W TABELI
+        if file:
+            if not photo:
+                characters = string.ascii_letters + string.digits
+                while True:
+                    filename = ''.join(random.choices(characters, k=20))
+                    resp = UserPhoto.query.filter(UserPhoto.photo_name.like(f'%filename%')).first()
+                    if not resp:
+                        break
+
+                photo_db = UserPhoto(photo_name=filename, user_id=user_id)
+                db.session.add(photo_db)
+            else:
+                filename = photo.photo_name
+
+            upload_object(file, "user_photo", filename)
 
         db.session.commit()
         return jsonify({"msg": "Zapisano zmiany!"}), 200
