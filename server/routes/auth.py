@@ -1,3 +1,8 @@
+import random
+import string
+import sqlalchemy
+import marshmallow
+
 from flask import request, jsonify, make_response, Blueprint
 from app import db, bcrypt, limiter
 from db_models.database_tables import User, UserPhoto
@@ -9,24 +14,11 @@ from flask_jwt_extended import (
     get_jwt,
     unset_jwt_cookies,
 )
-import sqlalchemy
 from db_dto.user_dto import create_user_dto, edit_user_dto
-import marshmallow
-from utils.utils_photo import resize_image
+from utils.file_storage import generate_presigned_url, upload_object, delete_object
 
-import boto3
-from botocore.client import Config
 
 auth = Blueprint("routes", __name__)
-
-
-s3_client = boto3.client(
-    's3',
-    endpoint_url='http://storage:9000',
-    aws_access_key_id='myappuser',
-    aws_secret_access_key='app_user_password',
-    config=Config(signature_version='s3v4')
-)
 
 
 @auth.route("/register", methods=["POST"])
@@ -123,22 +115,20 @@ def edit_user():
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
+    photo = UserPhoto.query.filter_by(user_id=user_id).first()
+
     if request.method == "GET":
-        link = s3_client.generate_presigned_url(
-            "get_object",
-            Params={'Bucket': 'upload', 'Key': 'user_photo/abc.webp'},
-            ExpiresIn=3600
-        ).replace("http://storage:9000", "/storage")
-        return jsonify({**edit_user_dto.dump(user), "file_link": link})
+        user_dict = {**edit_user_dto.dump(user)}
+        if photo:
+            user_dict["file_link"] = generate_presigned_url('user_photo', photo.photo_name)
+        return jsonify(user_dict)
 
     file = request.files.get("photo")
-    if not file:
-        print("File was not uploaded")
-        # USUNIĘCIE ZDJĘCIA Z SERWERA
+    if not file and photo:
+        delete_object('user_photo', photo.photo_name)
 
     try:
         json_data = {}
-                
         if 'json' in request.form:
             import json
             json_data = json.loads(request.form['json'])
@@ -146,19 +136,21 @@ def edit_user():
         if json_data:
             edit_user_dto.load(json_data, instance=user, partial=True)
 
-        from io import BytesIO
-
         if file:
-            print("file in request")
-            # ZAPISANIE ZDJĘCIA NA SERWERZE LUB ZMIANA NA NOWE ZDJĘCIE I ZAPISANIE/AKTUALIZACJA W TABELI
-            file_to_save = resize_image(file)
+            if not photo:
+                characters = string.ascii_letters + string.digits
+                while True:
+                    filename = ''.join(random.choices(characters, k=20))
+                    resp = UserPhoto.query.filter(UserPhoto.photo_name.like(f'%filename%')).first()
+                    if not resp:
+                        break
 
-            s3_client.put_object(
-                Bucket="upload",
-                Key='user_photo/abc.webp',
-                Body=file_to_save.getvalue(),
-                ContentType='image/webp'
-            )
+                photo_db = UserPhoto(photo_name=filename, user_id=user_id)
+                db.session.add(photo_db)
+            else:
+                filename = photo.photo_name
+
+            upload_object(file, "user_photo", filename)
 
         db.session.commit()
         return jsonify({"msg": "Zapisano zmiany!"}), 200

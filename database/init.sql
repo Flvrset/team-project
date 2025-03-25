@@ -45,10 +45,9 @@ CREATE TABLE petbuddies_schema."Pet" (
 
 -- Create the UserPhoto table
 CREATE TABLE petbuddies_schema."UserPhoto" (
-    "pet_photo_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "user_photo_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "user_id" INTEGER NOT NULL,
     "photo_name" VARCHAR(255) NOT NULL,
-    "photo_storage" VARCHAR(255) NOT NULL,
 
     CONSTRAINT fk_user_photo FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE
 );
@@ -58,7 +57,6 @@ CREATE TABLE petbuddies_schema."PetPhoto" (
     "pet_photo_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "pet_id" INTEGER NOT NULL,
     "photo_name" VARCHAR(255) NOT NULL,
-    "photo_storage" VARCHAR(255) NOT NULL,
 
     CONSTRAINT fk_pet_photo FOREIGN KEY ("pet_id") REFERENCES petbuddies_schema."Pet"("pet_id") ON UPDATE CASCADE ON DELETE CASCADE
 );

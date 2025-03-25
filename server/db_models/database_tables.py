@@ -40,7 +40,7 @@ class Pet(db.Model):
     )
 
 
-class UserPhoto:
+class UserPhoto(db.Model):
     __tablename__ = "UserPhoto"
     __table_args__ = {"schema": "petbuddies_schema"}
 
@@ -48,14 +48,13 @@ class UserPhoto:
         db.Integer, primary_key=True, autoincrement=True, unique=True
     )
     photo_name = db.Column(db.String(255), nullable=False)
-    photo_storage = db.Column(db.String(255), nullable=False)
 
     user_id = db.Column(
         db.Integer, db.ForeignKey("petbuddies_schema.User.user_id", ondelete="CASCADE")
     )
 
 
-class PetPhoto:
+class PetPhoto(db.Model):
     __tablename__ = "PetPhoto"
     __table_args__ = {"schema": "petbuddies_schema"}
 
@@ -63,7 +62,6 @@ class PetPhoto:
         db.Integer, primary_key=True, autoincrement=True, unique=True
     )
     photo_name = db.Column(db.String(255), nullable=False)
-    photo_storage = db.Column(db.String(255), nullable=False)
 
     pet_id = db.Column(
         db.Integer, db.ForeignKey("petbuddies_schema.Pet.pet_id", ondelete="CASCADE")
