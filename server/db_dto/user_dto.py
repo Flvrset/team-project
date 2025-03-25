@@ -1,5 +1,8 @@
+from marshmallow import fields
+
 from app import ma
 from db_models.database_tables import User
+
 
 
 class CreateUserDTO(ma.SQLAlchemyAutoSchema):
@@ -46,6 +49,9 @@ class EditUserDTO(ma.SQLAlchemyAutoSchema):
     house_number = ma.auto_field()
     apartment_number = ma.auto_field()
     phone_number = ma.auto_field()
+
+    # custom field for photo of user
+    photo_deleted = fields.Boolean(allow_none=True, load_only=True)
 
 
 class LoginUserDTO(ma.SQLAlchemyAutoSchema):

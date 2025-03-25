@@ -99,7 +99,7 @@ const PetCard: React.FC<PetCardProps> = ({
                     }}>
                         <Box 
                             component="img"
-                            src={`/storage/${pet.photo}`}
+                            src={pet.photo}
                             alt={pet.pet_name}
                             onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                                 e.currentTarget.style.display = 'none';
@@ -182,7 +182,7 @@ const PetCard: React.FC<PetCardProps> = ({
                 }}>
                     <Box 
                         component="img"
-                        src={`/storage/${pet.photo}`}
+                        src={pet.photo}
                         alt={pet.pet_name}
                         onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                             e.currentTarget.style.display = 'none';

@@ -2,9 +2,10 @@ import random
 import string
 import sqlalchemy
 import marshmallow
+import json
 
 from flask import request, jsonify, make_response, Blueprint
-from app import db, bcrypt, limiter
+from app import db, bcrypt, limiter, ma
 from db_models.database_tables import User, UserPhoto
 from flask_jwt_extended import (
     jwt_required,
@@ -126,20 +127,20 @@ def edit_user():
             user_dict["file_link"] = generate_presigned_url('user_photo', photo.photo_name)
         return jsonify(user_dict)
 
-    file = request.files.get("photo")
-    if not file and photo:
-        delete_object('user_photo', photo.photo_name)
-
     try:
         json_data = {}
         if 'json' in request.form:
-            import json
             json_data = json.loads(request.form['json'])
-        
+
         if json_data:
             edit_user_dto.load(json_data, instance=user, partial=True)
 
-        if file:
+        if json_data.get("photo_deleted", None) and photo:
+            delete_object('user_photo', photo.photo_name)
+            db.session.delete(photo)
+
+        if 'photo' in request.files:
+            file = request.files['photo']
             if not photo:
                 characters = string.ascii_letters + string.digits
                 while True:
@@ -173,4 +174,4 @@ def edit_user():
     except Exception as e:
         db.session.rollback()
         print(f"Unexpected error: {str(e)}")
-        return jsonify({"msg": f"Wystąpił błąd: {str(e)}"}), 500
+        return jsonify({"error": f"Wystąpił błąd: {str(e)}"}), 500
