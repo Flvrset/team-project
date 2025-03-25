@@ -74,7 +74,7 @@ const EditDataPage = () => {
     });
 
     const setPhotoDeleted = (value: boolean) => {
-        setFormData(prev => ({ ...prev, photo_deleted: value }));
+        setFormData(prev => ({ ...prev }));
     }
 
     useEffect(() => {
