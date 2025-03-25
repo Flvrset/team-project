@@ -97,7 +97,7 @@ def delete_pet(pet_id):
     try:
         pet_to_update.is_deleted = True
 
-        pet_photo = PetPhoto.query.filter(PetPhoto.pet_id == pet_id)
+        pet_photo = PetPhoto.query.filter(PetPhoto.pet_id == pet_id).first()
         if pet_photo:
             delete_object('pet_photo', pet_photo.photo_name)
         db.session.delete(pet_photo)
