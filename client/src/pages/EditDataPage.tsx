@@ -28,7 +28,7 @@ import { Link } from 'react-router-dom';
 
 import CitySearchSelect from '../components/CitySearchSelect';
 import { useAuth } from '../hooks/AuthProvider';
-import { getWithAuth, postWithAuth } from '../utils/auth';
+import { getWithAuth, putWithAuth } from '../utils/auth';
 import { validateChain, validateMaxLength, validateNumber, validatePhoneNumber } from '../utils/validation';
 
 interface UserFormData {
@@ -225,7 +225,7 @@ const EditDataPage = () => {
                 formDataToSend.append('photo', photoFile);
             }
 
-            const response = await postWithAuth('/api/edit_user', formDataToSend);
+            const response = await putWithAuth('/api/edit_user', formDataToSend);
 
             if (response.ok) {
                 setNotification({

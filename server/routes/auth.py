@@ -16,6 +16,7 @@ from flask_jwt_extended import (
 )
 from db_dto.user_dto import create_user_dto, edit_user_dto
 from utils.file_storage import generate_presigned_url, upload_object, delete_object
+from datetime import timedelta
 
 
 auth = Blueprint("routes", __name__)
@@ -34,6 +35,7 @@ def register_user_page():
         access_token = create_access_token(
             identity=str(new_user.user_id),
             additional_claims=create_user_dto.dump(new_user),
+            expires_delta=timedelta(days=30),
         )
 
         response = make_response(jsonify({"msg": "Login successful"}))
@@ -75,6 +77,7 @@ def login_mail_page():
                 "email": user.email,
                 "login": user.login,
             },
+            expires_delta=timedelta(days=30),
         )
         response = make_response(jsonify({"msg": "Login successful"}))
         set_access_cookies(response, access_token, 86400000)
@@ -102,7 +105,7 @@ def protected():
     )
 
 
-@auth.route("/edit_user", methods=["POST", "GET"])
+@auth.route("/edit_user", methods=["PUT", "GET"])
 @jwt_required()
 def edit_user():
     user_id = get_jwt_identity()
