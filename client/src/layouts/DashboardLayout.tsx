@@ -86,6 +86,7 @@ const DashboardLayout = () => {
 
                         <Avatar
                             onClick={handleMenuClick}
+                            src={auth.userData?.file_link}
                             sx={{
                                 bgcolor: theme.palette.secondary.main,
                                 cursor: 'pointer',

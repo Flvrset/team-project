@@ -8,6 +8,7 @@ interface UserData {
     surname: string;
     email: string;
     login: string;
+    file_link?: string;
 }
 
 interface AuthContextType {
