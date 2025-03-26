@@ -33,29 +33,32 @@ class CreatePostDTO(ma.SQLAlchemyAutoSchema):
     pet_list = fields.List(fields.Dict, allow_none=True, load_only=True)
 
 
-class GetMainPageUserDTO(ma.SQLAlchemyAutoSchema):
+class PostPageUserDTO(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         load_instance = True
-
-    exclude = (
-        "street",
-        "house_number",
-        "apartment_number",
-        "phone_number",
-        "join_date",
-        "is_banned",
-        "login",
-        "password_hash",
-        "email",
-    )
+        exclude = (
+            "street",
+            "house_number",
+            "apartment_number",
+            "phone_number",
+            "join_date",
+            "is_banned",
+            "login",
+            "password_hash",
+            "email",
+        )
 
     user_id = ma.auto_field(dump_only=True, load_only=True)
     name = ma.auto_field(required=True)
     surname = ma.auto_field(required=True)
     city = ma.auto_field(required=True)
-    postal_code = ma.auto_field(load_only=True)
+    postal_code = ma.auto_field(required=True)
+
+    # custom rating field
+    rating = fields.Float(default=4.5)
 
 
 create_post_dto = CreatePostDTO()
 create_petcare_dto = CreatePetCareDTO()
+get_user_dto = PostPageUserDTO()

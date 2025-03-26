@@ -41,11 +41,11 @@ def create_app(config_class="config.Config"):
     from routes.auth import auth
     from routes.dicts import dicts
     from routes.pets import pet
-    from routes.posts import post
+    from routes.posts import post_bprt
 
     app.register_blueprint(auth)
     app.register_blueprint(dicts)
     app.register_blueprint(pet)
-    app.register_blueprint(post)
+    app.register_blueprint(post_bprt)
 
     return app

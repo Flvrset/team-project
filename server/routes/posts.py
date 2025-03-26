@@ -4,14 +4,15 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
-from db_models.database_tables import User, Post, PetCare
-from db_dto.post_dto import create_post_dto, create_petcare_dto
+from db_models.database_tables import User, Post, PetCare, Pet
+from db_dto.post_dto import create_post_dto, create_petcare_dto, get_user_dto
+from db_dto.pet_dto import get_pets_dto
 import sqlalchemy
 
-post = Blueprint("post", __name__)
+post_bprt = Blueprint("post", __name__)
 
 
-@post.route("/createPost", methods=["POST"])
+@post_bprt.route("/createPost", methods=["POST"])
 @jwt_required()
 def create_post():
     user_id = get_jwt_identity()
@@ -20,16 +21,10 @@ def create_post():
     post_dto.user_id = user_id
 
     try:
-        # post_db = Post(**create_post_dto.dump(post_dto))
         db.session.add(post_dto)
         db.session.flush()
-        print(post_dto.post_id)
-
 
         for pet_care in request.json.get("pet_list", None):
-            # pet_care = PetCare(**create_petcare_dto.load(
-            #     {"pet_id": pet_care["pet_id"], "post_id": post_dto.post_id}
-            # ))
             db.session.add(
                 create_petcare_dto.load(
                     {"pet_id": pet_care["pet_id"], "post_id": post_dto.post_id}
@@ -42,7 +37,7 @@ def create_post():
         return jsonify({"msg": "Nie można w tej chwili dodać ogłoszenia."}), 406
 
 
-@post.route("/getDashboardPost", methods=["GET"])
+@post_bprt.route("/getDashboardPost", methods=["GET"])
 @jwt_required()
 def get_dashboard_post():
     city = request.args.get("city", None)
@@ -82,7 +77,32 @@ def get_dashboard_post():
     return jsonify(resp_lst), 200
 
 
-@post.route("/getPost/<int:post_id>", methods=["GET"])
+@post_bprt.route("/getPost/<int:post_id>", methods=["GET"])
 def get_post(post_id):
-    # dummy route for post
-    return jsonify({"msg": f"Post id {post_id}"}), 200
+    post_details = (
+        db.session.query(Post, User, Pet)
+        .join(Post, Post.user_id == User.user_id)
+        .join(PetCare, Post.post_id == PetCare.post_id)
+        .join(Pet, PetCare.pet_id == Pet.pet_id)
+        .filter(Post.post_id == post_id)
+        .all()
+    )
+
+    post_set = set()
+    user_set = set()
+    pet_set = set()
+    for post, user, pet in post_details:
+        post_set.add(post)
+        user_set.add(user)
+        pet_set.add(pet)
+
+    if len(post_set) > 1 or len(user_set) > 1:
+        return jsonify({"error": "More than one user or post with provided id!"}), 400
+
+    # in future set user rating!!
+
+    return jsonify({
+        "user": get_user_dto.dump(user_set.pop()),
+        "post": create_post_dto.dump(post_set.pop()),
+        "pets": get_pets_dto.dump(list(pet_set))
+    }), 200
