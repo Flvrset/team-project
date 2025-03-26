@@ -45,6 +45,10 @@ def create_post():
 @post.route("/getDashboardPost", methods=["GET"])
 @jwt_required()
 def get_dashboard_post():
+    city = request.args.get("city", None)
+    postal_code = request.args.get("postal_code", None)
+    kms = request.args.get("kms", 0)
+    print(f"city: {city}, postal code: {postal_code}, km: {kms}")
     # dodac logike do wybierania 10 (albo wiecej) dla uzytkownika
     post_lst = (
         db.session.query(
