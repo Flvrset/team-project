@@ -2,7 +2,7 @@ from marshmallow import fields
 import marshmallow
 
 from app import ma
-from db_models.database_tables import Post, PetCare, User
+from db_models.database_tables import Post, PetCare, User, Pet
 
 
 class CreatePetCareDTO(ma.SQLAlchemyAutoSchema):
@@ -59,6 +59,22 @@ class PostPageUserDTO(ma.SQLAlchemyAutoSchema):
     rating = fields.Float(default=4.5)
 
 
+class PostPetDTO(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Pet
+        load_instance = True
+        exclude = ("is_deleted", 'creation_date',)
+
+    pet_id = ma.auto_field(dump_only=True)
+    pet_name = ma.auto_field(required=True)
+    type = ma.auto_field(required=True)
+    race = ma.auto_field(required=True)
+    size = ma.auto_field(required=True)
+    birth_date = ma.auto_field(required=True)
+    user_id = ma.auto_field(load_only=True)
+
+
 create_post_dto = CreatePostDTO()
 create_petcare_dto = CreatePetCareDTO()
 get_user_dto = PostPageUserDTO()
+get_pet_dto = PostPetDTO(many=True)
