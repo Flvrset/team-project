@@ -182,7 +182,6 @@ const SearchPostsPage = () => {
             setPosts(data);
             
         } catch (err) {
-            // Pokaż powiadomienie o błędzie komunikacji z serwerem
             setNotification({
                 open: true,
                 message: 'Nie udało się pobrać ogłoszeń. Spróbuj ponownie.',
@@ -203,12 +202,10 @@ const SearchPostsPage = () => {
         navigate(`/dashboard/posts/${postId}`);
     };
     
-    // Funkcja do zamykania powiadomień
     const handleCloseNotification = () => {
         setNotification({ ...notification, open: false });
     };
 
-    // Wspólne style dla inputów
     const inputStyle = {
         '& .MuiInputBase-root': {
             borderRadius: '18px',
@@ -359,8 +356,6 @@ const SearchPostsPage = () => {
                 </Grid>
             </Paper>
 
-            {/* Sekcja wyników */}
-
             {loading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 8 }}>
                     <CircularProgress size={60} />
@@ -484,7 +479,6 @@ const SearchPostsPage = () => {
                 </>
             )}
             
-            {/* System powiadomień */}
             <Snackbar
                 open={notification.open}
                 autoHideDuration={6000}
