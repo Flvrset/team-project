@@ -47,10 +47,11 @@ def get_dashboard_post():
     # dodac logike do wybierania 10 (albo wiecej) dla uzytkownika
     post_lst = (
         db.session.query(
-            Post, User, sqlalchemy.func.count(PetCare.pet_id).label("pet_count")
+            Post, User, sqlalchemy.func.count(PetCare.pet_id).label("pet_count"), sqlalchemy.func.array_agg(PetPhoto.photo_name).label("photo_lst")
         )
         .join(User, Post.user_id == User.user_id, isouter=True)
         .join(PetCare, Post.post_id == PetCare.post_id, isouter=True)
+        .join(PetPhoto, PetCare.pet_id == PetPhoto.pet_id)
         .group_by(Post.post_id, User.user_id)
         .limit(10)
         .all()
@@ -69,9 +70,14 @@ def get_dashboard_post():
             "start_time": str(post_dashboard.start_time),
             "end_time": str(post_dashboard.end_time),
             "cost": post_dashboard.cost,
-            "pet_count": pet_cnt
+            "pet_count": pet_cnt,
+            "pet_photos": [
+                generate_presigned_url(
+                    "pet_photo", photo
+                ) for photo in photos_lst
+            ]
         }
-        for post_dashboard, user, pet_cnt in post_lst
+        for post_dashboard, user, pet_cnt, photos_lst in post_lst
     ]
 
     return jsonify(resp_lst), 200
