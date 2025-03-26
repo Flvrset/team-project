@@ -98,12 +98,23 @@ def logout():
 @jwt_required()
 def protected():
     claims = get_jwt()
+    photo = UserPhoto.query.filter_by(user_id=get_jwt_identity()).first() or None
+
+    resp_dict = {
+        "name": claims.get("name"),
+        "surname": claims.get("surname"),
+        "email": claims.get("email"),
+        "login": claims.get("login")
+    }
+
+    if photo:
+        resp_dict["file_link"] = generate_presigned_url(
+            "user_photo", photo.photo_name
+        )
+
     return jsonify(
-        name=claims.get("name"),
-        surname=claims.get("surname"),
-        email=claims.get("email"),
-        login=claims.get("login"),
-    )
+        resp_dict
+    ), 200
 
 
 @auth.route("/edit_user", methods=["PUT", "GET"])

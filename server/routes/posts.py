@@ -59,6 +59,8 @@ def get_dashboard_post():
 
     resp_lst = [
         {
+            "post_id": post_dashboard.post_id,
+            "user_id": user.user_id,
             "city": user.city,
             "postal_code": user.postal_code,
             "name": user.name,
@@ -74,3 +76,9 @@ def get_dashboard_post():
     ]
 
     return jsonify(resp_lst), 200
+
+
+@post.route("/getPost/<int:post_id>", methods=["GET"])
+def get_post(post_id):
+    # dummy route for post
+    return jsonify({"msg": f"Post id {post_id}"}), 200
