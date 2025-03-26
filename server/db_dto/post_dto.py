@@ -77,4 +77,4 @@ class PostPetDTO(ma.SQLAlchemyAutoSchema):
 create_post_dto = CreatePostDTO()
 create_petcare_dto = CreatePetCareDTO()
 get_user_dto = PostPageUserDTO()
-get_pet_dto = PostPetDTO(many=True)
+get_pet_dto = PostPetDTO()
