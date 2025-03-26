@@ -1,4 +1,3 @@
-import './style/App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import { AuthProvider } from './hooks/AuthProvider';
@@ -10,6 +9,7 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import PetsPage from './pages/PetsPage';
 import RegisterPage from './pages/RegisterPage';
+import SearchPostsPage from './pages/SearchPostsPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
@@ -27,6 +27,7 @@ function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/dashboard/edit-data" element={<EditDataPage />} />
                 <Route path='/dashboard/create-post' element={<CreatePostPage />} />
+                <Route path='/dashboard/search-posts' element={<SearchPostsPage />} />
                 <Route path='/dashboard/pets' element={<PetsPage />} />
               </Route>
             </Route>
