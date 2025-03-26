@@ -37,7 +37,7 @@ import { validateNumber } from '../utils/validation';
 interface SearchModel {
     city: string;
     postal_code: string;
-    kilometers: number;
+    kms: number;
 }
 
 interface Post {
@@ -63,7 +63,7 @@ const SearchPostsPage = () => {
     const [searchModel, setSearchModel] = useState<SearchModel>({
         city: searchParams.get('city') || '',
         postal_code: searchParams.get('postal_code') || '',
-        kilometers: parseInt(searchParams.get('kilometers') || '0') || 0
+        kms: parseInt(searchParams.get('kilometers') || '0') || 0
     });
 
     const [posts, setPosts] = useState<Post[]>([]);
@@ -104,7 +104,7 @@ const SearchPostsPage = () => {
                         ...prev,
                         city: userData.city,
                         postal_code: userData.postal_code,
-                        kilometers: prev.kilometers || 10
+                        kms: prev.kms || 0
                     }));
                 }
             }
@@ -120,7 +120,7 @@ const SearchPostsPage = () => {
             setKilometersError(null);
             setSearchModel({
                 ...searchModel,
-                kilometers: 0
+                kms: 0
             });
             return;
         }
@@ -142,7 +142,7 @@ const SearchPostsPage = () => {
         setCityError(null);
         setSearchModel({
             ...searchModel,
-            kilometers: numValue
+            kms: numValue
         });
     };
 
@@ -152,7 +152,7 @@ const SearchPostsPage = () => {
             return;
         }
 
-        if (searchModel.kilometers < 0) {
+        if (searchModel.kms < 0) {
             setKilometersError('Odległość nie może być mniejsza niż 0');
             return;
         }
@@ -167,7 +167,7 @@ const SearchPostsPage = () => {
             const queryParams = new URLSearchParams({
                 city: searchModel.city,
                 postal_code: searchModel.postal_code,
-                kilometers: searchModel.kilometers.toString()
+                kilometers: searchModel.kms.toString()
             });
 
             setSearchParams(queryParams);
@@ -290,7 +290,7 @@ const SearchPostsPage = () => {
                         <TextField
                             label="Odległość"
                             type="tel"
-                            value={searchModel.kilometers}
+                            value={searchModel.kms}
                             onChange={handleKilometersChange}
                             error={Boolean(kilometersError)}
                             helperText={kilometersError}

@@ -102,7 +102,7 @@ def get_post(post_id):
 
         pet_dict = get_pet_dto.dump(pet)
         if pet_photo:
-            pet_dict["pet_photo"] = generate_presigned_url(
+            pet_dict["photo"] = generate_presigned_url(
                 "pet_photo", pet_photo
             )
 

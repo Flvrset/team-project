@@ -8,6 +8,7 @@ import EditDataPage from './pages/EditDataPage';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import PetsPage from './pages/PetsPage';
+import PostPage from './pages/PostPage';
 import RegisterPage from './pages/RegisterPage';
 import SearchPostsPage from './pages/SearchPostsPage';
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -29,6 +30,7 @@ function App() {
                 <Route path='/dashboard/create-post' element={<CreatePostPage />} />
                 <Route path='/dashboard/search-posts' element={<SearchPostsPage />} />
                 <Route path='/dashboard/pets' element={<PetsPage />} />
+                <Route path='/dashboard/posts/:postId' element={<PostPage />} />
               </Route>
             </Route>
           </Routes>
