@@ -124,6 +124,6 @@ def get_post(post_id):
 
     return jsonify({
         "user": user,
-        "post": post_set.pop(),
+        "post": create_post_dto.dump(post_set.pop()),
         "pets": pet_lst
     }), 200
