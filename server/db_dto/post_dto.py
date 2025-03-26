@@ -63,7 +63,10 @@ class PostPetDTO(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Pet
         load_instance = True
-        exclude = ("is_deleted", 'creation_date',)
+        exclude = (
+            "is_deleted",
+            "creation_date",
+        )
 
     pet_id = ma.auto_field()
     pet_name = ma.auto_field(required=True)
