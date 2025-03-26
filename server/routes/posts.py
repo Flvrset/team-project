@@ -98,36 +98,32 @@ def get_post(post_id):
 
     post_set = set()
     user_set = set()
-    pet_set = set()
+    user_photo_set = set()
+    pet_lst = []
     for post, user, pet, user_photo, pet_photo in post_details:
-        user_dict = get_user_dto.dump(user)
-        if user_photo:
-            user_dict["user_photo"] = user_photo
-
-        post_dict = create_post_dto.dump(post)
-
-        pet_dict = get_pet_dto.dump(pet)
+        pet_dto = get_pet_dto.dump(pet)
         if pet_photo:
-            pet_dict["pet_photo"] = generate_presigned_url(
+            pet_dto["photo"] = generate_presigned_url(
                 "pet_photo", pet_photo
             )
 
-        post_set.add(post_dict)
-        user_set.add(user_dict)
-        pet_set.add(pet_dict)
+        post_set.add(post)
+        user_set.add(user)
+        user_photo_set.add(user_photo)
+        pet_lst.append(pet_dto)
 
-    if len(post_set) > 1 or len(user_set) > 1:
+    if len(post_set) > 1 or len(user_set) > 1 or len(user_photo_set) > 1:
         return jsonify({"error": "More than one user or post with provided id!"}), 400
 
     # in future set user rating!!
 
-    user_dict = user_set.pop()
-    user_dict["user_photo"] = generate_presigned_url(
-        "user_photo", user_dict["user_photo"]
+    user = get_user_dto.dump(user_set.pop())
+    user["photo"] = generate_presigned_url(
+        "user_photo", user_photo_set.pop()
     )
 
     return jsonify({
-        "user": user_dict,
+        "user": user,
         "post": post_set.pop(),
-        "pets": list(pet_set)
+        "pets": pet_lst
     }), 200
