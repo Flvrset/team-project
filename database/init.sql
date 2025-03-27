@@ -116,6 +116,15 @@ CREATE TABLE petbuddies_schema."PetCare" (
     CONSTRAINT fk_petcare_pet FOREIGN KEY ("pet_id") REFERENCES petbuddies_schema."Pet"("pet_id") ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+-- Create the PetCareApplication table
+CREATE TABLE petbuddies_schema."PetCareApplication" (
+    "petcareapplication_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "post_id" INTEGER NOT NULL,
+    "user_id" INTEGER NOT NULL,
+    CONSTRAINT fk_petcareapplication_post FOREIGN KEY ("post_id") REFERENCES petbuddies_schema."Post"("post_id") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_petcareapplication_user FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE
+);
+
 -- Create the CareAgreement table
 CREATE TABLE petbuddies_schema."CareAgreement" (
     "care_agreement_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

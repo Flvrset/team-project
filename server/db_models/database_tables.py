@@ -101,6 +101,21 @@ class PetCare(db.Model):
     )
 
 
+class PetCareApplication(db.Model):
+    __tablename__ = "PetCareApplication"
+    __table_args__ = {"schema": "petbuddies_schema"}
+
+    petcareapplication_id = db.Column(
+        db.Integer, primary_key=True, autoincrement=True, unique=True
+    )
+    post_id = db.Column(
+        db.Integer, db.ForeignKey("petbuddies_schema.Post.post_id", ondelete="CASCADE")
+    )
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("petbuddies_schema.User.user_id", ondelete="CASCADE")
+    )
+
+
 class MedDocs(db.Model):
     __tablename__ = "MedDocs"
     __table_args__ = {"schema": "petbuddies_schema"}
