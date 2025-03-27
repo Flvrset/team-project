@@ -38,6 +38,7 @@ export interface PetFormData {
     size: PetSize;
     birth_month: number;
     birth_year: number;
+    description: string;
 }
 
 const initialFormData: PetFormData = {
@@ -47,6 +48,7 @@ const initialFormData: PetFormData = {
     size: 'Średni',
     birth_month: new Date().getMonth() + 1,
     birth_year: new Date().getFullYear() - 1,
+    description: '',
 };
 
 interface PetFormModalProps {
@@ -62,7 +64,7 @@ const PetFormModal = ({
     open,
     onClose,
     onSuccess,
-    onError = () => {},
+    onError = () => { },
     title = 'Dodaj nowego zwierzaka',
     submitLabel = 'Dodaj zwierzaka',
 }: PetFormModalProps) => {
@@ -73,7 +75,7 @@ const PetFormModal = ({
     const [birthDate, setBirthDate] = useState<Date | null>(
         new Date(initialFormData.birth_year, initialFormData.birth_month - 1, 15)
     );
-    
+
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string>('');
     const [photoError, setPhotoError] = useState<string | null>(null);
@@ -193,9 +195,9 @@ const PetFormModal = ({
             const formattedDate = birthDate ?
                 format(birthDate, 'yyyy-MM-dd') :
                 `${formData.birth_year}-${String(formData.birth_month).padStart(2, '0')}-15`;
-            
+
             const formDataToSend = new FormData();
-            
+
             const petData = {
                 pet_name: formData.pet_name,
                 type: formData.type,
@@ -203,9 +205,9 @@ const PetFormModal = ({
                 size: formData.size,
                 birth_date: formattedDate,
             };
-            
+
             formDataToSend.append('json', JSON.stringify(petData));
-            
+
             if (photoFile) {
                 formDataToSend.append('photo', photoFile);
             }
@@ -529,6 +531,26 @@ const PetFormModal = ({
                             }}
                         />
                     </LocalizationProvider>
+
+                    <TextField
+                        fullWidth
+                        label="Opis zwierzaka"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleFormChange}
+                        margin="normal"
+                        multiline
+                        rows={4}
+                        placeholder="Opisz swojego zwierzaka, jego charakter, zwyczaje, itp."
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: 2,
+                            },
+                        }}
+                        slotProps={{
+                            htmlInput: { maxLength: 500 }
+                        }}
+                    />
 
                     <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                         <Button
