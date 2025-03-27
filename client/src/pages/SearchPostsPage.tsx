@@ -24,7 +24,9 @@ import {
     alpha,
     Stack,
     InputAdornment,
-    Snackbar
+    Snackbar,
+    Avatar,
+    AvatarGroup
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
@@ -53,6 +55,7 @@ interface Post {
     end_time: string;
     cost: number;
     pet_count: number;
+    pet_photos?: string[];
 }
 
 const SearchPostsPage = () => {
@@ -70,7 +73,7 @@ const SearchPostsPage = () => {
     const [loading, setLoading] = useState(false);
     const [kilometersError, setKilometersError] = useState<string | null>(null);
     const [cityError, setCityError] = useState<string | null>(null);
-    
+
     const [notification, setNotification] = useState({
         open: false,
         message: '',
@@ -95,10 +98,10 @@ const SearchPostsPage = () => {
     const fetchUserData = async () => {
         try {
             const response = await getWithAuth('/api/edit_user');
-            
+
             if (response.ok) {
                 const userData = await response.json();
-                
+
                 if (userData.city && userData.postal_code) {
                     setSearchModel(prev => ({
                         ...prev,
@@ -180,7 +183,7 @@ const SearchPostsPage = () => {
 
             const data = await response.json();
             setPosts(data);
-            
+
         } catch (err) {
             setNotification({
                 open: true,
@@ -199,9 +202,9 @@ const SearchPostsPage = () => {
     };
 
     const handleCardClick = (postId: number) => {
-        navigate(`/dashboard/post/${postId}`);
+        navigate(`/dashboard/posts/${postId}`);
     };
-    
+
     const handleCloseNotification = () => {
         setNotification({ ...notification, open: false });
     };
@@ -430,6 +433,25 @@ const SearchPostsPage = () => {
                                                 </Box>
                                             </Box>
 
+                                            {post.pet_photos && post.pet_photos.length > 0 && (
+                                                <Box sx={{ p: 2, pb: 0 }}>
+                                                    <AvatarGroup
+                                                        max={4}
+                                                        sx={{ flexDirection: 'row' }}>
+                                                        {post.pet_photos.map((photo, index) => (
+                                                            <Avatar
+                                                                key={index}
+                                                                src={photo}
+                                                                variant="circular"
+                                                                color="primary"
+                                                                alt={`Pet ${index + 1}`}
+                                                                sx={{ width: 60, height: 60 }}
+                                                            />
+                                                        ))}
+                                                    </AvatarGroup>
+                                                </Box>
+                                            )}
+
                                             <CardContent sx={{ flexGrow: 1, p: 2 }}>
                                                 <Stack spacing={2}>
                                                     <Stack spacing={1.5}>
@@ -478,7 +500,7 @@ const SearchPostsPage = () => {
                     )}
                 </>
             )}
-            
+
             <Snackbar
                 open={notification.open}
                 autoHideDuration={6000}

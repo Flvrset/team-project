@@ -21,7 +21,6 @@ import {
   IconButton,
   Paper,
   Rating,
-  Skeleton,
   Stack,
   Typography,
   alpha,
@@ -41,7 +40,7 @@ interface User {
   city: string;
   postal_code: string;
   rating: number;
-  user_photo?: string;
+  photo?: string;
 }
 
 interface Post {
@@ -220,7 +219,7 @@ const PostPage = () => {
             >
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Avatar
-                  src={postDetails.user.user_photo}
+                  src={postDetails.user.photo}
                   alt={`${postDetails.user.name} ${postDetails.user.surname}`}
                   sx={{
                     width: 80,
