@@ -20,6 +20,7 @@ import {
     InputAdornment,
     SelectChangeEvent,
     Backdrop,
+    Grid,
 } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -114,8 +115,8 @@ const PetFormModal = ({
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (file.size > 1024 * 1024) {
-            setPhotoError('Zdjęcie musi być mniejsze niż 1MB');
+        if (file.size > 1024 * 1024 * 2) {
+            setPhotoError('Zdjęcie musi być mniejsze niż 2MB');
             return;
         }
 
@@ -255,14 +256,15 @@ const PetFormModal = ({
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    width: { xs: '90%', sm: 500 },
+                    width: { xs: '95%', sm: '80%', md: 700, lg: 800 },
+                    maxWidth: '95vw',
                     bgcolor: 'background.paper',
                     borderRadius: 3,
                     boxShadow: 24,
                     p: 0,
                     outline: 'none',
                     overflow: 'hidden',
-                    maxHeight: '90vh',
+                    maxHeight: { xs: '95vh', sm: '90vh' },
                     overflowY: 'auto',
                 }}
             >
@@ -288,250 +290,268 @@ const PetFormModal = ({
                     </IconButton>
                 </Box>
 
-                <Box component="form" onSubmit={handleSubmit} sx={{ p: 3 }}>
+                <Box component="form" onSubmit={handleSubmit} sx={{ p: { xs: 2, sm: 3 } }}>
                     {formError && (
                         <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
                             {formError}
                         </Alert>
                     )}
 
-                    <TextField
-                        fullWidth
-                        required
-                        label="Imię zwierzaka"
-                        name="pet_name"
-                        value={formData.pet_name}
-                        onChange={handleFormChange}
-                        margin="normal"
-                        error={formData.pet_name.trim() === '' && formData.pet_name !== ''}
-                        helperText={formData.pet_name.trim() === '' && formData.pet_name !== '' ? 'Imię nie może być puste' : ''}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <PetsIcon color="primary" />
-                                </InputAdornment>
-                            ),
-                        }}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                borderRadius: 2,
-                            },
-                        }}
-                    />
-
-                    <Box sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        mb: 3,
-                        mt: 3
-                    }}>
-                        <Typography
-                            variant="subtitle1"
-                            color="text.secondary"
-                            align="center"
-                            sx={{ mb: 2 }}
-                        >
-                            Zdjęcie zwierzaka
-                        </Typography>
-
-                        <Box
-                            sx={{
-                                position: 'relative',
-                                width: 150,
-                                height: 150,
-                                mb: 1
-                            }}
-                        >
-                            {photoPreview ? (
-                                <Box
-                                    component="img"
-                                    src={photoPreview}
-                                    alt="Zdjęcie zwierzaka"
-                                    onError={() => {
-                                        setPhotoPreview('');
-                                    }}
-                                    sx={{
-                                        width: 150,
-                                        height: 150,
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} md={7}>
+                            <TextField
+                                fullWidth
+                                required
+                                label="Imię zwierzaka"
+                                name="pet_name"
+                                value={formData.pet_name}
+                                onChange={handleFormChange}
+                                margin="normal"
+                                error={formData.pet_name.trim() === '' && formData.pet_name !== ''}
+                                helperText={formData.pet_name.trim() === '' && formData.pet_name !== '' ? 'Imię nie może być puste' : ''}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <PetsIcon color="primary" />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
                                         borderRadius: 2,
-                                        objectFit: 'cover',
-                                        border: `3px solid ${theme.palette.primary.main}`,
-                                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                                        cursor: 'pointer',
-                                        transition: 'transform 0.2s, box-shadow 0.2s',
-                                        '&:hover': {
-                                            transform: 'scale(1.05)',
-                                            boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
-                                        }
-                                    }}
-                                    onClick={handlePhotoClick}
-                                />
-                            ) : (
-                                <Box
-                                    sx={{
-                                        width: 150,
-                                        height: 150,
-                                        borderRadius: 2,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        backgroundColor: alpha(theme.palette.primary.light, 0.1),
-                                        border: `2px dashed ${theme.palette.primary.main}`,
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s',
-                                        '&:hover': {
-                                            backgroundColor: alpha(theme.palette.primary.light, 0.2),
-                                            transform: 'scale(1.05)',
-                                        }
-                                    }}
-                                    onClick={handlePhotoClick}
-                                >
-                                    <PetsIcon
+                                    },
+                                }}
+                            />
+
+                            {/* Split into two columns for type and size */}
+                            <Grid container spacing={2} sx={{ mt: 0.5 }}>
+                                <Grid item xs={6}>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="pet-type-label">Rodzaj zwierzaka *</InputLabel>
+                                        <Select
+                                            labelId="pet-type-label"
+                                            id="pet-type"
+                                            name="type"
+                                            value={formData.type}
+                                            onChange={handleFormChange}
+                                            required
+                                            label="Rodzaj zwierzaka *"
+                                            sx={{ borderRadius: 2 }}
+                                        >
+                                            {PET_TYPES.map((type) => (
+                                                <MenuItem key={type} value={type}>
+                                                    {type}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="pet-size-label">Rozmiar *</InputLabel>
+                                        <Select
+                                            labelId="pet-size-label"
+                                            id="pet-size"
+                                            name="size"
+                                            value={formData.size}
+                                            onChange={handleFormChange}
+                                            required
+                                            label="Rozmiar *"
+                                            sx={{ borderRadius: 2 }}
+                                        >
+                                            {PET_SIZES.map((size) => (
+                                                <MenuItem key={size} value={size}>
+                                                    {size}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
+
+                            <Grid container spacing={2} sx={{ mt: 0.5 }}>
+                                <Grid item xs={6}>
+                                    <TextField
+                                        fullWidth
+                                        required
+                                        label="Rasa"
+                                        name="race"
+                                        value={formData.race}
+                                        onChange={handleFormChange}
+                                        margin="normal"
+                                        error={formData.race.trim() === '' && formData.race !== ''}
+                                        helperText={formData.race.trim() === '' && formData.race !== '' ? 'Rasa nie może być pusta' : ''}
                                         sx={{
-                                            fontSize: 50,
-                                            color: theme.palette.primary.main,
-                                            opacity: 0.7
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 2,
+                                            },
+                                        }}
+                                        slotProps={{
+                                            htmlInput: { maxLength: 100 }
                                         }}
                                     />
-                                </Box>
-                            )}
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={pl}>
+                                        <DatePicker
+                                            views={['year', 'month']}
+                                            label="Miesiąc i rok urodzenia"
+                                            value={birthDate}
+                                            onChange={handleDateChange}
+                                            format="MM/yyyy"
+                                            disableFuture
+                                            slotProps={{
+                                                textField: {
+                                                    fullWidth: true,
+                                                    required: true,
+                                                    sx: {
+                                                        '& .MuiOutlinedInput-root': {
+                                                            borderRadius: 2,
+                                                        },
+                                                    },
+                                                    margin: "normal"
+                                                },
+                                            }}
+                                        />
+                                    </LocalizationProvider>
+                                </Grid>
+                            </Grid>
+                        </Grid>
 
-                            <input
-                                type="file"
-                                accept="image/*"
-                                ref={fileInputRef}
-                                style={{ display: 'none' }}
-                                onChange={handlePhotoChange}
-                            />
-                        </Box>
-
-                        <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-                            <Button
-                                variant="outlined"
-                                size="small"
-                                onClick={handlePhotoClick}
-                                startIcon={<AddAPhotoIcon />}
-                                sx={{ borderRadius: 2 }}
-                            >
-                                {photoPreview ? 'Zmień zdjęcie' : 'Dodaj zdjęcie'}
-                            </Button>
-
-                            {photoPreview && (
-                                <Button
-                                    variant="outlined"
-                                    size="small"
-                                    color="error"
-                                    onClick={handleRemovePhoto}
-                                    startIcon={<DeleteIcon />}
-                                    sx={{ borderRadius: 2 }}
+                        <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'center' }}>
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                mb: { xs: 1, md: 0 },
+                                mt: { xs: 1, md: 2 },
+                                maxWidth: 250
+                            }}>
+                                <Typography
+                                    variant="subtitle1"
+                                    color="text.secondary"
+                                    align="center"
+                                    sx={{ mb: 2 }}
                                 >
-                                    Usuń
-                                </Button>
-                            )}
-                        </Box>
+                                    Zdjęcie zwierzaka
+                                </Typography>
 
-                        {photoError && (
-                            <Typography
-                                variant="caption"
-                                color="error"
-                                sx={{ mt: 1 }}
-                            >
-                                {photoError}
-                            </Typography>
-                        )}
+                                <Box
+                                    sx={{
+                                        position: 'relative',
+                                        width: 150,
+                                        height: 150,
+                                        mb: 1
+                                    }}
+                                >
+                                    {photoPreview ? (
+                                        <Box
+                                            component="img"
+                                            src={photoPreview}
+                                            alt="Zdjęcie zwierzaka"
+                                            onError={() => {
+                                                setPhotoPreview('');
+                                            }}
+                                            sx={{
+                                                width: 150,
+                                                height: 150,
+                                                borderRadius: 2,
+                                                objectFit: 'cover',
+                                                border: `3px solid ${theme.palette.primary.main}`,
+                                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                                cursor: 'pointer',
+                                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                                '&:hover': {
+                                                    transform: 'scale(1.05)',
+                                                    boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+                                                }
+                                            }}
+                                            onClick={handlePhotoClick}
+                                        />
+                                    ) : (
+                                        <Box
+                                            sx={{
+                                                width: 150,
+                                                height: 150,
+                                                borderRadius: 2,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                backgroundColor: alpha(theme.palette.primary.light, 0.1),
+                                                border: `2px dashed ${theme.palette.primary.main}`,
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s',
+                                                '&:hover': {
+                                                    backgroundColor: alpha(theme.palette.primary.light, 0.2),
+                                                    transform: 'scale(1.05)',
+                                                }
+                                            }}
+                                            onClick={handlePhotoClick}
+                                        >
+                                            <PetsIcon
+                                                sx={{
+                                                    fontSize: 50,
+                                                    color: theme.palette.primary.main,
+                                                    opacity: 0.7
+                                                }}
+                                            />
+                                        </Box>
+                                    )}
 
-                        <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ mt: 1, textAlign: 'center' }}
-                        >
-                            Dodaj zdjęcie zwierzaka (maks. 1MB)
-                        </Typography>
-                    </Box>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        ref={fileInputRef}
+                                        style={{ display: 'none' }}
+                                        onChange={handlePhotoChange}
+                                    />
+                                </Box>
 
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel id="pet-type-label">Rodzaj zwierzaka *</InputLabel>
-                        <Select
-                            labelId="pet-type-label"
-                            id="pet-type"
-                            name="type"
-                            value={formData.type}
-                            onChange={handleFormChange}
-                            required
-                            label="Rodzaj zwierzaka *"
-                            sx={{ borderRadius: 2 }}
-                        >
-                            {PET_TYPES.map((type) => (
-                                <MenuItem key={type} value={type}>
-                                    {type}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        onClick={handlePhotoClick}
+                                        startIcon={<AddAPhotoIcon />}
+                                        sx={{ borderRadius: 2 }}
+                                    >
+                                        {photoPreview ? 'Zmień zdjęcie' : 'Dodaj zdjęcie'}
+                                    </Button>
 
-                    <TextField
-                        fullWidth
-                        required
-                        label="Rasa"
-                        name="race"
-                        value={formData.race}
-                        onChange={handleFormChange}
-                        margin="normal"
-                        error={formData.race.trim() === '' && formData.race !== ''}
-                        helperText={formData.race.trim() === '' && formData.race !== '' ? 'Rasa nie może być pusta' : ''}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                borderRadius: 2,
-                            },
-                        }}
-                        slotProps={{
-                            htmlInput: { maxLength: 100 }
-                        }}
-                    />
+                                    {photoPreview && (
+                                        <Button
+                                            variant="outlined"
+                                            size="small"
+                                            color="error"
+                                            onClick={handleRemovePhoto}
+                                            startIcon={<DeleteIcon />}
+                                            sx={{ borderRadius: 2 }}
+                                        >
+                                            Usuń
+                                        </Button>
+                                    )}
+                                </Box>
 
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel id="pet-size-label">Rozmiar *</InputLabel>
-                        <Select
-                            labelId="pet-size-label"
-                            id="pet-size"
-                            name="size"
-                            value={formData.size}
-                            onChange={handleFormChange}
-                            required
-                            label="Rozmiar *"
-                            sx={{ borderRadius: 2 }}
-                        >
-                            {PET_SIZES.map((size) => (
-                                <MenuItem key={size} value={size}>
-                                    {size}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                                {photoError && (
+                                    <Typography
+                                        variant="caption"
+                                        color="error"
+                                        sx={{ mt: 1 }}
+                                    >
+                                        {photoError}
+                                    </Typography>
+                                )}
 
-                    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={pl}>
-                        <DatePicker
-                            views={['year', 'month']}
-                            label="Miesiąc i rok urodzenia"
-                            value={birthDate}
-                            onChange={handleDateChange}
-                            format="MM/yyyy"
-                            disableFuture
-                            slotProps={{
-                                textField: {
-                                    fullWidth: true,
-                                    required: true,
-                                    sx: {
-                                        '& .MuiOutlinedInput-root': {
-                                            borderRadius: 2,
-                                        },
-                                    },
-                                    margin: "normal"
-                                },
-                            }}
-                        />
-                    </LocalizationProvider>
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{ mt: 1, textAlign: 'center' }}
+                                >
+                                    Dodaj zdjęcie zwierzaka (maks. 2MB)
+                                </Typography>
+                            </Box>
+                        </Grid>
+                    </Grid>
 
                     <TextField
                         fullWidth
@@ -547,6 +567,7 @@ const PetFormModal = ({
                             '& .MuiOutlinedInput-root': {
                                 borderRadius: 2,
                             },
+                            mt: 3
                         }}
                         slotProps={{
                             htmlInput: { maxLength: 500 }
