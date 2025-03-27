@@ -199,7 +199,7 @@ const SearchPostsPage = () => {
     };
 
     const handleCardClick = (postId: number) => {
-        navigate(`/dashboard/posts/${postId}`);
+        navigate(`/dashboard/post/${postId}`);
     };
     
     const handleCloseNotification = () => {
