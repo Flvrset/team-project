@@ -8,6 +8,7 @@ export interface Pet {
     birth_date: string;
     creation_date: string;
     photo?: string;
+    description?: string;
 }
 
 // Other shared types can be added here

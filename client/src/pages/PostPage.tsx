@@ -41,6 +41,7 @@ interface User {
   postal_code: string;
   rating: number;
   photo?: string;
+  description?: string;
 }
 
 interface Post {
@@ -63,13 +64,11 @@ const PostPage = () => {
   const { postId } = useParams<{ postId: string }>();
   const theme = useTheme();
   
-  // State
   const [postDetails, setPostDetails] = useState<PostDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPetIndex, setSelectedPetIndex] = useState<number>(0);
 
-  // Fetch post details
   useEffect(() => {
     const fetchPostDetails = async () => {
       try {
@@ -101,7 +100,6 @@ const PostPage = () => {
     fetchPostDetails();
   }, [postId]);
 
-  // Pet carousel navigation
   const handleNextPet = () => {
     if (postDetails) {
       setSelectedPetIndex((prevIndex) => 
@@ -118,18 +116,15 @@ const PostPage = () => {
     }
   };
 
-  // Dummy apply handler
   const handleApply = () => {
     alert("Application functionality will be implemented in the future!");
   };
 
-  // Calculate pet age
   const calculatePetAge = (birthDate: string) => {
     const years = new Date().getFullYear() - new Date(birthDate).getFullYear();
     return `${years} ${years === 1 ? 'rok' : years < 5 ? 'lata' : 'lat'}`;
   };
 
-  // Render loading state
   if (loading) {
     return (
       <Box sx={{ p: 4, maxWidth: 1200, mx: 'auto' }}>
@@ -140,7 +135,6 @@ const PostPage = () => {
     );
   }
 
-  // Render error state
   if (error) {
     return (
       <Box sx={{ p: 4, maxWidth: 1200, mx: 'auto' }}>
@@ -159,7 +153,6 @@ const PostPage = () => {
     );
   }
 
-  // If we have no data but no error/loading
   if (!postDetails) {
     return (
       <Box sx={{ p: 4, maxWidth: 1200, mx: 'auto' }}>
@@ -178,12 +171,10 @@ const PostPage = () => {
     );
   }
 
-  // Get the current pet
   const currentPet = postDetails.pets[selectedPetIndex];
 
   return (
     <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      {/* Back button */}
       <Box sx={{ mb: 3 }}>
         <Button
           component={Link}
@@ -203,12 +194,9 @@ const PostPage = () => {
         </Button>
       </Box>
 
-      {/* Main content grid */}
       <Grid container spacing={4}>
-        {/* Left column - User info and post details */}
         <Grid item xs={12} md={5}>
           <Stack spacing={3}>
-            {/* User info card */}
             <Paper
               elevation={2}
               sx={{
@@ -257,9 +245,25 @@ const PostPage = () => {
                   {postDetails.user.city}, {postDetails.user.postal_code}
                 </Typography>
               </Box>
+
+              {postDetails.user.description && (
+                <>
+                  <Divider sx={{ my: 2 }} />
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                    <RateReviewIcon color="primary" sx={{ mt: 0.3, mr: 1.5 }} />
+                    <Box>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        O mnie
+                      </Typography>
+                      <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
+                        {postDetails.user.description}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </>
+              )}
             </Paper>
 
-            {/* Post details card */}
             <Paper
               elevation={2}
               sx={{ p: 3, borderRadius: 3 }}
@@ -338,7 +342,6 @@ const PostPage = () => {
           </Stack>
         </Grid>
 
-        {/* Right column - Pet carousel */}
         <Grid item xs={12} md={7}>
           <Card
             elevation={3}
@@ -350,12 +353,11 @@ const PostPage = () => {
               overflow: 'hidden',
             }}
           >
-            {/* Pet image carousel */}
             <Box
               sx={{
                 position: 'relative',
                 height: 350,
-                backgroundColor: alpha(theme.palette.primary.main, 0.05),
+                backgroundColor: alpha(theme.palette.primary.light, 0.08),
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -370,7 +372,8 @@ const PostPage = () => {
                   sx={{
                     width: '100%',
                     height: '100%',
-                    objectFit: 'contain',
+                    objectFit: 'cover',
+                    objectPosition: 'center',
                   }}
                   onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                     e.currentTarget.style.display = 'none';
@@ -380,9 +383,26 @@ const PostPage = () => {
                 <PetsIcon sx={{ fontSize: 120, color: alpha(theme.palette.text.primary, 0.2) }} />
               )}
               
-              {/* Navigation buttons */}
-              <Box sx={{ position: 'absolute', bottom: 16, left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-                <Box sx={{ display: 'flex', gap: 1, backgroundColor: alpha(theme.palette.background.paper, 0.7), borderRadius: 5, px: 2, py: 0.5 }}>
+              <Box sx={{ 
+                position: 'absolute', 
+                top: 0, 
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'linear-gradient(to top, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 30%)',
+              }} />
+              
+              <Box sx={{ position: 'absolute', bottom: 12, left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  backdropFilter: 'blur(8px)',
+                  backgroundColor: alpha(theme.palette.background.paper, 0.6), 
+                  borderRadius: 8, 
+                  px: 2, 
+                  py: 0.5,
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
+                }}>
                   <IconButton 
                     onClick={handlePrevPet} 
                     disabled={postDetails.pets.length <= 1}
@@ -391,7 +411,7 @@ const PostPage = () => {
                   >
                     <NavigateBeforeIcon />
                   </IconButton>
-                  <Typography sx={{ display: 'flex', alignItems: 'center', mx: 1 }}>
+                  <Typography sx={{ display: 'flex', alignItems: 'center', mx: 1, fontWeight: 'medium' }}>
                     {selectedPetIndex + 1} / {postDetails.pets.length}
                   </Typography>
                   <IconButton 
@@ -406,72 +426,142 @@ const PostPage = () => {
               </Box>
             </Box>
 
-            {/* Pet details */}
-            <CardContent sx={{ flexGrow: 1, p: 3 }}>
-              <Typography variant="h5" component="h2" fontWeight="bold" gutterBottom>
+            <CardContent sx={{ flexGrow: 1, p: 4 }}>
+              <Typography variant="h4" component="h2" fontWeight="bold" gutterBottom>
                 {currentPet.pet_name}
               </Typography>
               
               <Grid container spacing={3} sx={{ mt: 1 }}>
                 <Grid item xs={12} sm={6}>
                   <Paper
-                    elevation={1}
-                    sx={{ p: 2, borderRadius: 2, height: '100%', backgroundColor: alpha(theme.palette.background.paper, 0.7) }}
+                    elevation={0}
+                    sx={{ 
+                      p: 2.5, 
+                      borderRadius: 3, 
+                      height: '100%', 
+                      backgroundColor: alpha(theme.palette.primary.light, 0.08),
+                      border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        backgroundColor: alpha(theme.palette.primary.light, 0.12),
+                        transform: 'translateY(-2px)'
+                      }
+                    }}
                   >
-                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                    <Typography variant="subtitle2" color="primary.main" gutterBottom fontWeight="bold">
                       Gatunek
                     </Typography>
-                    <Typography variant="body1" fontWeight="medium">
+                    <Typography variant="body1" fontWeight="medium" sx={{ mt: 1 }}>
                       {currentPet.type}
                     </Typography>
                   </Paper>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Paper
-                    elevation={1}
-                    sx={{ p: 2, borderRadius: 2, height: '100%', backgroundColor: alpha(theme.palette.background.paper, 0.7) }}
+                    elevation={0}
+                    sx={{ 
+                      p: 2.5, 
+                      borderRadius: 3, 
+                      height: '100%', 
+                      backgroundColor: alpha(theme.palette.primary.light, 0.08),
+                      border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        backgroundColor: alpha(theme.palette.primary.light, 0.12),
+                        transform: 'translateY(-2px)'
+                      }
+                    }}
                   >
-                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                    <Typography variant="subtitle2" color="primary.main" gutterBottom fontWeight="bold">
                       Rasa
                     </Typography>
-                    <Typography variant="body1" fontWeight="medium">
+                    <Typography variant="body1" fontWeight="medium" sx={{ mt: 1 }}>
                       {currentPet.race}
                     </Typography>
                   </Paper>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Paper
-                    elevation={1}
-                    sx={{ p: 2, borderRadius: 2, height: '100%', backgroundColor: alpha(theme.palette.background.paper, 0.7) }}
+                    elevation={0}
+                    sx={{ 
+                      p: 2.5, 
+                      borderRadius: 3, 
+                      height: '100%', 
+                      backgroundColor: alpha(theme.palette.primary.light, 0.08),
+                      border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        backgroundColor: alpha(theme.palette.primary.light, 0.12),
+                        transform: 'translateY(-2px)'
+                      }
+                    }}
                   >
-                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                    <Typography variant="subtitle2" color="primary.main" gutterBottom fontWeight="bold">
                       Rozmiar
                     </Typography>
-                    <Typography variant="body1" fontWeight="medium">
+                    <Typography variant="body1" fontWeight="medium" sx={{ mt: 1 }}>
                       {currentPet.size}
                     </Typography>
                   </Paper>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Paper
-                    elevation={1}
-                    sx={{ p: 2, borderRadius: 2, height: '100%', backgroundColor: alpha(theme.palette.background.paper, 0.7) }}
+                    elevation={0}
+                    sx={{ 
+                      p: 2.5, 
+                      borderRadius: 3, 
+                      height: '100%', 
+                      backgroundColor: alpha(theme.palette.primary.light, 0.08),
+                      border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        backgroundColor: alpha(theme.palette.primary.light, 0.12),
+                        transform: 'translateY(-2px)'
+                      }
+                    }}
                   >
-                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                    <Typography variant="subtitle2" color="primary.main" gutterBottom fontWeight="bold">
                       Wiek
                     </Typography>
-                    <Typography variant="body1" fontWeight="medium">
+                    <Typography variant="body1" fontWeight="medium" sx={{ mt: 1 }}>
                       {calculatePetAge(currentPet.birth_date)}
                     </Typography>
                   </Paper>
                 </Grid>
               </Grid>
+
+              {currentPet.description && (
+                <Box sx={{ mt: 3 }}>
+                  <Divider sx={{ mb: 3 }} />
+                  <Paper 
+                    elevation={0}
+                    sx={{ 
+                      p: 3, 
+                      borderRadius: 3,
+                      backgroundColor: alpha(theme.palette.primary.light, 0.05),
+                      border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                    }}
+                  >
+                    <Typography variant="h6" color="primary" fontWeight="bold" gutterBottom>
+                      O zwierzaku
+                    </Typography>
+                    <Typography 
+                      variant="body1" 
+                      sx={{ 
+                        whiteSpace: 'pre-line',
+                        lineHeight: 1.7
+                      }}
+                    >
+                      {currentPet.description}
+                    </Typography>
+                  </Paper>
+                </Box>
+              )}
             </CardContent>
           </Card>
         </Grid>
       </Grid>
 
-      {/* Apply button */}
       <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
         <Button
           variant="contained"

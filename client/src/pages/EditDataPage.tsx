@@ -39,6 +39,7 @@ interface UserFormData {
     apartment_number: string;
     phone_number: string;
     photo_deleted?: boolean;
+    description?: string;
 }
 
 interface FormErrors {
@@ -47,6 +48,7 @@ interface FormErrors {
     apartment_number?: string;
     phone_number?: string;
     photo?: string;
+    description?: string;
 }
 
 const EditDataPage = () => {
@@ -71,6 +73,7 @@ const EditDataPage = () => {
         house_number: '',
         apartment_number: '',
         phone_number: '',
+        description: '',
     });
 
     const setPhotoDeleted = (value: boolean) => {
@@ -92,6 +95,7 @@ const EditDataPage = () => {
                         house_number: userData.house_number || '',
                         apartment_number: userData.apartment_number || '',
                         phone_number: userData.phone_number || '',
+                        description: userData.description || '',
                     });
 
                     if (userData.file_link) {
@@ -124,26 +128,22 @@ const EditDataPage = () => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Validate file size (less than 1MB)
-        if (file.size > 1024 * 1024) {
+        if (file.size > 1024 * 1024 * 2) {
             setErrors(prev => ({
                 ...prev,
-                photo: 'Zdjęcie musi być mniejsze niż 1MB'
+                photo: 'Zdjęcie musi być mniejsze niż 2MB'
             }));
             return;
         }
 
-        // Clear any previous errors
         setErrors(prev => ({
             ...prev,
             photo: undefined
         }));
 
-        // Set the file
         setPhotoFile(file);
         setPhotoDeleted(false);
 
-        // Create a preview URL
         const reader = new FileReader();
         reader.onloadend = () => {
             setPhotoPreview(reader.result as string);
@@ -178,6 +178,8 @@ const EditDataPage = () => {
             newErrors.house_number = validateMaxLength(value, 'Numer domu', 10);
         } else if (name === 'apartment_number') {
             newErrors.apartment_number = validateChain(validateMaxLength(value, 'Numer mieszkania', 10), validateNumber(value, 'Numer mieszkania'));
+        } else if (name === 'description') {
+            newErrors.description = validateMaxLength(value || '', 'Opis', 500);
         }
         setErrors(newErrors);
     };
@@ -197,7 +199,7 @@ const EditDataPage = () => {
         newErrors.street = validateMaxLength(formData.street, 'Ulica', 100);
         newErrors.house_number = validateMaxLength(formData.house_number, 'Numer domu', 10);
         newErrors.apartment_number = validateChain(validateMaxLength(formData.apartment_number, 'Numer mieszkania', 10), validateNumber(formData.apartment_number, 'Numer mieszkania'));
-
+        newErrors.description = validateMaxLength(formData.description || '', 'Opis', 500);
         setErrors(newErrors);
 
         return !Object.values(newErrors).some(error => error !== undefined);
@@ -258,21 +260,21 @@ const EditDataPage = () => {
     };
 
     return (
-        <Box sx={{ py: 4, px: 2, maxWidth: 900, mx: 'auto' }}>
+        <Box sx={{ py: { xs: 2, sm: 4 }, px: { xs: 1, sm: 2 }, maxWidth: 900, mx: 'auto' }}>
             <Card
                 elevation={4}
                 sx={{
-                    borderRadius: 4,
+                    borderRadius: { xs: 2, sm: 4 },
                     overflow: 'hidden',
                     backgroundColor: alpha(theme.palette.background.paper, 0.9),
                     boxShadow: '0 8px 40px rgba(0,0,0,0.12)',
                     border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                    mb: 4,
+                    mb: { xs: 2, sm: 4 },
                 }}
             >
                 <Box
                     sx={{
-                        p: 3,
+                        p: { xs: 2, sm: 3 },
                         background: `linear-gradient(135deg, ${theme.palette.primary.light}, ${theme.palette.primary.main})`,
                         color: 'white',
                     }}
@@ -285,7 +287,7 @@ const EditDataPage = () => {
                     </Typography>
                 </Box>
 
-                <CardContent sx={{ p: 4 }}>
+                <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
                     <Box
                         sx={{
                             mb: 3,
@@ -445,17 +447,17 @@ const EditDataPage = () => {
                                     color="text.secondary"
                                     sx={{ mt: 1, textAlign: 'center' }}
                                 >
-                                    Dodaj zdjęcie profilowe (maks. 1MB)
+                                    Dodaj zdjęcie profilowe (maks. 2MB)
                                 </Typography>
                             </Box>
 
-                            <Divider sx={{ my: 3 }} />
+                            <Divider sx={{ my: { xs: 2, sm: 3 } }} />
 
-                            <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mb: 2 }}>
+                            <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mb: { xs: 1, sm: 2 } }}>
                                 Dane adresowe
                             </Typography>
 
-                            <Grid container spacing={3}>
+                            <Grid container spacing={{ xs: 2, sm: 3 }}>
                                 <Grid item xs={12}>
                                     <CitySearchSelect
                                         model={formData}
@@ -551,8 +553,8 @@ const EditDataPage = () => {
                                 </Grid>
 
                                 <Grid item xs={12}>
-                                    <Divider sx={{ my: 2 }} />
-                                    <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mb: 2 }}>
+                                    <Divider sx={{ my: { xs: 1, sm: 2 } }} />
+                                    <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mb: { xs: 1, sm: 2 } }}>
                                         Dane kontaktowe
                                     </Typography>
                                     <TextField
@@ -590,9 +592,55 @@ const EditDataPage = () => {
                                         }}
                                     />
                                 </Grid>
+                                <Grid item xs={12}>
+                                    <Divider sx={{ my: { xs: 1, sm: 2 } }} />
+                                    <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mb: { xs: 1, sm: 2 } }}>
+                                        O tobie
+                                    </Typography>
+                                    <Box
+                                        sx={{
+                                            p: { xs: 1.5, sm: 2 },
+                                            mb: { xs: 1, sm: 2 },
+                                            borderRadius: 2,
+                                            bgcolor: alpha(theme.palette.info.light, 0.1),
+                                            border: `1px solid ${alpha(theme.palette.info.main, 0.2)}`,
+                                        }}
+                                    >
+                                        <Typography variant="body2" color="text.secondary">
+                                            Dodaj krótki opis swojego profilu. Może on być widoczny dla innych użytkowników aplikacji.
+                                        </Typography>
+                                    </Box>
+                                    <TextField
+                                        fullWidth
+                                        id="description"
+                                        name="description"
+                                        label="Opis profilu (opcjonalny)"
+                                        value={formData.description || ''}
+                                        onChange={handleInputChange}
+                                        error={!!errors.description}
+                                        helperText={errors.description || "Możesz dodać krótki opis o sobie (maksymalnie 500 znaków)"}
+                                        multiline
+                                        rows={4}
+                                        slotProps={{
+                                            htmlInput: { maxLength: 500 },
+                                            input: { sx: { borderRadius: 2 } }
+                                        }}
+                                    />
+                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+                                        <Typography variant="caption" color="text.secondary">
+                                            {(formData.description?.length || 0)}/500
+                                        </Typography>
+                                    </Box>
+                                </Grid>
                             </Grid>
-
-                            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
+                            <Box sx={{
+                                mt: { xs: 2, sm: 4 },
+                                display: 'flex',
+                                flexDirection: { xs: 'column', sm: 'row' },
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                gap: { xs: 1, sm: 2 }
+                            }}>
                                 <Button
                                     type="submit"
                                     variant="contained"
@@ -603,6 +651,7 @@ const EditDataPage = () => {
                                         px: 5,
                                         py: 1.5,
                                         borderRadius: 3,
+                                        width: { xs: '100%', sm: 'auto' },
                                         fontWeight: 'bold',
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                                         '&:hover': {
@@ -623,6 +672,7 @@ const EditDataPage = () => {
                                         px: 5,
                                         py: 1.5,
                                         borderRadius: 3,
+                                        width: { xs: '100%', sm: 'auto' },
                                         fontWeight: 'bold',
                                         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                                         '&:hover': {
@@ -644,6 +694,7 @@ const EditDataPage = () => {
                                         px: 5,
                                         py: 1.5,
                                         borderRadius: 3,
+                                        width: { xs: '100%', sm: 'auto' },
                                         fontWeight: 'bold',
                                         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                                         '&:hover': {
