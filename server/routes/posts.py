@@ -4,12 +4,13 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
-from db_models.database_tables import User, Post, PetCare, Pet, UserPhoto, PetPhoto
+from db_models.database_tables import User, Post, PetCare, Pet, UserPhoto, PetPhoto, PetCareApplication
 from db_dto.post_dto import (
     create_post_dto,
     create_petcare_dto,
     get_user_dto,
     get_pet_dto,
+    get_pets_dto
 )
 import sqlalchemy
 from utils.file_storage import generate_presigned_url
@@ -123,7 +124,7 @@ def get_post(post_id):
         pet_lst.append(pet_dto)
 
     if len(post_set) > 1 or len(user_set) > 1 or len(user_photo_set) > 1:
-        return jsonify({"error": "More than one user or post with provided id!"}), 400
+        return jsonify({"error": "More than one user or post with provided id!"}), 403
 
     # in future set user rating!!
 
@@ -137,6 +138,123 @@ def get_post(post_id):
                 "post": create_post_dto.dump(post_set.pop()),
                 "pets": pet_lst,
             }
+        ),
+        200,
+    )
+
+
+@post_bprt.route("/getMyPosts", methods=["GET"])
+@jwt_required()
+def get_my_posts():
+    post_details = (
+        db.session.query(
+            Post,
+            sqlalchemy.func.array_agg(Pet.pet_name).label("pet_list")
+        )
+        .join(PetCare, Post.post_id == PetCare.post_id)
+        .join(Pet, PetCare.pet_id == Pet.pet_id)
+        .filter(Post.user_id == get_jwt_identity())
+        .group_by(Post.post_id, PetCare.post_id)
+        .all()
+    )
+
+    post_lst = []
+
+    for post, pet_lst in post_details:
+        post_dict = create_post_dto.dump(post)
+        post_dict["pet_lst"] = pet_lst
+        post_lst.append(post_dict)
+
+    return (
+        jsonify(
+            {"post_lst": post_lst}
+        ),
+        200,
+    )
+
+
+@post_bprt.route("/editPost/<int:post_id>", methods=["PUT", "GET"])
+@jwt_required()
+def edit_post(post_id):
+    post_details = (
+        db.session.query(
+            Post,
+            Pet
+        )
+        .join(PetCare, Post.post_id == PetCare.post_id)
+        .join(Pet, PetCare.pet_id == Pet.pet_id)
+        .filter(Post.post_id == post_id, Post.user_id == get_jwt_identity())
+        .all()
+    )
+
+    if not post_details:
+        return jsonify({
+            "error": "Post nie istnieje lub nie jesteś jego właścielem!"
+        }), 404
+
+    post_set = set()
+    pet_set = set()
+    for post, pet in post_details:
+        post_set.add(post)
+        pet_set.add(pet)
+
+    if len(post_set) > 1:
+        return jsonify({
+            "error": "Więcej niż jeden post o podanym ID"
+        }), 403
+
+    post = post_set.pop()
+
+    if request.method == "GET":
+        return jsonify({
+            "post": create_post_dto.dump(post),
+            "pets": get_pets_dto.dump(list(pet_set))
+        }), 200
+
+
+@post_bprt.route("/applyToPost/<int:post_id>", methods=["POST"])
+@jwt_required()
+def apply_to_post(post_id):
+    pet_care_application = PetCareApplication(user_id=get_jwt_identity(), post_id=post_id)
+
+    try:
+        db.session.add(pet_care_application)
+        db.session.commit()
+
+        return jsonify({
+            "msg": "Aplikacja złożona pomyślnie!"
+        })
+    except sqlalchemy.exc.IntegrityError:
+        db.session.rollback()
+        return jsonify({"msg": "Nie można w tej chwili przyjąc aplikacji."}), 406
+
+
+@post_bprt.route("/getMyApplications", methods=["GET"])
+@jwt_required()
+def get_my_application():
+    post_details = (
+        db.session.query(
+            Post,
+            sqlalchemy.func.array_agg(Pet.pet_name).label("pet_list")
+        )
+        .join(PetCare, Post.post_id == PetCare.post_id)
+        .join(Pet, PetCare.pet_id == Pet.pet_id)
+        .join(PetCareApplication, Post.post_id == PetCareApplication.post_id)
+        .filter(PetCareApplication.user_id == get_jwt_identity())
+        .group_by(Post.post_id, PetCare.post_id)
+        .all()
+    )
+
+    post_lst = []
+
+    for post, pet_lst in post_details:
+        post_dict = create_post_dto.dump(post)
+        post_dict["pet_lst"] = pet_lst
+        post_lst.append(post_dict)
+
+    return (
+        jsonify(
+            {"post_lst": post_lst}
         ),
         200,
     )
