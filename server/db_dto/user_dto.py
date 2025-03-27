@@ -17,6 +17,7 @@ class CreateUserDTO(ma.SQLAlchemyAutoSchema):
             "phone_number",
             "join_date",
             "is_banned",
+            "description",
         )
 
     user_id = ma.auto_field(dump_only=True, load_only=True)
@@ -48,6 +49,7 @@ class EditUserDTO(ma.SQLAlchemyAutoSchema):
     house_number = ma.auto_field()
     apartment_number = ma.auto_field()
     phone_number = ma.auto_field()
+    description = ma.auto_field(allow_none=True)
 
     # custom field for photo of user
     photo_deleted = fields.Boolean(allow_none=True, load_only=True)

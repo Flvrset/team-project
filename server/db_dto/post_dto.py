@@ -54,6 +54,7 @@ class PostPageUserDTO(ma.SQLAlchemyAutoSchema):
     surname = ma.auto_field(required=True)
     city = ma.auto_field(required=True)
     postal_code = ma.auto_field(required=True)
+    description = ma.auto_field(allow_none=True)
 
     # custom rating field
     rating = fields.Float(default=4.5)
@@ -75,6 +76,7 @@ class PostPetDTO(ma.SQLAlchemyAutoSchema):
     size = ma.auto_field(required=True)
     birth_date = ma.auto_field(required=True)
     user_id = ma.auto_field(load_only=True)
+    description = ma.auto_field(allow_none=True)
 
     # custom fields
     photo = fields.String(allow_none=True)

@@ -19,6 +19,7 @@ class User(db.Model):
     apartment_number = db.Column(db.Integer)
     phone_number = db.Column(db.String(20))
     email = db.Column(db.String(255), nullable=False, unique=True)
+    description = db.Column(db.Text, nullable=True)
     is_banned = db.Column(db.Boolean, nullable=False, default=False)
 
 
@@ -34,6 +35,7 @@ class Pet(db.Model):
     size = db.Column(db.String(255), nullable=True)
     birth_date = db.Column(db.Date, nullable=True)
     is_deleted = db.Column(db.Boolean, nullable=False, default=False)
+    description = db.Column(db.Text, nullable=True)
 
     user_id = db.Column(
         db.Integer, db.ForeignKey("petbuddies_schema.User.user_id", ondelete="CASCADE")
