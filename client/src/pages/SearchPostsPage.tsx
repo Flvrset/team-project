@@ -167,7 +167,7 @@ const SearchPostsPage = () => {
             const queryParams = new URLSearchParams({
                 city: searchModel.city,
                 postal_code: searchModel.postal_code,
-                kilometers: searchModel.kms.toString()
+                kms: searchModel.kms.toString()
             });
 
             setSearchParams(queryParams);
