@@ -47,7 +47,6 @@ const CreatePostPage = () => {
     const theme = useTheme();
     const navigate = useNavigate();
 
-    // Form state
     const [formData, setFormData] = useState<FormData>({
         startDate: null,
         endDate: null,
@@ -58,14 +57,11 @@ const CreatePostPage = () => {
         selectedPets: []
     });
 
-    // Validation errors
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-    // Pets state
     const [pets, setPets] = useState<Pet[]>([]);
     const [loadingPets, setLoadingPets] = useState(true);
 
-    // UI state
     const [submitting, setSubmitting] = useState(false);
     const [openPetModal, setOpenPetModal] = useState(false);
     const [notification, setNotification] = useState({
@@ -75,7 +71,6 @@ const CreatePostPage = () => {
     });
     const [createButtonDisabled, setCreateButtonDisabled] = useState(false);
 
-    // Fetch pets
     const fetchPets = async () => {
         setLoadingPets(true);
 
@@ -110,12 +105,10 @@ const CreatePostPage = () => {
         fetchPets();
     }, []);
 
-    // Form handlers
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
 
-        // Clear error for this field
         if (formErrors[name]) {
             setFormErrors(prev => {
                 const newErrors = { ...prev };
@@ -128,7 +121,6 @@ const CreatePostPage = () => {
     const handleDateChange = (field: 'startDate' | 'endDate', value: Date | null) => {
         setFormData(prev => ({ ...prev, [field]: value }));
 
-        // Clear error for this field
         if (formErrors[field]) {
             setFormErrors(prev => {
                 const newErrors = { ...prev };
@@ -141,7 +133,6 @@ const CreatePostPage = () => {
     const handleTimeChange = (field: 'startTime' | 'endTime', value: Date | null) => {
         setFormData(prev => ({ ...prev, [field]: value }));
 
-        // Clear error for this field
         if (formErrors[field]) {
             setFormErrors(prev => {
                 const newErrors = { ...prev };
@@ -163,7 +154,6 @@ const CreatePostPage = () => {
             };
         });
 
-        // Clear error for pets
         if (formErrors.selectedPets) {
             setFormErrors(prev => {
                 const newErrors = { ...prev };
@@ -173,7 +163,6 @@ const CreatePostPage = () => {
         }
     };
 
-    // Pet modal handlers
     const handleOpenPetModal = () => {
         setOpenPetModal(true);
     };
@@ -188,16 +177,14 @@ const CreatePostPage = () => {
             message: 'Zwierzak został dodany pomyślnie!',
             severity: 'success',
         });
-        fetchPets(); // Refresh pets list
+        fetchPets();
         setOpenPetModal(false);
     };
 
-    // Notification handler
     const handleCloseNotification = () => {
         setNotification(prev => ({ ...prev, open: false }));
     };
 
-    // Form validation
     const validateForm = (): boolean => {
         const errors: Record<string, string> = {};
         const now = new Date();
@@ -242,14 +229,11 @@ const CreatePostPage = () => {
             errors.cost = 'Stawka musi być liczbą większą od 0';
         }
 
-        // Update the errors state
         setFormErrors(errors);
 
-        // Return true if there are no errors
         return Object.keys(errors).length === 0;
     };
 
-    // Submit handler
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -260,7 +244,6 @@ const CreatePostPage = () => {
         setSubmitting(true);
 
         try {
-            // Format dates and times for the API
             const startDateFormatted = formData.startDate ? format(formData.startDate, 'yyyy-MM-dd') : '';
             const endDateFormatted = formData.endDate ? format(formData.endDate, 'yyyy-MM-dd') : '';
             const startTimeFormatted = formData.startTime ? format(formData.startTime, 'HH:mm') : '';
@@ -284,7 +267,6 @@ const CreatePostPage = () => {
                     severity: 'success',
                 });
 
-                // Reset form
                 setFormData({
                     startDate: null,
                     endDate: null,
@@ -295,7 +277,6 @@ const CreatePostPage = () => {
                     selectedPets: []
                 });
 
-                // Redirect to dashboard or posts list
                 setCreateButtonDisabled(true);
                 setTimeout(() => {
                     navigate('/dashboard');
@@ -323,7 +304,6 @@ const CreatePostPage = () => {
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={pl}>
             <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, sm: 3, md: 4 } }}>
-                {/* Header */}
                 <Paper
                     elevation={0}
                     sx={{
@@ -342,7 +322,6 @@ const CreatePostPage = () => {
                     </Typography>
                 </Paper>
 
-                {/* Actions */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
                     <Button
                         variant="outlined"
@@ -363,10 +342,8 @@ const CreatePostPage = () => {
                     </Button>
                 </Box>
 
-                {/* Content */}
                 <Box component="form" onSubmit={handleSubmit} noValidate>
                     <Grid container spacing={4}>
-                        {/* Left column - Date, Time, Cost */}
                         <Grid item xs={12} md={6}>
                             <Paper
                                 elevation={1}
@@ -384,7 +361,6 @@ const CreatePostPage = () => {
                                 </Typography>
 
                                 <Grid container spacing={2}>
-                                    {/* Start Date */}
                                     <Grid item xs={12} sm={6}>
                                         <DatePicker
                                             label="Data początkowa"
@@ -402,7 +378,6 @@ const CreatePostPage = () => {
                                         />
                                     </Grid>
 
-                                    {/* End Date */}
                                     <Grid item xs={12} sm={6}>
                                         <DatePicker
                                             label="Data końcowa"
@@ -420,7 +395,6 @@ const CreatePostPage = () => {
                                         />
                                     </Grid>
 
-                                    {/* Start Time */}
                                     <Grid item xs={12} sm={6}>
                                         <TimePicker
                                             label="Godzina początkowa"
@@ -437,7 +411,6 @@ const CreatePostPage = () => {
                                         />
                                     </Grid>
 
-                                    {/* End Time */}
                                     <Grid item xs={12} sm={6}>
                                         <TimePicker
                                             label="Godzina końcowa"
@@ -454,7 +427,6 @@ const CreatePostPage = () => {
                                         />
                                     </Grid>
 
-                                    {/* Cost */}
                                     <Grid item xs={12}>
                                         <TextField
                                             fullWidth
@@ -485,7 +457,6 @@ const CreatePostPage = () => {
                                         </FormHelperText>
                                     </Grid>
 
-                                    {/* Description */}
                                     <Grid item xs={12}>
                                         <TextField
                                             fullWidth
@@ -507,7 +478,6 @@ const CreatePostPage = () => {
                             </Paper>
                         </Grid>
 
-                        {/* Right column - Pets selection */}
                         <Grid item xs={12} md={6}>
                             <Paper
                                 elevation={1}
@@ -617,7 +587,6 @@ const CreatePostPage = () => {
                         </Grid>
                     </Grid>
 
-                    {/* Submit button */}
                     <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
                         <Button
                             type="submit"
@@ -640,14 +609,12 @@ const CreatePostPage = () => {
                     </Box>
                 </Box>
 
-                {/* Pet Form Modal */}
                 <PetFormModal
                     open={openPetModal}
                     onClose={handleClosePetModal}
                     onSuccess={handlePetAddSuccess}
                 />
 
-                {/* Notification Snackbar */}
                 <Snackbar
                     open={notification.open}
                     autoHideDuration={6000}

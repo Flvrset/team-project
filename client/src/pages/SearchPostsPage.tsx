@@ -86,7 +86,8 @@ const SearchPostsPage = () => {
         } else {
             fetchUserData();
         }
-    }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
     const handleModelChange = (updatedModel: SearchModel) => {
         if (updatedModel.city && updatedModel.postal_code) {

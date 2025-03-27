@@ -69,7 +69,6 @@ const PetCard: React.FC<PetCardProps> = ({
     
     const iconColor = getPetIconColor(pet.type);
     
-    // Small variant (for selection in CreatePostPage)
     if (size === 'small') {
         return (
             <Card 
@@ -84,8 +83,7 @@ const PetCard: React.FC<PetCardProps> = ({
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: `0 6px 16px ${alpha(iconColor, 0.2)}`,
+                        boxShadow: `inset 0 6px 16px ${alpha(iconColor, 0.2)}`,
                     }
                 }}
                 onClick={handleClick}
