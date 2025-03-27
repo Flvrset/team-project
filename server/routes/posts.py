@@ -115,13 +115,7 @@ def get_post(post_id):
     for post, user, pet, user_photo, pet_photo in post_details:
         pet_dto = get_pet_dto.dump(pet)
         if pet_photo:
-<<<<<<< HEAD
-            pet_dict["photo"] = generate_presigned_url(
-                "pet_photo", pet_photo
-            )
-=======
             pet_dto["photo"] = generate_presigned_url("pet_photo", pet_photo)
->>>>>>> 98f472066dd536f2b9e68f08a996a6b69e5dfaaf
 
         post_set.add(post)
         user_set.add(user)
