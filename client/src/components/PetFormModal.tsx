@@ -204,6 +204,7 @@ const PetFormModal = ({
                 race: formData.race,
                 size: formData.size,
                 birth_date: formattedDate,
+                description: formData.description,
             };
 
             formDataToSend.append('json', JSON.stringify(petData));
