@@ -27,7 +27,7 @@ import {
   useTheme
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { Pet } from '../types';
 import { getWithAuth } from '../utils/auth';
@@ -63,7 +63,8 @@ interface PostDetails {
 const PostPage = () => {
   const { postId } = useParams<{ postId: string }>();
   const theme = useTheme();
-  
+  const navigate = useNavigate();
+
   const [postDetails, setPostDetails] = useState<PostDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -74,14 +75,14 @@ const PostPage = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         if (!postId) {
           setError("Post ID is missing");
           return;
         }
-        
+
         const response = await getWithAuth(`/api/getPost/${postId}`);
-        
+
         if (response.ok) {
           const data = await response.json();
           setPostDetails(data);
@@ -102,7 +103,7 @@ const PostPage = () => {
 
   const handleNextPet = () => {
     if (postDetails) {
-      setSelectedPetIndex((prevIndex) => 
+      setSelectedPetIndex((prevIndex) =>
         prevIndex === postDetails.pets.length - 1 ? 0 : prevIndex + 1
       );
     }
@@ -110,7 +111,7 @@ const PostPage = () => {
 
   const handlePrevPet = () => {
     if (postDetails) {
-      setSelectedPetIndex((prevIndex) => 
+      setSelectedPetIndex((prevIndex) =>
         prevIndex === 0 ? postDetails.pets.length - 1 : prevIndex - 1
       );
     }
@@ -160,8 +161,7 @@ const PostPage = () => {
           Nie znaleziono szczegółów ogłoszenia
         </Alert>
         <Button
-          component={Link}
-          to="/dashboard/search-posts"
+          onClick={() => navigate(-1)}
           startIcon={<ArrowBackIcon />}
           variant="outlined"
         >
@@ -177,8 +177,7 @@ const PostPage = () => {
     <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1200, mx: 'auto' }}>
       <Box sx={{ mb: 3 }}>
         <Button
-          component={Link}
-          to="/dashboard/search-posts"
+          onClick={() => navigate(-1)}
           startIcon={<ArrowBackIcon />}
           variant="outlined"
           sx={{
@@ -236,9 +235,9 @@ const PostPage = () => {
                   </Box>
                 </Box>
               </Box>
-              
+
               <Divider sx={{ my: 2 }} />
-              
+
               <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
                 <LocationOnIcon color="primary" sx={{ mt: 0.3, mr: 1.5 }} />
                 <Typography>
@@ -271,7 +270,7 @@ const PostPage = () => {
               <Typography variant="h6" fontWeight="bold" gutterBottom>
                 Szczegóły ogłoszenia
               </Typography>
-              
+
               <Stack spacing={2} sx={{ mt: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
                   <CalendarTodayIcon color="primary" sx={{ mt: 0.5, mr: 1.5 }} />
@@ -321,7 +320,7 @@ const PostPage = () => {
                   </Box>
                 </Box>
               </Stack>
-              
+
               {postDetails.post.description && (
                 <>
                   <Divider sx={{ my: 2 }} />
@@ -382,29 +381,29 @@ const PostPage = () => {
               ) : (
                 <PetsIcon sx={{ fontSize: 120, color: alpha(theme.palette.text.primary, 0.2) }} />
               )}
-              
-              <Box sx={{ 
-                position: 'absolute', 
-                top: 0, 
+
+              <Box sx={{
+                position: 'absolute',
+                top: 0,
                 left: 0,
                 right: 0,
                 bottom: 0,
                 background: 'linear-gradient(to top, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 30%)',
               }} />
-              
+
               <Box sx={{ position: 'absolute', bottom: 12, left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
                   backdropFilter: 'blur(8px)',
-                  backgroundColor: alpha(theme.palette.background.paper, 0.6), 
-                  borderRadius: 8, 
-                  px: 2, 
+                  backgroundColor: alpha(theme.palette.background.paper, 0.6),
+                  borderRadius: 8,
+                  px: 2,
                   py: 0.5,
                   boxShadow: '0 2px 12px rgba(0,0,0,0.15)'
                 }}>
-                  <IconButton 
-                    onClick={handlePrevPet} 
+                  <IconButton
+                    onClick={handlePrevPet}
                     disabled={postDetails.pets.length <= 1}
                     aria-label="Poprzednie zwierzę"
                     sx={{ color: theme.palette.primary.main }}
@@ -414,8 +413,8 @@ const PostPage = () => {
                   <Typography sx={{ display: 'flex', alignItems: 'center', mx: 1, fontWeight: 'medium' }}>
                     {selectedPetIndex + 1} / {postDetails.pets.length}
                   </Typography>
-                  <IconButton 
-                    onClick={handleNextPet} 
+                  <IconButton
+                    onClick={handleNextPet}
                     disabled={postDetails.pets.length <= 1}
                     aria-label="Następne zwierzę"
                     sx={{ color: theme.palette.primary.main }}
@@ -430,15 +429,15 @@ const PostPage = () => {
               <Typography variant="h4" component="h2" fontWeight="bold" gutterBottom>
                 {currentPet.pet_name}
               </Typography>
-              
+
               <Grid container spacing={3} sx={{ mt: 1 }}>
                 <Grid item xs={12} sm={6}>
                   <Paper
                     elevation={0}
-                    sx={{ 
-                      p: 2.5, 
-                      borderRadius: 3, 
-                      height: '100%', 
+                    sx={{
+                      p: 2.5,
+                      borderRadius: 3,
+                      height: '100%',
                       backgroundColor: alpha(theme.palette.primary.light, 0.08),
                       border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                       transition: 'all 0.2s ease',
@@ -459,10 +458,10 @@ const PostPage = () => {
                 <Grid item xs={12} sm={6}>
                   <Paper
                     elevation={0}
-                    sx={{ 
-                      p: 2.5, 
-                      borderRadius: 3, 
-                      height: '100%', 
+                    sx={{
+                      p: 2.5,
+                      borderRadius: 3,
+                      height: '100%',
                       backgroundColor: alpha(theme.palette.primary.light, 0.08),
                       border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                       transition: 'all 0.2s ease',
@@ -483,10 +482,10 @@ const PostPage = () => {
                 <Grid item xs={12} sm={6}>
                   <Paper
                     elevation={0}
-                    sx={{ 
-                      p: 2.5, 
-                      borderRadius: 3, 
-                      height: '100%', 
+                    sx={{
+                      p: 2.5,
+                      borderRadius: 3,
+                      height: '100%',
                       backgroundColor: alpha(theme.palette.primary.light, 0.08),
                       border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                       transition: 'all 0.2s ease',
@@ -507,10 +506,10 @@ const PostPage = () => {
                 <Grid item xs={12} sm={6}>
                   <Paper
                     elevation={0}
-                    sx={{ 
-                      p: 2.5, 
-                      borderRadius: 3, 
-                      height: '100%', 
+                    sx={{
+                      p: 2.5,
+                      borderRadius: 3,
+                      height: '100%',
                       backgroundColor: alpha(theme.palette.primary.light, 0.08),
                       border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                       transition: 'all 0.2s ease',
@@ -533,10 +532,10 @@ const PostPage = () => {
               {currentPet.description && (
                 <Box sx={{ mt: 3 }}>
                   <Divider sx={{ mb: 3 }} />
-                  <Paper 
+                  <Paper
                     elevation={0}
-                    sx={{ 
-                      p: 3, 
+                    sx={{
+                      p: 3,
                       borderRadius: 3,
                       backgroundColor: alpha(theme.palette.primary.light, 0.05),
                       border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
@@ -545,9 +544,9 @@ const PostPage = () => {
                     <Typography variant="h6" color="primary" fontWeight="bold" gutterBottom>
                       O zwierzaku
                     </Typography>
-                    <Typography 
-                      variant="body1" 
-                      sx={{ 
+                    <Typography
+                      variant="body1"
+                      sx={{
                         whiteSpace: 'pre-line',
                         lineHeight: 1.7
                       }}
