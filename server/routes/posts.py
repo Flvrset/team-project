@@ -5,7 +5,12 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 from db_models.database_tables import User, Post, PetCare, Pet, UserPhoto, PetPhoto
-from db_dto.post_dto import create_post_dto, create_petcare_dto, get_user_dto, get_pet_dto
+from db_dto.post_dto import (
+    create_post_dto,
+    create_petcare_dto,
+    get_user_dto,
+    get_pet_dto,
+)
 import sqlalchemy
 from utils.file_storage import generate_presigned_url
 
@@ -47,7 +52,10 @@ def get_dashboard_post():
     # dodac logike do wybierania 10 (albo wiecej) dla uzytkownika
     post_lst = (
         db.session.query(
-            Post, User, sqlalchemy.func.count(PetCare.pet_id).label("pet_count"), sqlalchemy.func.array_agg(PetPhoto.photo_name).label("photo_lst")
+            Post,
+            User,
+            sqlalchemy.func.count(PetCare.pet_id).label("pet_count"),
+            sqlalchemy.func.array_agg(PetPhoto.photo_name).label("photo_lst"),
         )
         .join(User, Post.user_id == User.user_id, isouter=True)
         .join(PetCare, Post.post_id == PetCare.post_id, isouter=True)
@@ -72,10 +80,8 @@ def get_dashboard_post():
             "cost": post_dashboard.cost,
             "pet_count": pet_cnt,
             "pet_photos": [
-                generate_presigned_url(
-                    "pet_photo", photo
-                ) for photo in photos_lst
-            ]
+                generate_presigned_url("pet_photo", photo) for photo in photos_lst
+            ],
         }
         for post_dashboard, user, pet_cnt, photos_lst in post_lst
     ]
@@ -86,7 +92,13 @@ def get_dashboard_post():
 @post_bprt.route("/getPost/<int:post_id>", methods=["GET"])
 def get_post(post_id):
     post_details = (
-        db.session.query(Post, User, Pet, UserPhoto.photo_name.label("user_photo"), PetPhoto.photo_name.label("pet_photo"))
+        db.session.query(
+            Post,
+            User,
+            Pet,
+            UserPhoto.photo_name.label("user_photo"),
+            PetPhoto.photo_name.label("pet_photo"),
+        )
         .join(Post, Post.user_id == User.user_id)
         .join(PetCare, Post.post_id == PetCare.post_id)
         .join(Pet, PetCare.pet_id == Pet.pet_id)
@@ -98,36 +110,39 @@ def get_post(post_id):
 
     post_set = set()
     user_set = set()
-    pet_set = set()
+    user_photo_set = set()
+    pet_lst = []
     for post, user, pet, user_photo, pet_photo in post_details:
-        user_dict = get_user_dto.dump(user)
-        if user_photo:
-            user_dict["user_photo"] = user_photo
-
-        post_dict = create_post_dto.dump(post)
-
-        pet_dict = get_pet_dto.dump(pet)
+        pet_dto = get_pet_dto.dump(pet)
         if pet_photo:
+<<<<<<< HEAD
             pet_dict["photo"] = generate_presigned_url(
                 "pet_photo", pet_photo
             )
+=======
+            pet_dto["photo"] = generate_presigned_url("pet_photo", pet_photo)
+>>>>>>> 98f472066dd536f2b9e68f08a996a6b69e5dfaaf
 
-        post_set.add(post_dict)
-        user_set.add(user_dict)
-        pet_set.add(pet_dict)
+        post_set.add(post)
+        user_set.add(user)
+        user_photo_set.add(user_photo)
+        pet_lst.append(pet_dto)
 
-    if len(post_set) > 1 or len(user_set) > 1:
+    if len(post_set) > 1 or len(user_set) > 1 or len(user_photo_set) > 1:
         return jsonify({"error": "More than one user or post with provided id!"}), 400
 
     # in future set user rating!!
 
-    user_dict = user_set.pop()
-    user_dict["user_photo"] = generate_presigned_url(
-        "user_photo", user_dict["user_photo"]
-    )
+    user = get_user_dto.dump(user_set.pop())
+    user["photo"] = generate_presigned_url("user_photo", user_photo_set.pop())
 
-    return jsonify({
-        "user": user_dict,
-        "post": post_set.pop(),
-        "pets": list(pet_set)
-    }), 200
+    return (
+        jsonify(
+            {
+                "user": user,
+                "post": create_post_dto.dump(post_set.pop()),
+                "pets": pet_lst,
+            }
+        ),
+        200,
+    )
