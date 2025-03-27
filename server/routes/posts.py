@@ -250,7 +250,7 @@ def get_my_application():
     for post, pet_lst in post_details:
         post_dict = create_post_dto.dump(post)
         post_dict["pet_lst"] = pet_lst
-        post_lst.append(post_lst)
+        post_lst.append(post_dict)
 
     return (
         jsonify(
