@@ -502,9 +502,7 @@ def get_my_application():
 def cancel_my_application(post_id):
     post = (
         db.session.query(Post)
-        .filter(
-            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
-        )
+        .filter(Post.post_id == post_id)
         .first()
     )
 

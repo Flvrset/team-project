@@ -1,6 +1,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
@@ -31,7 +32,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useNotification } from '../contexts/NotificationContext';
 import { Pet } from '../types';
-import { getWithAuth, postWithAuth } from '../utils/auth';
+import { getWithAuth, postWithAuth, putWithAuth } from '../utils/auth';
 import { formatTimeWithoutSeconds } from '../utils/utils';
 
 interface User {
@@ -75,6 +76,7 @@ const PostPage = () => {
   const [isMyPost, setIsMyPost] = useState<boolean>(false);
   const [hasApplied, setHasApplied] = useState<boolean>(false);
   const [applyLoading, setApplyLoading] = useState<boolean>(false);
+  const [cancelLoading, setCancelLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchPostDetails = async () => {
@@ -149,6 +151,29 @@ const PostPage = () => {
     }
   };
 
+  const handleCancelApplication = async () => {
+    if (!postId) return;
+
+    setCancelLoading(true);
+    try {
+      const response = await putWithAuth(`/api/getMyApplications/${postId}/cancel`, {});
+
+      if (response.ok) {
+        const data = await response.json();
+        showNotification(data.msg, 'success');
+        setHasApplied(false);
+      } else {
+        const errorData = await response.json();
+        showNotification(errorData.msg || 'Wystąpił błąd podczas wycofywania aplikacji', 'error');
+      }
+    } catch (error) {
+      console.error('Error cancelling application:', error);
+      showNotification('Nie udało się wycofać aplikacji', 'error');
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
   const calculatePetAge = (birthDate: string) => {
     const years = new Date().getFullYear() - new Date(birthDate).getFullYear();
     return `${years} ${years === 1 ? 'rok' : years < 5 ? 'lata' : 'lat'}`;
@@ -209,19 +234,26 @@ const PostPage = () => {
     if (hasApplied) {
       return (
         <Button
-          variant="contained"
-          color="success"
+          variant="outlined"
+          color="error"
           size="large"
-          disabled
+          startIcon={cancelLoading ? undefined : <CancelIcon />}
+          onClick={handleCancelApplication}
+          disabled={cancelLoading}
           sx={{
             py: 1.5,
             px: 4,
             borderRadius: 3,
             fontSize: '1.1rem',
             textTransform: 'none',
+            '&:hover': {
+              backgroundColor: alpha(theme.palette.error.main, 0.04),
+              transform: 'translateY(-3px)',
+              boxShadow: `0 8px 20px ${alpha(theme.palette.error.main, 0.2)}`,
+            }
           }}
         >
-          Aplikacja została złożona
+          {cancelLoading ? <CircularProgress size={24} color="inherit" /> : 'Wycofaj aplikację'}
         </Button>
       );
     }
