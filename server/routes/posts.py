@@ -320,7 +320,7 @@ def decline_application(post_id, user_id):
 
 @post_bprt.route("/getPost/<int:post_id>/acceptApplication/<int:user_id>", methods=["PUT"])
 @jwt_required()
-def decline_application(post_id, user_id):
+def accept_application(post_id, user_id):
     post = (
         db.session.guery(Post)
         .filter(sqlalchemy.and_(Post.post_id==post_id, Post.user_id==get_jwt_identity()))
