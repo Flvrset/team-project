@@ -167,6 +167,7 @@ def get_post(post_id):
         .filter(PetCareApplication.user_id == int(get_jwt_identity()))
         .first()
     )
+    print(post_application.cancelled)
 
     return (
         jsonify(
@@ -176,7 +177,7 @@ def get_post(post_id):
                 "pets": pet_lst,
                 "status": (
                     "own" if post.user_id == int(get_jwt_identity())
-                    else ("applied" if post_application is not None or not post_application.cancelled else "")
+                    else ("applied" if post_application is not None and not post_application.cancelled else "")
                 ),
             }
         ),
