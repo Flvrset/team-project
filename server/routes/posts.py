@@ -174,9 +174,10 @@ def get_post(post_id):
                 "user": user,
                 "post": create_post_dto.dump(post),
                 "pets": pet_lst,
-                "status": "own"
-                if post.user_id == get_jwt_identity()
-                else ("applied" if post_application_id is not None else ""),
+                "status": (
+                    "own" if post.user_id == get_jwt_identity()
+                    else ("applied" if post_application_id is not None else "")
+                ),
             }
         ),
         200,
@@ -282,7 +283,7 @@ def edit_post(post_id):
         )
 
 
-@post_bprt.route("/applyToPost/<int:post_id>", methods=["PUT"])
+@post_bprt.route("/applyToPost/<int:post_id>", methods=["POST"])
 @jwt_required()
 def apply_to_post(post_id):
     post = (
@@ -336,7 +337,7 @@ def get_applications_count():
 @jwt_required()
 def get_post_applications(post_id):
     post = (
-        db.session.guery(Post)
+        db.session.query(Post)
         .filter(
             sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
         )
@@ -370,7 +371,7 @@ def get_post_applications(post_id):
 @jwt_required()
 def decline_application(post_id, user_id):
     post = (
-        db.session.guery(Post)
+        db.session.query(Post)
         .filter(
             sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
         )
@@ -416,7 +417,7 @@ def decline_application(post_id, user_id):
 @jwt_required()
 def accept_application(post_id, user_id):
     post = (
-        db.session.guery(Post)
+        db.session.query(Post)
         .filter(
             sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
         )
@@ -505,7 +506,7 @@ def get_my_application():
 @jwt_required()
 def cancel_my_application(post_id):
     post = (
-        db.session.guery(Post)
+        db.session.query(Post)
         .filter(
             sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
         )
