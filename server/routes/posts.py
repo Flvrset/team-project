@@ -168,6 +168,7 @@ def get_post(post_id):
         .first()
     )
     print(post_application.cancelled)
+    print(type(post_application.cancelled))
 
     return (
         jsonify(
