@@ -176,7 +176,7 @@ def get_post(post_id):
                 "pets": pet_lst,
                 "status": (
                     "own" if post.user_id == int(get_jwt_identity())
-                    else ("applied" if post_application_id is not None else "")
+                    else ("applied" if post_application_id is not None and not post_application_id.cancelled else "")
                 ),
             }
         ),
@@ -523,9 +523,7 @@ def get_my_application():
 def cancel_my_application(post_id):
     post = (
         db.session.query(Post)
-        .filter(
-            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == int(get_jwt_identity()))
-        )
+        .filter(Post.post_id == post_id)
         .first()
     )
 
