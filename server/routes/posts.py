@@ -165,11 +165,13 @@ def get_post(post_id):
 
 
 @post_bprt.route("/getPost/<int:post_id>/delete", methods=["PUT"])
+@jwt_required()
 def delete_post(post_id):
     post = (
         db.session.query(Post)
         .filter(Post.post_id == post_id)
         .filter(Post.is_active == True)
+        .filter(Post.user_id == get_jwt_identity())
         .first()
     )
 
