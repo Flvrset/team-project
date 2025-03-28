@@ -114,7 +114,7 @@ class PetCareApplication(db.Model):
     user_id = db.Column(
         db.Integer, db.ForeignKey("petbuddies_schema.User.user_id", ondelete="CASCADE")
     )
-    declined = db.Column(db.Boolean, defaul=False)
+    declined = db.Column(db.Boolean, default=False)
     cancelled = db.Column(db.Boolean, default=False)
     accepted = db.Column(db.Boolean, default=False)
 
