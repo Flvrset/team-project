@@ -101,6 +101,7 @@ def get_dashboard_post():
 
 
 @post_bprt.route("/getPost/<int:post_id>", methods=["GET"])
+@jwt_required()
 def get_post(post_id):
     post_details = (
         db.session.query(
