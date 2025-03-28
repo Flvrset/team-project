@@ -4,14 +4,22 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
-from db_models.database_tables import User, Post, PetCare, Pet, UserPhoto, PetPhoto, PetCareApplication
+from db_models.database_tables import (
+    User,
+    Post,
+    PetCare,
+    Pet,
+    UserPhoto,
+    PetPhoto,
+    PetCareApplication,
+)
 from db_dto.post_dto import (
     create_post_dto,
     create_petcare_dto,
     get_user_dto,
     get_pet_dto,
     get_pets_dto,
-    get_users_dto
+    get_users_dto,
 )
 import sqlalchemy
 from utils.file_storage import generate_presigned_url
@@ -27,12 +35,21 @@ def create_post():
     post_dto = create_post_dto.load(request.json)
     post_dto.user_id = user_id
 
-    city, postal_code = db.session.query(User.city, User.postal_code).filter(User.user_id == user_id).first()
+    city, postal_code = (
+        db.session.query(User.city, User.postal_code)
+        .filter(User.user_id == user_id)
+        .first()
+    )
 
     if not (city and postal_code):
-        return jsonify({
-            "msg": "Dodaj miasto i kod pocztowy do swojego profilu! Bez tego nie utworzysz postu!"
-        }), 400
+        return (
+            jsonify(
+                {
+                    "msg": "Dodaj miasto i kod pocztowy do swojego profilu! Bez tego nie utworzysz postu!"
+                }
+            ),
+            400,
+        )
 
     try:
         db.session.add(post_dto)
@@ -146,7 +163,7 @@ def get_post(post_id):
 
     post_application_id = (
         db.session.query(PetCareApplication.petcareapplication_id)
-        .filter(PetCareApplication.post_id==post_id)
+        .filter(PetCareApplication.post_id == post_id)
         .filter(PetCareApplication.user_id == get_jwt_identity())
         .first()
     )
@@ -157,7 +174,9 @@ def get_post(post_id):
                 "user": user,
                 "post": create_post_dto.dump(post),
                 "pets": pet_lst,
-                "status": "own" if post.user_id == get_jwt_identity() else ("applied" if post_application_id is not None else "")
+                "status": "own"
+                if post.user_id == get_jwt_identity()
+                else ("applied" if post_application_id is not None else ""),
             }
         ),
         200,
@@ -170,13 +189,15 @@ def delete_post(post_id):
     post = (
         db.session.query(Post)
         .filter(Post.post_id == post_id)
-        .filter(Post.is_active == True)
         .filter(Post.user_id == get_jwt_identity())
         .first()
     )
 
     if not post:
-        return jsonify({"msg": "Post nie jest już aktywny! Nie można wprrowadzić zmian!"}), 404
+        return (
+            jsonify({"msg": "Nie jesteś właścicielem postu, nie możesz wprowadzić zmian!"}),
+            404,
+        )
 
     if not post.is_active:
         return jsonify({"msg": "Post jest nieaktywny!"}), 404
@@ -196,10 +217,12 @@ def get_my_posts():
     post_details = (
         db.session.query(
             Post,
-            sqlalchemy.func.array_agg(Pet.pet_name).label("pet_list")
+            sqlalchemy.func.array_agg(Pet.pet_name).label("pet_list"),
+            sqlalchemy.func.bool_or(PetCareApplication.accepted)
         )
         .join(PetCare, Post.post_id == PetCare.post_id)
         .join(Pet, PetCare.pet_id == Pet.pet_id)
+        .outerjoin(PetCareApplication, PetCareApplication.post_id == Post.post_id)
         .filter(Post.user_id == get_jwt_identity())
         .group_by(Post.post_id, PetCare.post_id)
         .all()
@@ -207,15 +230,14 @@ def get_my_posts():
 
     post_lst = []
 
-    for post, pet_lst in post_details:
+    for post, pet_lst, accepted_pet_care in post_details:
         post_dict = create_post_dto.dump(post)
         post_dict["pet_lst"] = pet_lst
+        post_dict["status"] = "accepted" if accepted_pet_care else ("active" if post.is_active else "cancelled")
         post_lst.append(post_dict)
 
     return (
-        jsonify(
-            {"post_lst": post_lst}
-        ),
+        jsonify({"post_lst": post_lst}),
         200,
     )
 
@@ -224,10 +246,7 @@ def get_my_posts():
 @jwt_required()
 def edit_post(post_id):
     post_details = (
-        db.session.query(
-            Post,
-            Pet
-        )
+        db.session.query(Post, Pet)
         .join(PetCare, Post.post_id == PetCare.post_id)
         .join(Pet, PetCare.pet_id == Pet.pet_id)
         .filter(Post.post_id == post_id, Post.user_id == get_jwt_identity())
@@ -235,9 +254,10 @@ def edit_post(post_id):
     )
 
     if not post_details:
-        return jsonify({
-            "error": "Post nie istnieje lub nie jesteś jego właścielem!"
-        }), 404
+        return (
+            jsonify({"error": "Post nie istnieje lub nie jesteś jego właścielem!"}),
+            404,
+        )
 
     post_set = set()
     pet_set = set()
@@ -246,17 +266,20 @@ def edit_post(post_id):
         pet_set.add(pet)
 
     if len(post_set) > 1:
-        return jsonify({
-            "error": "Więcej niż jeden post o podanym ID"
-        }), 403
+        return jsonify({"error": "Więcej niż jeden post o podanym ID"}), 403
 
     post = post_set.pop()
 
     if request.method == "GET":
-        return jsonify({
-            "post": create_post_dto.dump(post),
-            "pets": get_pets_dto.dump(list(pet_set))
-        }), 200
+        return (
+            jsonify(
+                {
+                    "post": create_post_dto.dump(post),
+                    "pets": get_pets_dto.dump(list(pet_set)),
+                }
+            ),
+            200,
+        )
 
 
 @post_bprt.route("/applyToPost/<int:post_id>", methods=["PUT"])
@@ -264,22 +287,24 @@ def edit_post(post_id):
 def apply_to_post(post_id):
     post = (
         db.session.guery(Post)
-        .filter(sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity()))
+        .filter(
+            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
+        )
         .first()
     )
 
     if not post.is_active:
         return jsonify({"msg": "Post jest nieaktywny!"}), 404
 
-    pet_care_application = PetCareApplication(user_id=get_jwt_identity(), post_id=post_id)
+    pet_care_application = PetCareApplication(
+        user_id=get_jwt_identity(), post_id=post_id
+    )
 
     try:
         db.session.add(pet_care_application)
         db.session.commit()
 
-        return jsonify({
-            "msg": "Aplikacja złożona pomyślnie!"
-        })
+        return jsonify({"msg": "Aplikacja złożona pomyślnie!"})
     except sqlalchemy.exc.IntegrityError:
         db.session.rollback()
         return jsonify({"msg": "Nie można w tej chwili przyjąc aplikacji."}), 406
@@ -292,8 +317,15 @@ def get_applications_count():
         db.session.query(sqlalchemy.func.count("*"))
         .select_from(PetCareApplication)
         .join(Post, Post.post_id == PetCareApplication.post_id)
-        .filter(sqlalchemy.and_(Post.user_id == get_jwt_identity(), Post.is_active == True))
-        .filter(sqlalchemy.and_(PetCareApplication.declined == False, PetCareApplication.cancelled == False))
+        .filter(
+            sqlalchemy.and_(Post.user_id == get_jwt_identity(), Post.is_active == True)
+        )
+        .filter(
+            sqlalchemy.and_(
+                PetCareApplication.declined == False,
+                PetCareApplication.cancelled == False,
+            )
+        )
         .scalar()
     )
 
@@ -305,12 +337,19 @@ def get_applications_count():
 def get_post_applications(post_id):
     post = (
         db.session.guery(Post)
-        .filter(sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity()))
+        .filter(
+            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
+        )
         .first()
     )
 
     if not post:
-        return jsonify({"msg": "Nie jesteś właścicielem postu! Nie możesz zobaczyć aplikacji!"}), 404
+        return (
+            jsonify(
+                {"msg": "Nie jesteś właścicielem postu! Nie możesz zobaczyć aplikacji!"}
+            ),
+            404,
+        )
 
     if not post.is_active:
         return jsonify({"msg": "Post jest nieaktywny!"}), 404
@@ -322,22 +361,31 @@ def get_post_applications(post_id):
         .all()
     )
 
-    return jsonify({
-        "users": get_users_dto.dump(users_application)
-    }), 200
+    return jsonify({"users": get_users_dto.dump(users_application)}), 200
 
 
-@post_bprt.route("/getPost/<int:post_id>/declineApplication/<int:user_id>", methods=["PUT"])
+@post_bprt.route(
+    "/getPost/<int:post_id>/declineApplication/<int:user_id>", methods=["PUT"]
+)
 @jwt_required()
 def decline_application(post_id, user_id):
     post = (
         db.session.guery(Post)
-        .filter(sqlalchemy.and_(Post.post_id==post_id, Post.user_id==get_jwt_identity()))
+        .filter(
+            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
+        )
         .first()
     )
 
     if not post:
-        return jsonify({"msg": "Nie jesteś właścicielem postu! Nie możesz odrzucić aplikacji na post!"}), 404
+        return (
+            jsonify(
+                {
+                    "msg": "Nie jesteś właścicielem postu! Nie możesz odrzucić aplikacji na post!"
+                }
+            ),
+            404,
+        )
 
     if not post.is_active:
         return jsonify({"msg": "Post jest nieaktywny!"}), 404
@@ -362,17 +410,28 @@ def decline_application(post_id, user_id):
         return jsonify({"msg": "Nie można w tej chwili odrzucić aplikacji."}), 406
 
 
-@post_bprt.route("/getPost/<int:post_id>/acceptApplication/<int:user_id>", methods=["PUT"])
+@post_bprt.route(
+    "/getPost/<int:post_id>/acceptApplication/<int:user_id>", methods=["PUT"]
+)
 @jwt_required()
 def accept_application(post_id, user_id):
     post = (
         db.session.guery(Post)
-        .filter(sqlalchemy.and_(Post.post_id==post_id, Post.user_id==get_jwt_identity()))
+        .filter(
+            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
+        )
         .first()
     )
 
     if not post:
-        return jsonify({"msg": "Nie jesteś właścicielem postu! Nie możesz akceptować aplikacji na post!"}), 404
+        return (
+            jsonify(
+                {
+                    "msg": "Nie jesteś właścicielem postu! Nie możesz akceptować aplikacji na post!"
+                }
+            ),
+            404,
+        )
 
     if not post.is_active:
         return jsonify({"msg": "Post jest nieaktywny!"}), 404
@@ -409,28 +468,35 @@ def get_my_application():
     post_details = (
         db.session.query(
             Post,
-            sqlalchemy.func.array_agg(Pet.pet_name).label("pet_list")
+            PetCareApplication,
+            sqlalchemy.func.array_agg(Pet.pet_name).label("pet_list"),
         )
         .join(PetCare, Post.post_id == PetCare.post_id)
         .join(Pet, PetCare.pet_id == Pet.pet_id)
         .join(PetCareApplication, Post.post_id == PetCareApplication.post_id)
         .filter(PetCareApplication.user_id == get_jwt_identity())
-        .filter(Post.is_active == True)
-        .group_by(Post.post_id, PetCare.post_id)
+        .group_by(Post.post_id, PetCareApplication.petcareapplication_id)
         .all()
     )
 
     post_lst = []
 
-    for post, pet_lst in post_details:
+    for post, pet_care_application, pet_lst in post_details:
         post_dict = create_post_dto.dump(post)
         post_dict["pet_lst"] = pet_lst
+        post_dict["status"] = (
+            "declined"
+            if pet_care_application.declined
+            else (
+                "accepted"
+                if pet_care_application.accepted
+                else ("waiting" if post.is_active else "cancelled")
+            )
+        )
         post_lst.append(post_dict)
 
     return (
-        jsonify(
-            {"post_lst": post_lst}
-        ),
+        jsonify({"post_lst": post_lst}),
         200,
     )
 
@@ -440,7 +506,9 @@ def get_my_application():
 def cancel_my_application(post_id):
     post = (
         db.session.guery(Post)
-        .filter(sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity()))
+        .filter(
+            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
+        )
         .first()
     )
 
@@ -449,7 +517,12 @@ def cancel_my_application(post_id):
 
     pet_care_application = (
         db.session.query(PetCareApplication)
-        .filter(sqlalchemy.and_(PetCareApplication.user_id == get_jwt_identity(), PetCareApplication.post_id == post_id))
+        .filter(
+            sqlalchemy.and_(
+                PetCareApplication.user_id == get_jwt_identity(),
+                PetCareApplication.post_id == post_id,
+            )
+        )
         .first()
     )
 
