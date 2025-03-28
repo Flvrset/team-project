@@ -163,6 +163,27 @@ def get_post(post_id):
     )
 
 
+@post_bprt.route("/getPost/<int:post_id>/delete", methods=["PUT"])
+def delete_post(post_id):
+    post = (
+        db.session.query(Post)
+        .filter(Post.post_id == post_id)
+        .filter(Post.is_active == True)
+        .first()
+    )
+
+    if not post:
+        return jsonify({"msg": "Post nie jest już aktywny! Nie można wprrowadzić zmian!"}), 404
+
+    try:
+        post.is_active = False
+        db.session.commit()
+        return jsonify({"msg": "Post usunięty prawidłowo!"}), 200
+    except sqlalchemy.exc.IntegrityError:
+        db.session.rollback()
+        return jsonify({"msg": "Nie można w tej chwili usunąć postu."}), 406
+
+
 @post_bprt.route("/getMyPosts", methods=["GET"])
 @jwt_required()
 def get_my_posts():
