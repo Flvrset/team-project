@@ -13,14 +13,32 @@ import {
     Button,
     Card,
     CardContent,
+    Badge,
 } from '@mui/material';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useAuth } from '../contexts/AuthProvider';
+import { getWithAuth } from '../utils/auth';
 
 const DashboardPage = () => {
     const auth = useAuth();
     const theme = useTheme();
+    const [applicationCount, setApplicationCount] = useState(0);
+
+    useEffect(() => {
+        const fetchApplicationCount = async () => {
+            try {
+                const response = await getWithAuth('/api/getApplicationsCount');
+                const data = await response.json();
+                setApplicationCount(data.active_applications_cnt);
+            } catch (error) {
+                console.error('Error fetching application count:', error);
+            }
+        };
+
+        fetchApplicationCount();
+    }, []);
 
     return (
         <>
@@ -267,17 +285,26 @@ const DashboardPage = () => {
                                 mr: 2.5
                             }}
                         >
-                            <ListAltIcon sx={{
-                                fontSize: 24,
-                                color: theme.palette.warning.dark
-                            }} />
+                            <Badge
+                                badgeContent={applicationCount}
+                                color="error"
+                                invisible={applicationCount === 0}
+                                sx={{ '.MuiBadge-badge': { fontWeight: 'bold' } }}
+                            >
+                                <ListAltIcon sx={{
+                                    fontSize: 24,
+                                    color: theme.palette.warning.dark
+                                }} />
+                            </Badge>
                         </Box>
                         <Box>
                             <Typography variant="h6" fontWeight="600" color="text.primary">
                                 Moje ogłoszenia
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Zarządzaj swoimi ogłoszeniami
+                                {applicationCount > 0
+                                    ? `Masz ${applicationCount} ${applicationCount === 1 ? 'nowe zgłoszenie' : 'nowych zgłoszeń'}`
+                                    : 'Zarządzaj swoimi ogłoszeniami'}
                             </Typography>
                         </Box>
                     </CardContent>
