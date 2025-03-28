@@ -30,7 +30,7 @@ post_bprt = Blueprint("post", __name__)
 @post_bprt.route("/createPost", methods=["POST"])
 @jwt_required()
 def create_post():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
 
     post_dto = create_post_dto.load(request.json)
     post_dto.user_id = user_id
@@ -86,7 +86,7 @@ def get_dashboard_post():
         .join(User, Post.user_id == User.user_id, isouter=True)
         .join(PetCare, Post.post_id == PetCare.post_id, isouter=True)
         .outerjoin(PetPhoto, PetCare.pet_id == PetPhoto.pet_id)
-        .filter(Post.user_id != get_jwt_identity())
+        .filter(Post.user_id != int(get_jwt_identity()))
         .filter(Post.is_active == True)
         .group_by(Post.post_id, User.user_id)
         .limit(10)
@@ -164,7 +164,7 @@ def get_post(post_id):
     post_application_id = (
         db.session.query(PetCareApplication.petcareapplication_id)
         .filter(PetCareApplication.post_id == post_id)
-        .filter(PetCareApplication.user_id == get_jwt_identity())
+        .filter(PetCareApplication.user_id == int(get_jwt_identity()))
         .first()
     )
 
@@ -175,7 +175,7 @@ def get_post(post_id):
                 "post": create_post_dto.dump(post),
                 "pets": pet_lst,
                 "status": (
-                    "own" if post.user_id == get_jwt_identity()
+                    "own" if post.user_id == int(get_jwt_identity())
                     else ("applied" if post_application_id is not None else "")
                 ),
             }
@@ -190,7 +190,7 @@ def delete_post(post_id):
     post = (
         db.session.query(Post)
         .filter(Post.post_id == post_id)
-        .filter(Post.user_id == get_jwt_identity())
+        .filter(Post.user_id == int(get_jwt_identity()))
         .first()
     )
 
@@ -224,7 +224,7 @@ def get_my_posts():
         .join(PetCare, Post.post_id == PetCare.post_id)
         .join(Pet, PetCare.pet_id == Pet.pet_id)
         .outerjoin(PetCareApplication, PetCareApplication.post_id == Post.post_id)
-        .filter(Post.user_id == get_jwt_identity())
+        .filter(Post.user_id == int(get_jwt_identity()))
         .group_by(Post.post_id, PetCare.post_id)
         .all()
     )
@@ -250,7 +250,7 @@ def edit_post(post_id):
         db.session.query(Post, Pet)
         .join(PetCare, Post.post_id == PetCare.post_id)
         .join(Pet, PetCare.pet_id == Pet.pet_id)
-        .filter(Post.post_id == post_id, Post.user_id == get_jwt_identity())
+        .filter(Post.post_id == post_id, Post.user_id == int(get_jwt_identity()))
         .all()
     )
 
@@ -288,21 +288,37 @@ def edit_post(post_id):
 def apply_to_post(post_id):
     post = (
         db.session.query(Post)
-        .filter(
-            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
-        )
+        .filter(Post.post_id == post_id)
         .first()
     )
+
+    if not post:
+        (
+            jsonify(
+                {
+                    "msg": "Post nie istnieje!"
+                }
+            ),
+            404,
+        )
 
     if not post.is_active:
         return jsonify({"msg": "Post jest nieaktywny!"}), 404
 
-    pet_care_application = PetCareApplication(
-        user_id=get_jwt_identity(), post_id=post_id
+    pet_care_application = (
+        db.session.query(PetCareApplication)
+        .filter(sqlalchemy.and_(PetCareApplication.post_id == post_id, PetCareApplication.user_id == int(get_jwt_identity())))
     )
 
     try:
-        db.session.add(pet_care_application)
+        if pet_care_application:
+            pet_care_application.cancelled = False
+        else:
+            pet_care_application = PetCareApplication(
+                user_id=int(get_jwt_identity()), post_id=post_id
+            )
+            db.session.add(pet_care_application)
+
         db.session.commit()
 
         return jsonify({"msg": "Aplikacja złożona pomyślnie!"})
@@ -319,7 +335,7 @@ def get_applications_count():
         .select_from(PetCareApplication)
         .join(Post, Post.post_id == PetCareApplication.post_id)
         .filter(
-            sqlalchemy.and_(Post.user_id == get_jwt_identity(), Post.is_active == True)
+            sqlalchemy.and_(Post.user_id == int(get_jwt_identity()), Post.is_active == True)
         )
         .filter(
             sqlalchemy.and_(
@@ -339,7 +355,7 @@ def get_post_applications(post_id):
     post = (
         db.session.query(Post)
         .filter(
-            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
+            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == int(get_jwt_identity()))
         )
         .first()
     )
@@ -373,7 +389,7 @@ def decline_application(post_id, user_id):
     post = (
         db.session.query(Post)
         .filter(
-            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
+            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == int(get_jwt_identity()))
         )
         .first()
     )
@@ -419,7 +435,7 @@ def accept_application(post_id, user_id):
     post = (
         db.session.query(Post)
         .filter(
-            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
+            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == int(get_jwt_identity()))
         )
         .first()
     )
@@ -475,7 +491,7 @@ def get_my_application():
         .join(PetCare, Post.post_id == PetCare.post_id)
         .join(Pet, PetCare.pet_id == Pet.pet_id)
         .join(PetCareApplication, Post.post_id == PetCareApplication.post_id)
-        .filter(PetCareApplication.user_id == get_jwt_identity())
+        .filter(PetCareApplication.user_id == int(get_jwt_identity()))
         .group_by(Post.post_id, PetCareApplication.petcareapplication_id)
         .all()
     )
@@ -508,7 +524,7 @@ def cancel_my_application(post_id):
     post = (
         db.session.query(Post)
         .filter(
-            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
+            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == int(get_jwt_identity()))
         )
         .first()
     )
@@ -520,7 +536,7 @@ def cancel_my_application(post_id):
         db.session.query(PetCareApplication)
         .filter(
             sqlalchemy.and_(
-                PetCareApplication.user_id == get_jwt_identity(),
+                PetCareApplication.user_id == int(get_jwt_identity()),
                 PetCareApplication.post_id == post_id,
             )
         )
