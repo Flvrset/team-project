@@ -257,7 +257,7 @@ def get_applications_count():
         .select_from(PetCareApplication)
         .join(Post, Post.post_id == PetCareApplication.post_id)
         .filter(Post.user_id == get_jwt_identity())
-        .filter(sqlalchemy.and_(Post.declined == False, Post.cancelled == False))
+        .filter(sqlalchemy.and_(PetCareApplication.declined == False, PetCareApplication.cancelled == False))
         .scalar()
     )
 
