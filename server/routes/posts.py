@@ -287,7 +287,7 @@ def get_post_applications(post_id):
     }), 200
 
 
-@post_bprt.route("getPost/<int:post_id>/declineApplication/<int:user_id>", methods=["PUT"])
+@post_bprt.route("/getPost/<int:post_id>/declineApplication/<int:user_id>", methods=["PUT"])
 @jwt_required()
 def decline_application(post_id, user_id):
     post = (
@@ -318,7 +318,7 @@ def decline_application(post_id, user_id):
         return jsonify({"msg": "Nie można w tej chwili odrzucić aplikacji."}), 406
 
 
-@post_bprt.route("getPost/<int:post_id>/acceptApplication/<int:user_id>", methods=["PUT"])
+@post_bprt.route("/getPost/<int:post_id>/acceptApplication/<int:user_id>", methods=["PUT"])
 @jwt_required()
 def decline_application(post_id, user_id):
     post = (
