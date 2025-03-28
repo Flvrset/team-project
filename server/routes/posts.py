@@ -286,13 +286,8 @@ def edit_post(post_id):
 @post_bprt.route("/applyToPost/<int:post_id>", methods=["POST"])
 @jwt_required()
 def apply_to_post(post_id):
-    post = (
-        db.session.query(Post)
-        .filter(
-            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
-        )
-        .first()
-    )
+    post = db.session.query(Post).filter(Post.post_id == post_id).first()
+    
 
     if not post.is_active:
         return jsonify({"msg": "Post jest nieaktywny!"}), 404

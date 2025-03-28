@@ -31,7 +31,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useNotification } from '../contexts/NotificationContext';
 import { Pet } from '../types';
-import { getWithAuth, putWithAuth } from '../utils/auth';
+import { getWithAuth, postWithAuth } from '../utils/auth';
 import { formatTimeWithoutSeconds } from '../utils/utils';
 
 interface User {
@@ -131,7 +131,7 @@ const PostPage = () => {
 
     setApplyLoading(true);
     try {
-      const response = await putWithAuth(`/api/applyToPost/${postId}`, {});
+      const response = await postWithAuth(`/api/applyToPost/${postId}`, {});
 
       if (response.ok) {
         const data = await response.json();
