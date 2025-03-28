@@ -6,7 +6,8 @@ import { useState, MouseEvent } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 
 import Footer from '../components/Footer';
-import { useAuth } from '../hooks/AuthProvider';
+import GlobalSnackbar from '../components/GlobalSnackbar';
+import { useAuth } from '../contexts/AuthProvider';
 
 const DashboardLayout = () => {
     const auth = useAuth();
@@ -160,7 +161,6 @@ const DashboardLayout = () => {
                 </Toolbar>
             </AppBar>
 
-            {/* Main content - will render child routes */}
             <Box
                 component="main"
                 sx={{
@@ -172,11 +172,11 @@ const DashboardLayout = () => {
             >
                 <Container maxWidth="lg">
                     <Box sx={{ py: 4 }}>
-                        {/* Render the child route content here */}
                         <Outlet />
                     </Box>
                 </Container>
             </Box>
+            <GlobalSnackbar />
             <Footer />
         </Box>
     );

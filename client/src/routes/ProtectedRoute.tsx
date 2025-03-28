@@ -2,7 +2,7 @@ import { Box, CircularProgress } from '@mui/material';
 import { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
-import { useAuth } from '../hooks/AuthProvider';
+import { useAuth } from '../contexts/AuthProvider';
 
 const ProtectedRoute = () => {
     const auth = useAuth();

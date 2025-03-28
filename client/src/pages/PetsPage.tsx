@@ -13,7 +13,6 @@ import {
     DialogActions,
     CircularProgress,
     Alert,
-    Snackbar,
     Paper,
     useTheme,
     alpha,
@@ -23,11 +22,13 @@ import { Link } from 'react-router-dom';
 
 import PetCard from '../components/PetCard';
 import PetFormModal from '../components/PetFormModal';
+import { useNotification } from '../contexts/NotificationContext';
 import { Pet } from '../types';
 import { getWithAuth, postWithAuth } from '../utils/auth';
 
 const PetsPage = () => {
     const theme = useTheme();
+    const { showNotification } = useNotification();
 
     // State for pets data
     const [pets, setPets] = useState<Pet[]>([]);
@@ -38,13 +39,6 @@ const PetsPage = () => {
     const [openAddModal, setOpenAddModal] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [selectedPetId, setSelectedPetId] = useState<number | null>(null);
-
-    // State for notifications
-    const [notification, setNotification] = useState({
-        open: false,
-        message: '',
-        severity: 'success' as 'success' | 'error' | 'info' | 'warning',
-    });
 
     // Load pets data
     const fetchPets = async () => {
@@ -59,7 +53,7 @@ const PetsPage = () => {
                 setPets(data || []);
             } else {
                 const errorData = await response.json();
-                setError(errorData.msg || 'Nie udało się pobrać danych zwierząt');   
+                setError(errorData.msg || 'Nie udało się pobrać danych zwierząt');
             }
         } catch (err) {
             setError('Wystąpił błąd podczas pobierania danych zwierząt');
@@ -75,12 +69,8 @@ const PetsPage = () => {
 
     // Handle success from PetFormModal
     const handlePetAddSuccess = () => {
-        setNotification({
-            open: true,
-            message: 'Zwierzak został dodany pomyślnie!',
-            severity: 'success',
-        });
-        fetchPets(); // Refresh pets list
+        showNotification('Zwierzak został dodany pomyślnie!', 'success');
+        fetchPets();
     };
 
     const handleDeletePet = async () => {
@@ -90,26 +80,14 @@ const PetsPage = () => {
             const response = await postWithAuth(`/api/deletePet/${selectedPetId}`, {});
 
             if (response.ok) {
-                setNotification({
-                    open: true,
-                    message: 'Zwierzak został usunięty',
-                    severity: 'info',
-                });
+                showNotification('Zwierzak został usunięty','info');
                 fetchPets(); // Refresh pets list
             } else {
                 const errorData = await response.json();
-                setNotification({
-                    open: true,
-                    message: errorData.msg || 'Nie udało się usunąć zwierzaka',
-                    severity: 'error',
-                });
+                showNotification(errorData.msg || 'Nie udało się usunąć zwierzaka','error');
             }
         } catch (err) {
-            setNotification({
-                open: true,
-                message: 'Wystąpił błąd podczas usuwania zwierzaka',
-                severity: 'error',
-            });
+            showNotification('Wystąpił błąd podczas usuwania zwierzaka','error');
             console.error('Error deleting pet:', err);
         } finally {
             setOpenDeleteDialog(false);
@@ -134,10 +112,6 @@ const PetsPage = () => {
     const handleCloseDeleteDialog = () => {
         setOpenDeleteDialog(false);
         setSelectedPetId(null);
-    };
-
-    const handleCloseNotification = () => {
-        setNotification(prev => ({ ...prev, open: false }));
     };
 
     return (
@@ -321,22 +295,6 @@ const PetsPage = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            {/* Notification Snackbar */}
-            <Snackbar
-                open={notification.open}
-                autoHideDuration={6000}
-                onClose={handleCloseNotification}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={handleCloseNotification}
-                    severity={notification.severity}
-                    sx={{ width: '100%', borderRadius: 2 }}
-                >
-                    {notification.message}
-                </Alert>
-            </Snackbar>
         </Box>
     );
 };

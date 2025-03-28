@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 
-import { useAuth } from '../hooks/AuthProvider';
+import { useAuth } from '../contexts/AuthProvider';
 
 const DashboardPage = () => {
     const auth = useAuth();

@@ -21,7 +21,7 @@ import {
 import { FormEvent, useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
-import { useAuth } from '../hooks/AuthProvider';
+import { useAuth } from '../contexts/AuthProvider';
 import { postWithAuth } from '../utils/auth';
 import { isValidEmail } from '../utils/validation';
 

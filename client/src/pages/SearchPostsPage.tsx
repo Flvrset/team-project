@@ -16,7 +16,6 @@ import {
     TextField,
     Button,
     CircularProgress,
-    Alert,
     Paper,
     Divider,
     Chip,
@@ -24,7 +23,6 @@ import {
     alpha,
     Stack,
     InputAdornment,
-    Snackbar,
     Avatar,
     AvatarGroup
 } from '@mui/material';
@@ -32,6 +30,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
 import CitySearchSelect from '../components/CitySearchSelect';
+import { useNotification } from '../contexts/NotificationContext';
 import { getWithAuth } from '../utils/auth';
 import { formatTimeWithoutSeconds } from '../utils/utils';
 import { validateNumber } from '../utils/validation';
@@ -62,6 +61,7 @@ const SearchPostsPage = () => {
     const navigate = useNavigate();
     const theme = useTheme();
     const [searchParams, setSearchParams] = useSearchParams();
+    const { showNotification } = useNotification();
 
     const [searchModel, setSearchModel] = useState<SearchModel>({
         city: searchParams.get('city') || '',
@@ -74,20 +74,14 @@ const SearchPostsPage = () => {
     const [kilometersError, setKilometersError] = useState<string | null>(null);
     const [cityError, setCityError] = useState<string | null>(null);
 
-    const [notification, setNotification] = useState({
-        open: false,
-        message: '',
-        severity: 'error' as 'success' | 'error',
-    });
-
     useEffect(() => {
         if (searchParams.has('city') && searchParams.has('postal_code')) {
             fetchPosts();
         } else {
             fetchUserData();
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleModelChange = (updatedModel: SearchModel) => {
         if (updatedModel.city && updatedModel.postal_code) {
@@ -186,11 +180,7 @@ const SearchPostsPage = () => {
             setPosts(data);
 
         } catch (err) {
-            setNotification({
-                open: true,
-                message: 'Nie udało się pobrać ogłoszeń. Spróbuj ponownie.',
-                severity: 'error'
-            });
+            showNotification('Nie udało się pobrać ogłoszeń. Spróbuj ponownie.', 'error');
             console.error('Błąd podczas pobierania ogłoszeń:', err);
             setPosts([]);
         } finally {
@@ -204,10 +194,6 @@ const SearchPostsPage = () => {
 
     const handleCardClick = (postId: number) => {
         navigate(`/dashboard/posts/${postId}`);
-    };
-
-    const handleCloseNotification = () => {
-        setNotification({ ...notification, open: false });
     };
 
     const inputStyle = {
@@ -501,22 +487,6 @@ const SearchPostsPage = () => {
                     )}
                 </>
             )}
-
-            <Snackbar
-                open={notification.open}
-                autoHideDuration={6000}
-                onClose={handleCloseNotification}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={handleCloseNotification}
-                    severity={notification.severity}
-                    variant="filled"
-                    sx={{ width: '100%', borderRadius: 2 }}
-                >
-                    {notification.message}
-                </Alert>
-            </Snackbar>
         </Box>
     );
 };

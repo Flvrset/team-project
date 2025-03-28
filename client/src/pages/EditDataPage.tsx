@@ -15,8 +15,6 @@ import {
     Grid,
     InputAdornment,
     Divider,
-    Snackbar,
-    Alert,
     Card,
     CardContent,
     useTheme,
@@ -27,7 +25,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 import CitySearchSelect from '../components/CitySearchSelect';
-import { useAuth } from '../hooks/AuthProvider';
+import { useAuth } from '../contexts/AuthProvider';
+import { useNotification } from '../contexts/NotificationContext';
 import { getWithAuth, putWithAuth } from '../utils/auth';
 import { validateChain, validateMaxLength, validateNumber, validatePhoneNumber } from '../utils/validation';
 
@@ -54,13 +53,9 @@ interface FormErrors {
 const EditDataPage = () => {
     const theme = useTheme();
     const auth = useAuth();
+    const { showNotification } = useNotification();
     const [loading, setLoading] = useState(false);
     const [loadingData, setLoadingData] = useState(true);
-    const [notification, setNotification] = useState({
-        open: false,
-        message: '',
-        severity: 'success' as 'success' | 'error',
-    });
     const [errors, setErrors] = useState<FormErrors>({});
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string>('');
@@ -103,19 +98,11 @@ const EditDataPage = () => {
                     }
                 } else {
                     console.error('Failed to fetch user data');
-                    setNotification({
-                        open: true,
-                        message: 'Nie udało się pobrać danych użytkownika',
-                        severity: 'error',
-                    });
+                    showNotification('Nie udało się pobrać danych użytkownika', 'error');
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
-                setNotification({
-                    open: true,
-                    message: 'Wystąpił błąd podczas pobierania danych',
-                    severity: 'error',
-                });
+                showNotification('Wystąpił błąd podczas pobierania danych','error');
             } finally {
                 setLoadingData(false);
             }
@@ -209,11 +196,7 @@ const EditDataPage = () => {
         e.preventDefault();
 
         if (!validateForm()) {
-            setNotification({
-                open: true,
-                message: 'Formularz zawiera błędy. Sprawdź dane i spróbuj ponownie.',
-                severity: 'error',
-            });
+            showNotification('Formularz zawiera błędy. Sprawdź dane i spróbuj ponownie.', 'error');
             return;
         }
 
@@ -230,33 +213,17 @@ const EditDataPage = () => {
             const response = await putWithAuth('/api/edit_user', formDataToSend);
 
             if (response.ok) {
-                setNotification({
-                    open: true,
-                    message: 'Dane zostały zaktualizowane pomyślnie!',
-                    severity: 'success',
-                });
+                showNotification('Dane zostały zaktualizowane pomyślnie!','success');
             } else {
                 const data = await response.json();
-                setNotification({
-                    open: true,
-                    message: data.msg || 'Wystąpił błąd podczas aktualizacji danych.',
-                    severity: 'error',
-                });
+                showNotification( data.msg || 'Wystąpił błąd podczas aktualizacji danych.','error');
             }
         } catch (error) {
-            setNotification({
-                open: true,
-                message: 'Wystąpił błąd podczas komunikacji z serwerem.',
-                severity: 'error',
-            });
+            showNotification('Wystąpił błąd podczas komunikacji z serwerem.', 'error');
             console.error('Error updating user data:', error);
         } finally {
             setLoading(false);
         }
-    };
-
-    const handleCloseNotification = () => {
-        setNotification({ ...notification, open: false });
     };
 
     return (
@@ -710,22 +677,6 @@ const EditDataPage = () => {
                     )}
                 </CardContent>
             </Card>
-
-            <Snackbar
-                open={notification.open}
-                autoHideDuration={6000}
-                onClose={handleCloseNotification}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={handleCloseNotification}
-                    severity={notification.severity}
-                    variant="filled"
-                    sx={{ width: '100%', borderRadius: 2 }}
-                >
-                    {notification.message}
-                </Alert>
-            </Snackbar>
         </Box>
     );
 };

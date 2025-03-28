@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
-import { AuthProvider } from './hooks/AuthProvider';
+import { AuthProvider } from './contexts/AuthProvider';
+import { NotificationProvider } from './contexts/NotificationContext';
 import DashboardLayout from './layouts/DashboardLayout';
 import CreatePostPage from './pages/CreatePostPage';
 import DashboardPage from './pages/DashboardPage';
@@ -18,22 +19,24 @@ function App() {
     <div className='App'>
       <Router>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+          <NotificationProvider>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
 
-            <Route element={<ProtectedRoute />}>
-              <Route element={<DashboardLayout />}>
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/dashboard/edit-data" element={<EditDataPage />} />
-                <Route path='/dashboard/create-post' element={<CreatePostPage />} />
-                <Route path='/dashboard/search-posts' element={<SearchPostsPage />} />
-                <Route path='/dashboard/pets' element={<PetsPage />} />
-                <Route path='/dashboard/posts/:postId' element={<PostPage />} />
+              <Route element={<ProtectedRoute />}>
+                <Route element={<DashboardLayout />}>
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/dashboard/edit-data" element={<EditDataPage />} />
+                  <Route path='/dashboard/create-post' element={<CreatePostPage />} />
+                  <Route path='/dashboard/search-posts' element={<SearchPostsPage />} />
+                  <Route path='/dashboard/pets' element={<PetsPage />} />
+                  <Route path='/dashboard/posts/:postId' element={<PostPage />} />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
+            </Routes>
+          </NotificationProvider>
         </AuthProvider>
       </Router>
     </div>

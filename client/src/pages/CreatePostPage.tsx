@@ -12,7 +12,6 @@ import {
     Grid,
     FormHelperText,
     Alert,
-    Snackbar,
     CircularProgress,
     InputAdornment,
     alpha,
@@ -29,6 +28,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import PetCard from '../components/PetCard';
 import PetFormModal from '../components/PetFormModal';
+import { useNotification } from '../contexts/NotificationContext';
 import { Pet } from '../types';
 import { getWithAuth, postWithAuth } from '../utils/auth';
 import { combineDateAndTime } from '../utils/utils';
@@ -46,6 +46,7 @@ interface FormData {
 const CreatePostPage = () => {
     const theme = useTheme();
     const navigate = useNavigate();
+    const { showNotification } = useNotification();
 
     const [formData, setFormData] = useState<FormData>({
         startDate: null,
@@ -64,11 +65,6 @@ const CreatePostPage = () => {
 
     const [submitting, setSubmitting] = useState(false);
     const [openPetModal, setOpenPetModal] = useState(false);
-    const [notification, setNotification] = useState({
-        open: false,
-        message: '',
-        severity: 'success' as 'success' | 'error' | 'info' | 'warning',
-    });
     const [createButtonDisabled, setCreateButtonDisabled] = useState(false);
 
     const fetchPets = async () => {
@@ -82,20 +78,12 @@ const CreatePostPage = () => {
                 setPets(data || []);
             } else {
                 const errorData = await response.json();
-                setNotification({
-                    open: true,
-                    message: errorData.msg || 'Nie udało się pobrać danych zwierząt',
-                    severity: 'error',
-                });
-                
+                showNotification(errorData.msg || 'Nie udało się pobrać danych zwierząt', 'error');
+
             }
         } catch (err) {
             console.error('Error fetching pets:', err);
-            setNotification({
-                open: true,
-                message: 'Wystąpił błąd podczas pobierania danych zwierząt',
-                severity: 'error',
-            });
+            showNotification('Wystąpił błąd podczas pobierania danych zwierząt', 'error');
         } finally {
             setLoadingPets(false);
         }
@@ -172,17 +160,9 @@ const CreatePostPage = () => {
     };
 
     const handlePetAddSuccess = () => {
-        setNotification({
-            open: true,
-            message: 'Zwierzak został dodany pomyślnie!',
-            severity: 'success',
-        });
+        showNotification('Zwierzak został dodany pomyślnie!', 'success');
         fetchPets();
         setOpenPetModal(false);
-    };
-
-    const handleCloseNotification = () => {
-        setNotification(prev => ({ ...prev, open: false }));
     };
 
     const validateForm = (): boolean => {
@@ -261,11 +241,7 @@ const CreatePostPage = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                setNotification({
-                    open: true,
-                    message: data.msg || 'Ogłoszenie zostało utworzone pomyślnie!',
-                    severity: 'success',
-                });
+                showNotification(data.msg || 'Ogłoszenie zostało utworzone pomyślnie!', 'success');
 
                 setFormData({
                     startDate: null,
@@ -283,19 +259,11 @@ const CreatePostPage = () => {
                 }, 2000);
             } else {
                 const errorData = await response.json();
-                setNotification({
-                    open: true,
-                    message: errorData.msg || 'Nie udało się utworzyć ogłoszenia',
-                    severity: 'error',
-                });
+                showNotification(errorData.msg || 'Nie udało się utworzyć ogłoszenia', 'error');
             }
         } catch (err) {
             console.error('Error creating post:', err);
-            setNotification({
-                open: true,
-                message: 'Wystąpił błąd podczas tworzenia ogłoszenia',
-                severity: 'error',
-            });
+            showNotification('Wystąpił błąd podczas tworzenia ogłoszenia', 'error');
         } finally {
             setSubmitting(false);
         }
@@ -614,21 +582,6 @@ const CreatePostPage = () => {
                     onClose={handleClosePetModal}
                     onSuccess={handlePetAddSuccess}
                 />
-
-                <Snackbar
-                    open={notification.open}
-                    autoHideDuration={6000}
-                    onClose={handleCloseNotification}
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                >
-                    <Alert
-                        onClose={handleCloseNotification}
-                        severity={notification.severity}
-                        sx={{ width: '100%', borderRadius: 2 }}
-                    >
-                        {notification.message}
-                    </Alert>
-                </Snackbar>
             </Box>
         </LocalizationProvider>
     );
