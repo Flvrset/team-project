@@ -85,6 +85,7 @@ CREATE TABLE petbuddies_schema."Post" (
     "end_time" TIME NOT NULL,
     "description" TEXT,
     "cost" NUMERIC(10,2),
+    "is_active" BOOLEAN NOT NULL,
     CONSTRAINT fk_post_user FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE
 );
 
@@ -121,6 +122,9 @@ CREATE TABLE petbuddies_schema."PetCareApplication" (
     "petcareapplication_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "post_id" INTEGER NOT NULL,
     "user_id" INTEGER NOT NULL,
+    "cancelled" BOOLEAN NOT NULL,
+    "declined" BOOLEAN NOT NULL,
+    "accepted" BOOLEAN NOT NULL,
     CONSTRAINT fk_petcareapplication_post FOREIGN KEY ("post_id") REFERENCES petbuddies_schema."Post"("post_id") ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_petcareapplication_user FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE
 );

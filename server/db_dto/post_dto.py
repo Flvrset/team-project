@@ -28,6 +28,7 @@ class CreatePostDTO(ma.SQLAlchemyAutoSchema):
     end_time = ma.auto_field(required=True)
     description = ma.auto_field()
     cost = ma.auto_field(required=True)
+    is_active = ma.auto_field(default=True)
 
     # custom field for reading json
     pet_list = fields.List(fields.Dict, allow_none=True, load_only=True)
@@ -85,5 +86,6 @@ class PostPetDTO(ma.SQLAlchemyAutoSchema):
 create_post_dto = CreatePostDTO()
 create_petcare_dto = CreatePetCareDTO()
 get_user_dto = PostPageUserDTO()
+get_users_dto = PostPageUserDTO(many=True)
 get_pet_dto = PostPetDTO()
 get_pets_dto = PostPetDTO(many=True)

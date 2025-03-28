@@ -84,7 +84,7 @@ class Post(db.Model):
     end_time = db.Column(db.Time, nullable=False)
     description = db.Column(db.Text, nullable=True)
     cost = db.Column(db.Numeric, nullable=True)
-
+    is_active = db.Column(db.Boolean, default=True)
 
 class PetCare(db.Model):
     __tablename__ = "PetCare"
@@ -114,6 +114,9 @@ class PetCareApplication(db.Model):
     user_id = db.Column(
         db.Integer, db.ForeignKey("petbuddies_schema.User.user_id", ondelete="CASCADE")
     )
+    declined = db.Column(db.Boolean, defaul=False)
+    cancelled = db.Column(db.Boolean, default=False)
+    accepted = db.Column(db.Boolean, default=False)
 
 
 class MedDocs(db.Model):

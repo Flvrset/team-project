@@ -10,7 +10,8 @@ from db_dto.post_dto import (
     create_petcare_dto,
     get_user_dto,
     get_pet_dto,
-    get_pets_dto
+    get_pets_dto,
+    get_users_dto
 )
 import sqlalchemy
 from utils.file_storage import generate_presigned_url
@@ -27,8 +28,6 @@ def create_post():
     post_dto.user_id = user_id
 
     city, postal_code = db.session.query(User.city, User.postal_code).filter(User.user_id == user_id).first()
-    print(city)
-    print(postal_code)
 
     if not (city and postal_code):
         return jsonify({
@@ -70,6 +69,8 @@ def get_dashboard_post():
         .join(User, Post.user_id == User.user_id, isouter=True)
         .join(PetCare, Post.post_id == PetCare.post_id, isouter=True)
         .outerjoin(PetPhoto, PetCare.pet_id == PetPhoto.pet_id)
+        .filter(Post.user_id != get_jwt_identity())
+        .filter(Post.is_active == True)
         .group_by(Post.post_id, User.user_id)
         .limit(10)
         .all()
@@ -140,12 +141,22 @@ def get_post(post_id):
     user = get_user_dto.dump(user_set.pop())
     user["photo"] = generate_presigned_url("user_photo", user_photo_set.pop())
 
+    post = post_set.pop()
+
+    post_application_id = (
+        db.session.query(PetCareApplication.petcareapplication_id)
+        .filter(PetCareApplication.post_id==post_id)
+        .filter(PetCareApplication.user_id == get_jwt_identity())
+        .first()
+    )
+
     return (
         jsonify(
             {
                 "user": user,
-                "post": create_post_dto.dump(post_set.pop()),
+                "post": create_post_dto.dump(post),
                 "pets": pet_lst,
+                "status": "own" if post.user_id == get_jwt_identity() else ("applied" if post_application_id is not None else "")
             }
         ),
         200,
@@ -238,6 +249,113 @@ def apply_to_post(post_id):
         return jsonify({"msg": "Nie można w tej chwili przyjąc aplikacji."}), 406
 
 
+@post_bprt.route("/getApplicationsCount", methods=["GET"])
+@jwt_required()
+def get_applications_count():
+    active_application_cnt = (
+        db.session.query(sqlalchemy.func.count("*"))
+        .select_from(PetCareApplication)
+        .join(Post, Post.post_id == PetCareApplication.post_id)
+        .filter(Post.user_id == get_jwt_identity())
+        .filter(sqlalchemy.and_(Post.declined == False, Post.cancelled == False))
+        .scalar()
+    )
+
+    return jsonify({"active_applications_cnt": active_application_cnt})
+
+
+@post_bprt.route("/getPost/<int:post_id>/applications", methods=["GET"])
+def get_post_applications(post_id):
+    post = (
+        db.session.guery(Post)
+        .filter(sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity()))
+        .first()
+    )
+
+    if not post:
+        return jsonify({"msg": "Nie jesteś właścicielem postu! Nie możesz zobaczyć aplikacji!"}), 404
+
+    users_application = (
+        db.session.query(User)
+        .join(PetCareApplication, PetCareApplication.user_id == User.user_id)
+        .filter(PetCareApplication.post_id == post_id)
+        .all()
+    )
+
+    return jsonify({
+        "users": get_users_dto.dump(users_application)
+    }), 200
+
+
+@post_bprt.route("getPost/<int:post_id>/declineApplication/<int:user_id>", methods=["PUT"])
+@jwt_required()
+def decline_application(post_id, user_id):
+    post = (
+        db.session.guery(Post)
+        .filter(sqlalchemy.and_(Post.post_id==post_id, Post.user_id==get_jwt_identity()))
+        .first()
+    )
+
+    if not post:
+        return jsonify({"msg": "Nie jesteś właścicielem postu! Nie możesz odrzucić aplikacji na post!"}), 404
+
+    pet_care_application = (
+        db.session.query(PetCareApplication)
+        .filter(PetCareApplication.user_id == user_id)
+        .filter(PetCareApplication.cancelled == False)
+        .first()
+    )
+
+    if not pet_care_application:
+        return jsonify({"msg": "Chętny odwołał swoją kandydaturę!"}), 404
+
+    try:
+        pet_care_application.declined = True
+        db.session.commit()
+        return jsonify({"msg": "Kandydatura odrzucona prawidłowo :("}), 200
+    except sqlalchemy.exc.IntegrityError:
+        db.session.rollback()
+        return jsonify({"msg": "Nie można w tej chwili odrzucić aplikacji."}), 406
+
+
+@post_bprt.route("getPost/<int:post_id>/acceptApplication/<int:user_id>", methods=["PUT"])
+@jwt_required()
+def decline_application(post_id, user_id):
+    post = (
+        db.session.guery(Post)
+        .filter(sqlalchemy.and_(Post.post_id==post_id, Post.user_id==get_jwt_identity()))
+        .first()
+    )
+
+    if not post:
+        return jsonify({"msg": "Nie jesteś właścicielem postu! Nie możesz akceptować aplikacji na post!"}), 404
+
+    pet_care_application, post, user_email = (
+        db.session.query(PetCareApplication, Post, User.email)
+        .join(Post, Post.post_id == PetCareApplication.post_id)
+        .join(User, User.user_id == PetCareApplication.user_id)
+        .filter(PetCareApplication.user_id == user_id)
+        .filter(PetCareApplication.cancelled == False)
+        .first()
+    )
+
+    if not pet_care_application:
+        return jsonify({"msg": "Chętny odwołał swoją kandydaturę!"}), 404
+
+    try:
+        pet_care_application.accepted = True
+        post.is_active = False
+        db.session.commit()
+
+        # tutaj dodac wyslanie maila do uzytkownika z powiadomieniem o akceptacji jego kandydatury
+        # lepiej nie na dummy data, bo ludzie zaczną dostawać powiadomienia xddd
+
+        return jsonify({"msg": "Kandydatura zaakceptowana! :)"}), 200
+    except sqlalchemy.exc.IntegrityError:
+        db.session.rollback()
+        return jsonify({"msg": "Nie można w tej chwili odrzucić aplikacji."}), 406
+
+
 @post_bprt.route("/getMyApplications", methods=["GET"])
 @jwt_required()
 def get_my_application():
@@ -267,3 +385,24 @@ def get_my_application():
         ),
         200,
     )
+
+
+@post_bprt.route("/getMyApplications/<post_id>/cancel", methods=["PUT"])
+@jwt_required()
+def cancel_my_application(post_id):
+    pet_care_application = (
+        db.session.query(PetCareApplication)
+        .filter(sqlalchemy.and_(PetCareApplication.user_id == get_jwt_identity(), PetCareApplication.post_id == post_id))
+        .first()
+    )
+
+    if not pet_care_application:
+        return jsonify({"msg": "Nie aplikowałeś na ten post!"}), 406
+
+    try:
+        pet_care_application.cancelled = True
+        db.session.commit()
+        return jsonify({"msg": "Aplikacja wycofana z sukcesem!"}), 200
+    except sqlalchemy.exc.IntegrityError:
+        db.session.rollback()
+        return jsonify({"msg": "Nie można w tej chwili wycofać aplikacji."}), 406
