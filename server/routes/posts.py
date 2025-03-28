@@ -289,6 +289,7 @@ def get_applications_count():
 
 
 @post_bprt.route("/getPost/<int:post_id>/applications", methods=["GET"])
+@jwt_required()
 def get_post_applications(post_id):
     post = (
         db.session.guery(Post)
