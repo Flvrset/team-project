@@ -161,8 +161,8 @@ def get_post(post_id):
 
     post = post_set.pop()
 
-    post_application_id = (
-        db.session.query(PetCareApplication.petcareapplication_id)
+    post_application = (
+        db.session.query(PetCareApplication)
         .filter(PetCareApplication.post_id == post_id)
         .filter(PetCareApplication.user_id == int(get_jwt_identity()))
         .first()
@@ -176,7 +176,7 @@ def get_post(post_id):
                 "pets": pet_lst,
                 "status": (
                     "own" if post.user_id == int(get_jwt_identity())
-                    else ("applied" if post_application_id is not None and not post_application_id.cancelled else "")
+                    else ("applied" if post_application is not None and not post_application.cancelled else "")
                 ),
             }
         ),
