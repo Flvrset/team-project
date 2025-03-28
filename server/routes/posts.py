@@ -178,6 +178,9 @@ def delete_post(post_id):
     if not post:
         return jsonify({"msg": "Post nie jest już aktywny! Nie można wprrowadzić zmian!"}), 404
 
+    if not post.is_active:
+        return jsonify({"msg": "Post jest nieaktywny!"}), 404
+
     try:
         post.is_active = False
         db.session.commit()
@@ -256,9 +259,18 @@ def edit_post(post_id):
         }), 200
 
 
-@post_bprt.route("/applyToPost/<int:post_id>", methods=["GET"])
+@post_bprt.route("/applyToPost/<int:post_id>", methods=["PUT"])
 @jwt_required()
 def apply_to_post(post_id):
+    post = (
+        db.session.guery(Post)
+        .filter(sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity()))
+        .first()
+    )
+
+    if not post.is_active:
+        return jsonify({"msg": "Post jest nieaktywny!"}), 404
+
     pet_care_application = PetCareApplication(user_id=get_jwt_identity(), post_id=post_id)
 
     try:
@@ -280,7 +292,7 @@ def get_applications_count():
         db.session.query(sqlalchemy.func.count("*"))
         .select_from(PetCareApplication)
         .join(Post, Post.post_id == PetCareApplication.post_id)
-        .filter(Post.user_id == get_jwt_identity())
+        .filter(sqlalchemy.and_(Post.user_id == get_jwt_identity(), Post.is_active == True))
         .filter(sqlalchemy.and_(PetCareApplication.declined == False, PetCareApplication.cancelled == False))
         .scalar()
     )
@@ -299,6 +311,9 @@ def get_post_applications(post_id):
 
     if not post:
         return jsonify({"msg": "Nie jesteś właścicielem postu! Nie możesz zobaczyć aplikacji!"}), 404
+
+    if not post.is_active:
+        return jsonify({"msg": "Post jest nieaktywny!"}), 404
 
     users_application = (
         db.session.query(User)
@@ -324,8 +339,12 @@ def decline_application(post_id, user_id):
     if not post:
         return jsonify({"msg": "Nie jesteś właścicielem postu! Nie możesz odrzucić aplikacji na post!"}), 404
 
+    if not post.is_active:
+        return jsonify({"msg": "Post jest nieaktywny!"}), 404
+
     pet_care_application = (
         db.session.query(PetCareApplication)
+        .join(Post, PetCareApplication.post_id == Post.post_id)
         .filter(PetCareApplication.user_id == user_id)
         .filter(PetCareApplication.cancelled == False)
         .first()
@@ -354,6 +373,9 @@ def accept_application(post_id, user_id):
 
     if not post:
         return jsonify({"msg": "Nie jesteś właścicielem postu! Nie możesz akceptować aplikacji na post!"}), 404
+
+    if not post.is_active:
+        return jsonify({"msg": "Post jest nieaktywny!"}), 404
 
     pet_care_application, post, user_email = (
         db.session.query(PetCareApplication, Post, User.email)
@@ -393,6 +415,7 @@ def get_my_application():
         .join(Pet, PetCare.pet_id == Pet.pet_id)
         .join(PetCareApplication, Post.post_id == PetCareApplication.post_id)
         .filter(PetCareApplication.user_id == get_jwt_identity())
+        .filter(Post.is_active == True)
         .group_by(Post.post_id, PetCare.post_id)
         .all()
     )
@@ -415,6 +438,15 @@ def get_my_application():
 @post_bprt.route("/getMyApplications/<post_id>/cancel", methods=["PUT"])
 @jwt_required()
 def cancel_my_application(post_id):
+    post = (
+        db.session.guery(Post)
+        .filter(sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity()))
+        .first()
+    )
+
+    if not post.is_active:
+        return jsonify({"msg": "Post jest nieaktywny!"}), 404
+
     pet_care_application = (
         db.session.query(PetCareApplication)
         .filter(sqlalchemy.and_(PetCareApplication.user_id == get_jwt_identity(), PetCareApplication.post_id == post_id))
