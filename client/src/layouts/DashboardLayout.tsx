@@ -1,4 +1,6 @@
+import ApprovalIcon from '@mui/icons-material/Approval';
 import EditIcon from '@mui/icons-material/Edit';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PetsIcon from '@mui/icons-material/Pets';
 import { Avatar, Box, Container, Divider, Menu, MenuItem, Toolbar, Typography, AppBar, useTheme, Button } from '@mui/material';
@@ -144,6 +146,14 @@ const DashboardLayout = () => {
                                 </Typography>
                             </Box>
                             <Divider />
+                            <MenuItem onClick={() => navigateTo('/dashboard/my-posts')} sx={{ py: 1.5 }}>
+                                <ListAltIcon fontSize="small" sx={{ mr: 1.5 }} />
+                                Twoje ogłoszenia
+                            </MenuItem>
+                            <MenuItem onClick={() => navigateTo('/dashboard/my-posts')} sx={{ py: 1.5 }}>
+                                <ApprovalIcon fontSize="small" sx={{ mr: 1.5 }} />
+                                Twoje zgłoszenia
+                            </MenuItem>
                             <MenuItem onClick={() => navigateTo('/dashboard/edit-data')} sx={{ py: 1.5 }}>
                                 <EditIcon fontSize="small" sx={{ mr: 1.5 }} />
                                 Edytuj dane

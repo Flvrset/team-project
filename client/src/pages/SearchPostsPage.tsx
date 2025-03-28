@@ -1,60 +1,32 @@
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import PetsIcon from '@mui/icons-material/Pets';
 import SearchIcon from '@mui/icons-material/Search';
 import StraightenIcon from '@mui/icons-material/Straighten';
 import {
     Box,
     Typography,
-    Card,
-    CardContent,
-    CardActionArea,
     Grid,
     TextField,
     Button,
     CircularProgress,
     Paper,
-    Divider,
-    Chip,
     useTheme,
     alpha,
-    Stack,
     InputAdornment,
-    Avatar,
-    AvatarGroup
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
 import CitySearchSelect from '../components/CitySearchSelect';
+import PostCard from '../components/PostCard';
 import { useNotification } from '../contexts/NotificationContext';
+import { Post } from '../types';
 import { getWithAuth } from '../utils/auth';
-import { formatTimeWithoutSeconds } from '../utils/utils';
 import { validateNumber } from '../utils/validation';
 
 interface SearchModel {
     city: string;
     postal_code: string;
     kms: number;
-}
-
-interface Post {
-    post_id: number;
-    user_id: number;
-    city: string;
-    postal_code: string;
-    name: string;
-    surname: string;
-    start_date: string;
-    end_date: string;
-    start_time: string;
-    end_time: string;
-    cost: number;
-    pet_count: number;
-    pet_photos?: string[];
 }
 
 const SearchPostsPage = () => {
@@ -383,104 +355,10 @@ const SearchPostsPage = () => {
                         <Grid container spacing={3}>
                             {posts.map((post) => (
                                 <Grid item xs={12} sm={6} md={4} key={post.post_id}>
-                                    <Card
-                                        elevation={2}
-                                        sx={{
-                                            height: '100%',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            borderRadius: '20px',
-                                            transition: 'all 0.3s ease',
-                                            overflow: 'hidden',
-                                            '&:hover': {
-                                                transform: 'translateY(-6px)',
-                                                boxShadow: 6
-                                            }
-                                        }}
-                                    >
-                                        <CardActionArea
-                                            onClick={() => handleCardClick(post.post_id)}
-                                            sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}
-                                        >
-                                            <Box
-                                                sx={{
-                                                    bgcolor: alpha(theme.palette.primary.main, 0.08),
-                                                    p: 2,
-                                                    pb: 1
-                                                }}
-                                            >
-                                                <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold' }}>
-                                                    {post.name} {post.surname}
-                                                </Typography>
-                                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                    <LocationOnIcon color="primary" sx={{ mr: 1, fontSize: '1.1rem' }} />
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {post.city}, {post.postal_code}
-                                                    </Typography>
-                                                </Box>
-                                            </Box>
-
-                                            {post.pet_photos && post.pet_photos.length > 0 && (
-                                                <Box sx={{ p: 2, pb: 0 }}>
-                                                    <AvatarGroup
-                                                        max={4}
-                                                        sx={{ flexDirection: 'row' }}>
-                                                        {post.pet_photos.map((photo, index) => (
-                                                            <Avatar
-                                                                key={index}
-                                                                src={photo}
-                                                                variant="circular"
-                                                                color="primary"
-                                                                alt={`Pet ${index + 1}`}
-                                                                sx={{ width: 60, height: 60 }}
-                                                            />
-                                                        ))}
-                                                    </AvatarGroup>
-                                                </Box>
-                                            )}
-
-                                            <CardContent sx={{ flexGrow: 1, p: 2 }}>
-                                                <Stack spacing={2}>
-                                                    <Stack spacing={1.5}>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                            <CalendarTodayIcon color="action" sx={{ mr: 1.5, fontSize: '1.2rem' }} />
-                                                            <Typography variant="body2">
-                                                                {post.start_date} do {post.end_date}
-                                                            </Typography>
-                                                        </Box>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                            <AccessTimeIcon color="action" sx={{ mr: 1.5, fontSize: '1.2rem' }} />
-                                                            <Typography variant="body2">
-                                                                {formatTimeWithoutSeconds(post.start_time)} - {formatTimeWithoutSeconds(post.end_time)}
-                                                            </Typography>
-                                                        </Box>
-                                                        <Divider sx={{ my: 1 }} />
-                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                            <PetsIcon color="action" sx={{ mr: 1.5, fontSize: '1.2rem' }} />
-                                                            <Typography variant="body2">
-                                                                Liczba zwierząt: {post.pet_count}
-                                                            </Typography>
-                                                        </Box>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                            <MonetizationOnIcon color="action" sx={{ mr: 1.5, fontSize: '1.2rem' }} />
-                                                            <Typography variant="body2" fontWeight="bold">
-                                                                {post.cost} PLN/h
-                                                            </Typography>
-                                                        </Box>
-                                                    </Stack>
-
-                                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                        <Chip
-                                                            label="Zobacz szczegóły"
-                                                            color="primary"
-                                                            size="small"
-                                                            sx={{ fontWeight: 500, borderRadius: '16px' }}
-                                                        />
-                                                    </Box>
-                                                </Stack>
-                                            </CardContent>
-                                        </CardActionArea>
-                                    </Card>
+                                    <PostCard
+                                        post={post}
+                                        onClick={handleCardClick}
+                                    />
                                 </Grid>
                             ))}
                         </Grid>

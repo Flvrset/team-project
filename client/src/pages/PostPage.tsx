@@ -29,8 +29,10 @@ import {
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { Pet } from '../types';
+import { useNotification } from '../contexts/NotificationContext';
+import { MyPostsResponse, Pet } from '../types';
 import { getWithAuth } from '../utils/auth';
+import { convertBackendPosts } from '../utils/postUtils';
 import { formatTimeWithoutSeconds } from '../utils/utils';
 
 interface User {
@@ -64,11 +66,15 @@ const PostPage = () => {
   const { postId } = useParams<{ postId: string }>();
   const theme = useTheme();
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   const [postDetails, setPostDetails] = useState<PostDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPetIndex, setSelectedPetIndex] = useState<number>(0);
+  const [isMyPost, setIsMyPost] = useState<boolean>(false);
+  const [hasApplied, setHasApplied] = useState<boolean>(false);
+  const [applyLoading, setApplyLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchPostDetails = async () => {
@@ -101,6 +107,35 @@ const PostPage = () => {
     fetchPostDetails();
   }, [postId]);
 
+  useEffect(() => {
+    if (!postId) return;
+
+    const checkPostOwnershipAndApplication = async () => {
+      try {
+        const [myPostsResponse, myApplicationsResponse] = await Promise.all([
+          getWithAuth('/api/getMyPosts'),
+          getWithAuth('/api/getMyApplications')
+        ]);
+
+        if (myPostsResponse.ok) {
+          const myPostsData = await myPostsResponse.json() as MyPostsResponse;
+          const myPosts = convertBackendPosts(myPostsData.post_lst);
+          setIsMyPost(myPosts.some(post => post.post_id === Number(postId)));
+        }
+
+        if (myApplicationsResponse.ok) {
+          const myApplicationsData = await myApplicationsResponse.json() as MyPostsResponse;
+          const myApplications = convertBackendPosts(myApplicationsData.post_lst);
+          setHasApplied(myApplications.some(application => application.post_id === Number(postId)));
+        }
+      } catch (error) {
+        console.error('Error checking post ownership or application status:', error);
+      }
+    };
+
+    checkPostOwnershipAndApplication();
+  }, [postId]);
+
   const handleNextPet = () => {
     if (postDetails) {
       setSelectedPetIndex((prevIndex) =>
@@ -117,8 +152,27 @@ const PostPage = () => {
     }
   };
 
-  const handleApply = () => {
-    alert("Application functionality will be implemented in the future!");
+  const handleApply = async () => {
+    if (!postId) return;
+
+    setApplyLoading(true);
+    try {
+      const response = await getWithAuth(`/api/applyToPost/${postId}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        showNotification(data.msg, 'success');
+        setHasApplied(true);
+      } else {
+        const errorData = await response.json();
+        showNotification(errorData.msg || 'Wystąpił błąd podczas składania aplikacji', 'error');
+      }
+    } catch (error) {
+      console.error('Error applying to post:', error);
+      showNotification('Nie udało się złożyć aplikacji', 'error');
+    } finally {
+      setApplyLoading(false);
+    }
   };
 
   const calculatePetAge = (birthDate: string) => {
@@ -172,6 +226,57 @@ const PostPage = () => {
   }
 
   const currentPet = postDetails.pets[selectedPetIndex];
+
+  const renderActionButton = () => {
+    if (isMyPost) {
+      return <></>;
+    }
+
+    if (hasApplied) {
+      return (
+        <Button
+          variant="contained"
+          color="success"
+          size="large"
+          disabled
+          sx={{
+            py: 1.5,
+            px: 4,
+            borderRadius: 3,
+            fontSize: '1.1rem',
+            textTransform: 'none',
+          }}
+        >
+          Aplikacja została złożona
+        </Button>
+      );
+    }
+
+    return (
+      <Button
+        variant="contained"
+        color="primary"
+        size="large"
+        startIcon={<CheckCircleOutlineIcon />}
+        onClick={handleApply}
+        disabled={applyLoading}
+        sx={{
+          py: 1.5,
+          px: 4,
+          borderRadius: 3,
+          fontSize: '1.1rem',
+          textTransform: 'none',
+          boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
+          '&:hover': {
+            transform: 'translateY(-3px)',
+            boxShadow: `0 12px 28px ${alpha(theme.palette.primary.main, 0.4)}`,
+          }
+        }}
+      >
+        {applyLoading ? <CircularProgress size={24} color="inherit" /> : 'Aplikuj na to ogłoszenie'}
+      </Button>
+    );
+  };
 
   return (
     <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1200, mx: 'auto' }}>
@@ -562,27 +667,7 @@ const PostPage = () => {
       </Grid>
 
       <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          startIcon={<CheckCircleOutlineIcon />}
-          onClick={handleApply}
-          sx={{
-            py: 1.5,
-            px: 4,
-            borderRadius: 3,
-            fontSize: '1.1rem',
-            textTransform: 'none',
-            boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
-            '&:hover': {
-              transform: 'translateY(-3px)',
-              boxShadow: `0 12px 28px ${alpha(theme.palette.primary.main, 0.4)}`,
-            }
-          }}
-        >
-          Aplikuj na to ogłoszenie
-        </Button>
+        {renderActionButton()}
       </Box>
     </Box>
   );

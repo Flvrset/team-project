@@ -1,4 +1,6 @@
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
 import PetsIcon from '@mui/icons-material/Pets';
 import {
@@ -51,7 +53,7 @@ const DashboardPage = () => {
                 sx={{ mt: 2 }}
             >
                 {/* Create Post Button Card */}
-                <Grid item xs={12} md={5}>
+                <Grid item xs={12} md={6}>
                     <Paper
                         component={Link}
                         to='/dashboard/create-post'
@@ -127,7 +129,7 @@ const DashboardPage = () => {
                 </Grid>
 
                 {/* Search Posts Button Card */}
-                <Grid item xs={12} md={5}>
+                <Grid item xs={12} md={6}>
                     <Paper
                         component={Link}
                         to='/dashboard/search-posts'
@@ -205,11 +207,143 @@ const DashboardPage = () => {
                     </Paper>
                 </Grid>
             </Grid>
+
+            {/* Action cards section */}
+            <Typography
+                variant="h6"
+                sx={{
+                    mt: 6,
+                    mb: 3,
+                    fontWeight: 500,
+                    textAlign: 'center',
+                    color: 'text.secondary'
+                }}
+            >
+                Zarządzaj swoimi aktywnościami
+            </Typography>
+
+            <Box sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: 3,
+                justifyContent: 'center',
+                mb: 4
+            }}>
+                {/* My Posts Card */}
+                <Card
+                    sx={{
+                        width: { xs: '100%', sm: 'calc(50% - 12px)', md: 340 },
+                        borderRadius: 3,
+                        overflow: 'hidden',
+                        backgroundColor: alpha(theme.palette.warning.light, 0.1),
+                        boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
+                        transition: 'all 0.3s ease',
+                        border: `1px solid ${alpha(theme.palette.warning.main, 0.2)}`,
+                        '&:hover': {
+                            boxShadow: '0 8px 25px rgba(0,0,0,0.12)',
+                            transform: 'translateY(-4px)',
+                            borderColor: alpha(theme.palette.warning.main, 0.5),
+                        },
+                        textDecorationLine: 'none',
+                    }}
+                    component={Link}
+                    to='/dashboard/my-posts'
+                >
+                    <CardContent sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        p: 2.5,
+                        '&:last-child': { pb: 2.5 }
+                    }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: 48,
+                                width: 48,
+                                borderRadius: '50%',
+                                backgroundColor: alpha(theme.palette.warning.main, 0.15),
+                                mr: 2.5
+                            }}
+                        >
+                            <ListAltIcon sx={{
+                                fontSize: 24,
+                                color: theme.palette.warning.dark
+                            }} />
+                        </Box>
+                        <Box>
+                            <Typography variant="h6" fontWeight="600" color="text.primary">
+                                Moje ogłoszenia
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                Zarządzaj swoimi ogłoszeniami
+                            </Typography>
+                        </Box>
+                    </CardContent>
+                </Card>
+
+                {/* My Applications Card */}
+                <Card
+                    sx={{
+                        width: { xs: '100%', sm: 'calc(50% - 12px)', md: 340 },
+                        borderRadius: 3,
+                        overflow: 'hidden',
+                        backgroundColor: alpha(theme.palette.info.light, 0.1),
+                        boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
+                        transition: 'all 0.3s ease',
+                        border: `1px solid ${alpha(theme.palette.info.main, 0.2)}`,
+                        '&:hover': {
+                            boxShadow: '0 8px 25px rgba(0,0,0,0.12)',
+                            transform: 'translateY(-4px)',
+                            borderColor: alpha(theme.palette.info.main, 0.5),
+                        },
+                        textDecorationLine: 'none',
+                    }}
+                    component={Link}
+                    to='/dashboard/my-applications'
+                >
+                    <CardContent sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        p: 2.5,
+                        '&:last-child': { pb: 2.5 }
+                    }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: 48,
+                                width: 48,
+                                borderRadius: '50%',
+                                backgroundColor: alpha(theme.palette.info.main, 0.15),
+                                mr: 2.5
+                            }}
+                        >
+                            <AssignmentIcon sx={{
+                                fontSize: 24,
+                                color: theme.palette.info.dark
+                            }} />
+                        </Box>
+                        <Box>
+                            <Typography variant="h6" fontWeight="600" color="text.primary">
+                                Moje zgłoszenia
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                Sprawdź status swoich zgłoszeń
+                            </Typography>
+                        </Box>
+                    </CardContent>
+                </Card>
+            </Box>
+
+            {/* Pet registration card */}
             <Box
                 sx={{
                     display: 'flex',
                     justifyContent: 'center',
-                    mt: 5,
+                    mt: 2,
                     mb: 2
                 }}
             >

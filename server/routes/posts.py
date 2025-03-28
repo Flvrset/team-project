@@ -221,7 +221,7 @@ def edit_post(post_id):
         }), 200
 
 
-@post_bprt.route("/applyToPost/<int:post_id>", methods=["POST"])
+@post_bprt.route("/applyToPost/<int:post_id>", methods=["GET"])
 @jwt_required()
 def apply_to_post(post_id):
     pet_care_application = PetCareApplication(user_id=get_jwt_identity(), post_id=post_id)
