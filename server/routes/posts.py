@@ -26,6 +26,15 @@ def create_post():
     post_dto = create_post_dto.load(request.json)
     post_dto.user_id = user_id
 
+    city, postal_code = db.session.query(User.city, User.postal_code).filter(User.user_id == user_id).first()
+    print(city)
+    print(postal_code)
+
+    if not (city and postal_code):
+        return jsonify({
+            "msg": "Dodaj miasto i kod pocztowy do swojego profilu! Bez tego nie utworzysz postu!"
+        }), 400
+
     try:
         db.session.add(post_dto)
         db.session.flush()
@@ -37,7 +46,7 @@ def create_post():
                 )
             )
         db.session.commit()
-        return jsonify({"msg": "Post został utworzony! Trzyamy kciuki :)"}), 200
+        return jsonify({"msg": "Post został utworzony! Trzymamy kciuki :)"}), 200
     except sqlalchemy.exc.IntegrityError:
         db.session.rollback()
         return jsonify({"msg": "Nie można w tej chwili dodać ogłoszenia."}), 406
@@ -60,7 +69,7 @@ def get_dashboard_post():
         )
         .join(User, Post.user_id == User.user_id, isouter=True)
         .join(PetCare, Post.post_id == PetCare.post_id, isouter=True)
-        .join(PetPhoto, PetCare.pet_id == PetPhoto.pet_id)
+        .outerjoin(PetPhoto, PetCare.pet_id == PetPhoto.pet_id)
         .group_by(Post.post_id, User.user_id)
         .limit(10)
         .all()
