@@ -26,12 +26,7 @@ const MyApplicationsPage = () => {
             
             if (response.ok) {
                 const data = await response.json() as MyPostsResponse;
-                const posts = convertBackendPosts(data.post_lst);
-                
-                setApplications(posts.map(post => ({
-                    ...post,
-                    status: post.status || 'W trakcie'
-                })));
+                setApplications(convertBackendPosts(data.post_lst));
             } else {
                 throw new Error('Failed to fetch user applications');
             }
@@ -49,30 +44,35 @@ const MyApplicationsPage = () => {
 
     const renderPostWithStatus = (post: Post) => {
         let color: 'success' | 'error' | 'primary';
+        let displayStatus: string;
         
         switch (post.status) {
-            case 'Zaakceptowana':
+            case 'accepted':
                 color = 'success';
+                displayStatus = 'Zaakceptowana';
                 break;
-            case 'Odrzucona':
+            case 'declined':
                 color = 'error';
+                displayStatus = 'Odrzucona';
                 break;
-            case 'Zakończona':
-            case 'W trakcie':
+            case 'cancelled':
+                color = 'error';
+                displayStatus = 'Anulowana';
+                break;
+            case 'waiting':
             default:
                 color = 'primary';
+                displayStatus = 'Oczekująca';
         }
 
         return (
-            <Box sx={{ position: 'relative' }}>
-                <PostCard 
-                    post={post}
-                    label={{text: post.status || '', color}}
-                    onClick={handlePostClick}
-                    actionText="Zobacz szczegóły"
-                    showHeader={false}
-                />
-            </Box>
+            <PostCard 
+                post={post}
+                label={{text: displayStatus, color}}
+                onClick={handlePostClick}
+                actionText="Zobacz szczegóły"
+                showHeader={false}
+            />
         );
     };
 

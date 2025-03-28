@@ -46,6 +46,7 @@ export interface BackendPost {
     description: string | null;
     cost: number;
     pet_lst: string[];
+    status: string;
 }
 
 // Other shared types can be added here

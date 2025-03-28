@@ -30,9 +30,8 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useNotification } from '../contexts/NotificationContext';
-import { MyPostsResponse, Pet } from '../types';
-import { getWithAuth } from '../utils/auth';
-import { convertBackendPosts } from '../utils/postUtils';
+import { Pet } from '../types';
+import { getWithAuth, putWithAuth } from '../utils/auth';
 import { formatTimeWithoutSeconds } from '../utils/utils';
 
 interface User {
@@ -60,6 +59,7 @@ interface PostDetails {
   user: User;
   post: Post;
   pets: Pet[];
+  status: string;
 }
 
 const PostPage = () => {
@@ -92,6 +92,9 @@ const PostPage = () => {
         if (response.ok) {
           const data = await response.json();
           setPostDetails(data);
+          
+          setIsMyPost(data.status === 'own');
+          setHasApplied(data.status === 'applied');
         } else {
           const errorData = await response.json();
           setError(errorData.error || 'Failed to fetch post details');
@@ -105,35 +108,6 @@ const PostPage = () => {
     };
 
     fetchPostDetails();
-  }, [postId]);
-
-  useEffect(() => {
-    if (!postId) return;
-
-    const checkPostOwnershipAndApplication = async () => {
-      try {
-        const [myPostsResponse, myApplicationsResponse] = await Promise.all([
-          getWithAuth('/api/getMyPosts'),
-          getWithAuth('/api/getMyApplications')
-        ]);
-
-        if (myPostsResponse.ok) {
-          const myPostsData = await myPostsResponse.json() as MyPostsResponse;
-          const myPosts = convertBackendPosts(myPostsData.post_lst);
-          setIsMyPost(myPosts.some(post => post.post_id === Number(postId)));
-        }
-
-        if (myApplicationsResponse.ok) {
-          const myApplicationsData = await myApplicationsResponse.json() as MyPostsResponse;
-          const myApplications = convertBackendPosts(myApplicationsData.post_lst);
-          setHasApplied(myApplications.some(application => application.post_id === Number(postId)));
-        }
-      } catch (error) {
-        console.error('Error checking post ownership or application status:', error);
-      }
-    };
-
-    checkPostOwnershipAndApplication();
   }, [postId]);
 
   const handleNextPet = () => {
@@ -157,7 +131,7 @@ const PostPage = () => {
 
     setApplyLoading(true);
     try {
-      const response = await getWithAuth(`/api/applyToPost/${postId}`);
+      const response = await putWithAuth(`/api/applyToPost/${postId}`, {});
 
       if (response.ok) {
         const data = await response.json();

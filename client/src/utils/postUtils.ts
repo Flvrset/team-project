@@ -14,7 +14,8 @@ export const convertBackendPost = (backendPost: BackendPost): Post => {
     description: backendPost.description || undefined,
     cost: backendPost.cost,
     pet_list: backendPost.pet_lst,
-    pet_count: backendPost.pet_lst.length
+    pet_count: backendPost.pet_lst.length,
+    status: backendPost.status,
   };
 };
 

@@ -286,7 +286,7 @@ def edit_post(post_id):
 @jwt_required()
 def apply_to_post(post_id):
     post = (
-        db.session.guery(Post)
+        db.session.query(Post)
         .filter(
             sqlalchemy.and_(Post.post_id == post_id, Post.user_id == get_jwt_identity())
         )
