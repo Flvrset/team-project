@@ -42,6 +42,36 @@ const MyPostsPage = () => {
         navigate(`/dashboard/posts/${postId}`);
     };
 
+    const renderPostWithStatus = (post: Post) => {
+        let color: 'success' | 'error' | 'primary';
+        let displayStatus: string;
+        
+        switch (post.status) {
+            case 'accepted':
+                color = 'success';
+                displayStatus = 'Zaakceptowane';
+                break;
+            case 'cancelled':
+                color = 'error';
+                displayStatus = 'Anulowane';
+                break;
+            case 'active':
+            default:
+                color = 'primary';
+                displayStatus = 'Aktywne';
+        }
+
+        return (
+            <PostCard 
+                post={post}
+                onClick={handlePostClick}
+                actionText="Zarządzaj"
+                showHeader={false}
+                label={post.status ? {text: displayStatus, color} : undefined}
+            />
+        );
+    };
+
     return (
         <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, sm: 3 } }}>
             <Paper
@@ -72,12 +102,7 @@ const MyPostsPage = () => {
                         <Grid container spacing={3}>
                             {userPosts.map((post) => (
                                 <Grid item xs={12} sm={6} md={4} key={post.post_id}>
-                                    <PostCard 
-                                        post={post}
-                                        onClick={handlePostClick}
-                                        actionText="Zarządzaj"
-                                        showHeader={false}
-                                    />
+                                    {renderPostWithStatus(post)}
                                 </Grid>
                             ))}
                         </Grid>

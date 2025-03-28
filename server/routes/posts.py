@@ -292,6 +292,7 @@ def apply_to_post(post_id):
         .first()
     )
 
+
     if not post:
         (
             jsonify(
@@ -523,11 +524,19 @@ def get_my_application():
 def cancel_my_application(post_id):
     post = (
         db.session.query(Post)
-        .filter(
-            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == int(get_jwt_identity()))
-        )
+        .filter(Post.post_id == post_id)
         .first()
     )
+
+    if not post:
+        (
+            jsonify(
+                {
+                    "msg": "Post nie istnieje!"
+                }
+            ),
+            404,
+        )
 
     if not post.is_active:
         return jsonify({"msg": "Post jest nieaktywny!"}), 404
