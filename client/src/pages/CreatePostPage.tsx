@@ -65,7 +65,6 @@ const CreatePostPage = () => {
 
     const [submitting, setSubmitting] = useState(false);
     const [openPetModal, setOpenPetModal] = useState(false);
-    const [createButtonDisabled, setCreateButtonDisabled] = useState(false);
 
     const fetchPets = async () => {
         setLoadingPets(true);
@@ -252,11 +251,7 @@ const CreatePostPage = () => {
                     cost: '',
                     selectedPets: []
                 });
-
-                setCreateButtonDisabled(true);
-                setTimeout(() => {
-                    navigate('/dashboard');
-                }, 2000);
+                navigate('/dashboard');
             } else {
                 const errorData = await response.json();
                 showNotification(errorData.msg || 'Nie udało się utworzyć ogłoszenia', 'error');
@@ -560,7 +555,7 @@ const CreatePostPage = () => {
                             type="submit"
                             variant="contained"
                             size="large"
-                            disabled={submitting || pets.length === 0 || createButtonDisabled}
+                            disabled={submitting || pets.length === 0}
                             sx={{
                                 py: 1.5,
                                 px: 6,
