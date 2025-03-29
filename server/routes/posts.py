@@ -510,7 +510,7 @@ def get_my_application():
             else (
                 "accepted"
                 if pet_care_application.accepted
-                else ("waiting" if post.is_active else "cancelled")
+                else ("waiting" if post.is_active and not pet_care_application.cancelled else "cancelled")
             )
         )
         post_lst.append(post_dict)
