@@ -148,7 +148,8 @@ def get_post(post_id):
 
         post_set.add(post)
         user_set.add(user)
-        user_photo_set.add(user_photo)
+        if user_photo:
+            user_photo_set.add(user_photo)
         pet_lst.append(pet_dto)
 
     if len(post_set) > 1 or len(user_set) > 1 or len(user_photo_set) > 1:
@@ -157,7 +158,7 @@ def get_post(post_id):
     # in future set user rating!!
 
     user = get_user_dto.dump(user_set.pop())
-    user["photo"] = generate_presigned_url("user_photo", user_photo_set.pop())
+    user["photo"] = generate_presigned_url("user_photo", user_photo_set.pop()) if user_photo_set else ""
 
     post = post_set.pop()
 
