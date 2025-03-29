@@ -308,6 +308,7 @@ def apply_to_post(post_id):
     pet_care_application = (
         db.session.query(PetCareApplication)
         .filter(sqlalchemy.and_(PetCareApplication.post_id == post_id, PetCareApplication.user_id == int(get_jwt_identity())))
+        .first()
     )
 
     try:
