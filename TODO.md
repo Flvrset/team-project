@@ -12,6 +12,7 @@
   - now it's return only the post info that is stored in database
   - editing of post need logic to be discussed
 - [ ] `/user/:userId` ale nie zwracaj jego danych osobowych, tylko imię, nazwisko, rating jako volunteer, rating jako owner, i ewentualnie zwierzaki ( to jest jak ktoś wchodzi na czyjś profil )
+- [ ] Dodanie statusu accepted jak wchodze na post do którego zostałem zaakceptowany
 
 
 ### TO DO
