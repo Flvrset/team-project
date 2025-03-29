@@ -1,4 +1,3 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SearchIcon from '@mui/icons-material/Search';
 import StraightenIcon from '@mui/icons-material/Straighten';
 import {
@@ -14,8 +13,9 @@ import {
     InputAdornment,
 } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
+import BackButton from '../components/BackButton';
 import CitySearchSelect from '../components/CitySearchSelect';
 import PostCard from '../components/PostCard';
 import { useNotification } from '../contexts/NotificationContext';
@@ -206,24 +206,7 @@ const SearchPostsPage = () => {
             </Paper>
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 4 }}>
-                <Button
-                    variant="outlined"
-                    color="secondary"
-                    startIcon={<ArrowBackIcon />}
-                    component={Link}
-                    to='/dashboard'
-                    sx={{
-                        borderRadius: '18px',
-                        py: 1,
-                        px: 2.5,
-                        '&:hover': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                        },
-                    }}
-                >
-                    Powrót
-                </Button>
+                <BackButton />
             </Box>
 
             <Paper

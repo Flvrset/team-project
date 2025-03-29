@@ -1,7 +1,9 @@
-import { Box, Typography, Grid, CircularProgress, Paper, alpha, useTheme } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import { Box, Typography, Grid, CircularProgress, Paper, alpha, useTheme, Button } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import BackButton from '../components/BackButton';
 import PostCard from '../components/PostCard';
 import { useNotification } from '../contexts/NotificationContext';
 import { MyPostsResponse, Post } from '../types';
@@ -40,6 +42,10 @@ const MyApplicationsPage = () => {
 
     const handlePostClick = (postId: number) => {
         navigate(`/dashboard/posts/${postId}`);
+    };
+
+    const handleSearchPosts = () => {
+        navigate('/dashboard/search-posts');
     };
 
     const renderPostWithStatus = (post: Post) => {
@@ -89,12 +95,25 @@ const MyApplicationsPage = () => {
                 }}
             >
                 <Typography variant="h4" component="h1" fontWeight="bold">
-                    Moje aplikacje
+                    Twoje zgłoszenia
                 </Typography>
                 <Typography variant="subtitle1" sx={{ mt: 1, opacity: 0.9 }}>
                     Zobacz status swoich aplikacji do ogłoszeń
                 </Typography>
             </Paper>
+            
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
+                <BackButton />
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    startIcon={<SearchIcon />}
+                    onClick={handleSearchPosts}
+                    sx={{ borderRadius: 2, px: 3 }}
+                >
+                    Szukaj ogłoszeń
+                </Button>
+            </Box>
             
             {loading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
