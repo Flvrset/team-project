@@ -259,7 +259,7 @@ def get_my_posts():
         .join(PetCare, Post.post_id == PetCare.post_id)
         .join(Pet, PetCare.pet_id == Pet.pet_id)
         .outerjoin(PetCareApplication, PetCareApplication.post_id == Post.post_id)
-        .outerjoni(subq_alias, Post.post_id == subq_alias.c.post_id)
+        .outerjoin(subq_alias, Post.post_id == subq_alias.c.post_id)
         .filter(Post.user_id == int(get_jwt_identity()))
         .group_by(Post.post_id, PetCare.post_id)
         .all()
