@@ -145,9 +145,16 @@ const PostCard: React.FC<PostCardProps> = ({
                                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                                     <Chip
                                         label={label.text}
-                                        color={label.color}
+                                        color={label.color !== 'grey' ? label.color : undefined}
                                         size="small"
-                                        sx={{ fontWeight: 500, borderRadius: '16px' }}
+                                        sx={{
+                                            fontWeight: 500,
+                                            borderRadius: '16px',
+                                            ...(label.color === 'grey' && {
+                                                backgroundColor: theme.palette.grey[300],
+                                                color: theme.palette.grey[800],
+                                            })
+                                        }}
                                     />
                                 </Box>
                             )}
@@ -164,9 +171,9 @@ const PostCard: React.FC<PostCardProps> = ({
                     </Stack>
                 </CardContent>
             </CardActionArea>
-            
+
             {badgeCount > 0 && (
-                <Box 
+                <Box
                     sx={{
                         position: 'absolute',
                         bottom: 12,
