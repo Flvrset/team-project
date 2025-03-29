@@ -49,7 +49,7 @@ const MyPostsPage = () => {
     };
 
     const renderPostWithStatus = (post: Post) => {
-        let color: 'success' | 'error' | 'primary';
+        let color: 'success' | 'error' | 'primary' | 'grey';
         let displayStatus: string;
         const pendingCount = post.pending_applications || 0;
         
@@ -59,7 +59,7 @@ const MyPostsPage = () => {
                 displayStatus = 'Zaakceptowane';
                 break;
             case 'cancelled':
-                color = 'error';
+                color = 'grey';
                 displayStatus = 'Anulowane';
                 break;
             case 'active':
