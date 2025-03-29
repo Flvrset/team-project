@@ -375,7 +375,7 @@ def get_post_applications(post_id):
     users_application = (
         db.session.query(User, PetCareApplication)
         .join(PetCareApplication, PetCareApplication.user_id == User.user_id)
-        .filter(sqlalchemy.and_(PetCareApplication.post_id == post_id, PetCare.cancelled == False))
+        .filter(sqlalchemy.and_(PetCareApplication.post_id == post_id, PetCareApplication.cancelled == False))
         .all()
     )
 
