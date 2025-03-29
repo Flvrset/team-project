@@ -108,7 +108,9 @@ def get_dashboard_post():
             "cost": post_dashboard.cost,
             "pet_count": pet_cnt,
             "pet_photos": [
-                generate_presigned_url("pet_photo", photo) for photo in photos_lst if photo
+                generate_presigned_url("pet_photo", photo)
+                for photo in photos_lst
+                if photo
             ],
         }
         for post_dashboard, user, pet_cnt, photos_lst in post_lst
@@ -158,7 +160,11 @@ def get_post(post_id):
     # in future set user rating!!
 
     user = get_user_dto.dump(user_set.pop())
-    user["photo"] = generate_presigned_url("user_photo", user_photo_set.pop()) if user_photo_set else ""
+    user["photo"] = (
+        generate_presigned_url("user_photo", user_photo_set.pop())
+        if user_photo_set
+        else ""
+    )
 
     post = post_set.pop()
 
@@ -176,8 +182,14 @@ def get_post(post_id):
                 "post": create_post_dto.dump(post),
                 "pets": pet_lst,
                 "status": (
-                    "own" if post.user_id == int(get_jwt_identity())
-                    else ("applied" if post_application is not None and not post_application.cancelled else "")
+                    "own"
+                    if post.user_id == int(get_jwt_identity())
+                    else (
+                        "applied"
+                        if post_application is not None
+                        and not post_application.cancelled
+                        else ("declined" if post_application.declined else "")
+                    )
                 ),
             }
         ),
@@ -197,7 +209,9 @@ def delete_post(post_id):
 
     if not post:
         return (
-            jsonify({"msg": "Nie jesteś właścicielem postu, nie możesz wprowadzić zmian!"}),
+            jsonify(
+                {"msg": "Nie jesteś właścicielem postu, nie możesz wprowadzić zmian!"}
+            ),
             404,
         )
 
@@ -220,7 +234,13 @@ def get_my_posts():
         db.session.query(
             Post,
             sqlalchemy.func.array_agg(Pet.pet_name).label("pet_list"),
-            sqlalchemy.func.bool_or(PetCareApplication.accepted)
+            sqlalchemy.func.bool_or(PetCareApplication.accepted),
+            sqlalchemy.func.sum(sqlalchemy.case(
+                (PetCareApplication.declined == True, 0),
+                (PetCareApplication.cancelled == True, 0),
+                (PetCareApplication.accepted == True, 0),
+                else_=1
+            ))
         )
         .join(PetCare, Post.post_id == PetCare.post_id)
         .join(Pet, PetCare.pet_id == Pet.pet_id)
@@ -232,10 +252,15 @@ def get_my_posts():
 
     post_lst = []
 
-    for post, pet_lst, accepted_pet_care in post_details:
+    for post, pet_lst, accepted_pet_care, pending_applications in post_details:
         post_dict = create_post_dto.dump(post)
         post_dict["pet_lst"] = pet_lst
-        post_dict["status"] = "accepted" if accepted_pet_care else ("active" if post.is_active else "cancelled")
+        post_dict["status"] = (
+            "accepted"
+            if accepted_pet_care
+            else ("active" if post.is_active else "cancelled")
+        )
+        post_dict["pending_applications"] = pending_applications if post_dict["status"] == "active" else 0
         post_lst.append(post_dict)
 
     return (
@@ -287,20 +312,11 @@ def edit_post(post_id):
 @post_bprt.route("/applyToPost/<int:post_id>", methods=["POST"])
 @jwt_required()
 def apply_to_post(post_id):
-    post = (
-        db.session.query(Post)
-        .filter(Post.post_id == post_id)
-        .first()
-    )
-
+    post = db.session.query(Post).filter(Post.post_id == post_id).first()
 
     if not post:
         (
-            jsonify(
-                {
-                    "msg": "Post nie istnieje!"
-                }
-            ),
+            jsonify({"msg": "Post nie istnieje!"}),
             404,
         )
 
@@ -309,7 +325,12 @@ def apply_to_post(post_id):
 
     pet_care_application = (
         db.session.query(PetCareApplication)
-        .filter(sqlalchemy.and_(PetCareApplication.post_id == post_id, PetCareApplication.user_id == int(get_jwt_identity())))
+        .filter(
+            sqlalchemy.and_(
+                PetCareApplication.post_id == post_id,
+                PetCareApplication.user_id == int(get_jwt_identity()),
+            )
+        )
         .first()
     )
 
@@ -339,7 +360,9 @@ def get_applications_count():
         .select_from(PetCareApplication)
         .join(Post, Post.post_id == PetCareApplication.post_id)
         .filter(
-            sqlalchemy.and_(Post.user_id == int(get_jwt_identity()), Post.is_active == True)
+            sqlalchemy.and_(
+                Post.user_id == int(get_jwt_identity()), Post.is_active == True
+            )
         )
         .filter(
             sqlalchemy.and_(
@@ -359,7 +382,9 @@ def get_post_applications(post_id):
     post = (
         db.session.query(Post)
         .filter(
-            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == int(get_jwt_identity()))
+            sqlalchemy.and_(
+                Post.post_id == post_id, Post.user_id == int(get_jwt_identity())
+            )
         )
         .first()
     )
@@ -375,14 +400,23 @@ def get_post_applications(post_id):
     users_application = (
         db.session.query(User, PetCareApplication)
         .join(PetCareApplication, PetCareApplication.user_id == User.user_id)
-        .filter(sqlalchemy.and_(PetCareApplication.post_id == post_id, PetCareApplication.cancelled == False))
+        .filter(
+            sqlalchemy.and_(
+                PetCareApplication.post_id == post_id,
+                PetCareApplication.cancelled == False,
+            )
+        )
         .all()
     )
 
     user_lst = []
     for user, pet_care_application in users_application:
         user_dto = get_user_dto.dump(user)
-        user_dto["status"] = "Accepted" if PetCareApplication.accepted else ("Declined" if PetCareApplication.declined else "Pending")
+        user_dto["status"] = (
+            "Accepted"
+            if pet_care_application.accepted
+            else ("Declined" if pet_care_application.declined else "Pending")
+        )
         user_lst.append(user_dto)
 
     return jsonify({"users": user_lst}), 200
@@ -396,7 +430,9 @@ def decline_application(post_id, user_id):
     post = (
         db.session.query(Post)
         .filter(
-            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == int(get_jwt_identity()))
+            sqlalchemy.and_(
+                Post.post_id == post_id, Post.user_id == int(get_jwt_identity())
+            )
         )
         .first()
     )
@@ -442,7 +478,9 @@ def accept_application(post_id, user_id):
     post = (
         db.session.query(Post)
         .filter(
-            sqlalchemy.and_(Post.post_id == post_id, Post.user_id == int(get_jwt_identity()))
+            sqlalchemy.and_(
+                Post.post_id == post_id, Post.user_id == int(get_jwt_identity())
+            )
         )
         .first()
     )
@@ -514,7 +552,11 @@ def get_my_application():
             else (
                 "accepted"
                 if pet_care_application.accepted
-                else ("waiting" if post.is_active and not pet_care_application.cancelled else "cancelled")
+                else (
+                    "waiting"
+                    if post.is_active and not pet_care_application.cancelled
+                    else "cancelled"
+                )
             )
         )
         post_lst.append(post_dict)
@@ -528,19 +570,11 @@ def get_my_application():
 @post_bprt.route("/getMyApplications/<post_id>/cancel", methods=["PUT"])
 @jwt_required()
 def cancel_my_application(post_id):
-    post = (
-        db.session.query(Post)
-        .filter(Post.post_id == post_id)
-        .first()
-    )
+    post = db.session.query(Post).filter(Post.post_id == post_id).first()
 
     if not post:
         (
-            jsonify(
-                {
-                    "msg": "Post nie istnieje!"
-                }
-            ),
+            jsonify({"msg": "Post nie istnieje!"}),
             404,
         )
 
