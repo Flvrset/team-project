@@ -235,12 +235,13 @@ def get_my_posts():
             Post,
             sqlalchemy.func.array_agg(Pet.pet_name).label("pet_list"),
             sqlalchemy.func.bool_or(PetCareApplication.accepted),
-            sqlalchemy.func.sum(sqlalchemy.case(
-                (PetCareApplication.declined == True, 0),
-                (PetCareApplication.cancelled == True, 0),
-                (PetCareApplication.accepted == True, 0),
-                else_=1
-            ))
+            sqlalchemy.func.sum(
+                sqlalchemy.case()
+                .when(PetCareApplication.declined == True, 0)
+                .when(PetCareApplication.cancelled == True, 0)
+                .when(PetCareApplication.accepted == True, 0)
+                .else_(1)
+            )
         )
         .join(PetCare, Post.post_id == PetCare.post_id)
         .join(Pet, PetCare.pet_id == Pet.pet_id)
