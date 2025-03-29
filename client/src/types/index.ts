@@ -49,6 +49,22 @@ export interface BackendPost {
     status: string;
 }
 
+
+export interface User {
+    user_id: number;
+    name: string;
+    surname: string;
+    city: string;
+    postal_code: string;
+    rating: number;
+    photo?: string;
+    description?: string;
+}
+
+export interface Applicant extends User {
+    status: "Accepted" | "Rejected" | "Pending";
+}
+
 // Other shared types can be added here
 export type PetSize = 'Mały' | 'Średni' | 'Duży';
 export type PetType = 'Pies' | 'Kot' | 'Królik' | 'Papuga' | 'Fretka' | 'Inne';

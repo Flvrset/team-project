@@ -3,23 +3,36 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import PersonIcon from '@mui/icons-material/Person';
 import PetsIcon from '@mui/icons-material/Pets';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import {
   Alert,
   Avatar,
+  Badge,
   Box,
   Button,
   Card,
   CardContent,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   Grid,
   IconButton,
+  Menu,
+  MenuItem,
   Paper,
   Rating,
   Stack,
@@ -30,21 +43,11 @@ import {
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
+import ApplicantsModal from '../components/ApplicantsModal';
 import { useNotification } from '../contexts/NotificationContext';
-import { Pet } from '../types';
+import { Pet, User, Applicant } from '../types';
 import { getWithAuth, postWithAuth, putWithAuth } from '../utils/auth';
 import { formatTimeWithoutSeconds } from '../utils/utils';
-
-interface User {
-  user_id: number;
-  name: string;
-  surname: string;
-  city: string;
-  postal_code: string;
-  rating: number;
-  photo?: string;
-  description?: string;
-}
 
 interface Post {
   post_id: number;
@@ -54,6 +57,7 @@ interface Post {
   end_time: string;
   description: string;
   cost: number;
+  is_active: boolean;
 }
 
 interface PostDetails {
@@ -77,6 +81,14 @@ const PostPage = () => {
   const [hasApplied, setHasApplied] = useState<boolean>(false);
   const [applyLoading, setApplyLoading] = useState<boolean>(false);
   const [cancelLoading, setCancelLoading] = useState<boolean>(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [applicantsLoading, setApplicantsLoading] = useState<boolean>(false);
+  const [applicationsModalOpen, setApplicationsModalOpen] = useState<boolean>(false);
+
+  const menuOpen = Boolean(menuAnchorEl);
 
   useEffect(() => {
     const fetchPostDetails = async () => {
@@ -94,7 +106,7 @@ const PostPage = () => {
         if (response.ok) {
           const data = await response.json();
           setPostDetails(data);
-          
+
           setIsMyPost(data.status === 'own');
           setHasApplied(data.status === 'applied');
         } else {
@@ -111,6 +123,80 @@ const PostPage = () => {
 
     fetchPostDetails();
   }, [postId]);
+
+  useEffect(() => {
+    if (isMyPost && postDetails?.post.is_active) {
+      fetchApplicants();
+    }
+  }, [isMyPost, postDetails?.post.is_active]);
+
+  const fetchApplicants = async () => {
+    if (!postId || !isMyPost || !postDetails?.post.is_active) return;
+
+    setApplicantsLoading(true);
+    try {
+      const response = await getWithAuth(`/api/getPost/${postId}/applications`);
+      if (response.ok) {
+        const data = await response.json();
+        setApplicants(data.users);
+      } else {
+        const errorData = await response.json();
+        showNotification(errorData.msg || 'Błąd podczas pobierania aplikacji', 'error');
+      }
+    } catch (error) {
+      console.error('Error fetching applicants:', error);
+      showNotification('Nie udało się pobrać aplikacji', 'error');
+    } finally {
+      setApplicantsLoading(false);
+    }
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
+
+  const handleEditPost = () => {
+    handleMenuClose();
+    // This will be implemented in the future
+    showNotification('Edit functionality will be implemented soon!', 'info');
+  };
+
+  const handleDeletePostClick = () => {
+    handleMenuClose();
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteDialogClose = () => {
+    setDeleteDialogOpen(false);
+  };
+
+  const handleDeletePost = async () => {
+    if (!postId) return;
+
+    setDeleteLoading(true);
+    try {
+      const response = await putWithAuth(`/api/getPost/${postId}/delete`, {});
+
+      if (response.ok) {
+        const data = await response.json();
+        showNotification(data.msg, 'success');
+        navigate('/dashboard/my-posts');
+      } else {
+        const errorData = await response.json();
+        showNotification(errorData.msg || 'Wystąpił błąd podczas usuwania ogłoszenia', 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      showNotification('Nie udało się usunąć ogłoszenia', 'error');
+    } finally {
+      setDeleteLoading(false);
+      setDeleteDialogOpen(false);
+    }
+  };
 
   const handleNextPet = () => {
     if (postDetails) {
@@ -174,9 +260,173 @@ const PostPage = () => {
     }
   };
 
+  const handleOpenApplicationsModal = () => {
+    setApplicationsModalOpen(true);
+  };
+
+  const handleCloseApplicationsModal = () => {
+    setApplicationsModalOpen(false);
+  };
+
+  const handleApplicantAccepted = () => {
+    // Since accepting makes the post inactive, update post details
+    if (postDetails) {
+      setPostDetails({
+        ...postDetails,
+        post: { ...postDetails.post, is_active: false }
+      });
+    }
+    setApplicationsModalOpen(false);
+  };
+
+  const handleApplicantDeclined = (userId: number) => {
+    setApplicants(prev => prev.map(applicant =>
+      applicant.user_id === userId
+        ? { ...applicant, status: "Rejected" }
+        : applicant
+    ));
+  };
+
   const calculatePetAge = (birthDate: string) => {
     const years = new Date().getFullYear() - new Date(birthDate).getFullYear();
     return `${years} ${years === 1 ? 'rok' : years < 5 ? 'lata' : 'lat'}`;
+  };
+
+  const renderApplicationsSection = () => {
+    if (!isMyPost || !postDetails) return null;
+  
+    const acceptedApplicant = applicants.find(app => app.status === "Accepted");
+    
+    if (acceptedApplicant) {
+      return (
+        <Paper
+          elevation={2}
+          sx={{
+            p: 3,
+            borderRadius: 3,
+            mt: 3,
+            background: `linear-gradient(135deg, ${alpha(theme.palette.success.light, 0.1)}, ${alpha(theme.palette.success.main, 0.1)})`,
+          }}
+        >
+          <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+            <CheckCircleOutlineIcon sx={{ mr: 1, color: theme.palette.success.main }} /> 
+            Zaakceptowany opiekun
+          </Typography>
+          
+          <Divider sx={{ my: 2 }} />
+          
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Avatar
+              src={acceptedApplicant.photo}
+              alt={`${acceptedApplicant.name} ${acceptedApplicant.surname}`}
+              sx={{
+                width: 80,
+                height: 80,
+                mr: 3,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                border: `3px solid ${theme.palette.background.paper}`,
+              }}
+            >
+              {acceptedApplicant.name[0]}
+            </Avatar>
+            <Box>
+              <Typography variant="h5" fontWeight="bold">
+                {acceptedApplicant.name} {acceptedApplicant.surname}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                <Rating
+                  value={acceptedApplicant.rating}
+                  precision={0.5}
+                  readOnly
+                  size="small"
+                />
+                <Typography variant="body2" sx={{ ml: 1 }}>
+                  {acceptedApplicant.rating.toFixed(1)}
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+  
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
+            <LocationOnIcon color="primary" sx={{ mt: 0.3, mr: 1.5 }} />
+            <Typography>
+              {acceptedApplicant.city}, {acceptedApplicant.postal_code}
+            </Typography>
+          </Box>
+  
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              component={Link}
+              to={`/user/${acceptedApplicant.user_id}`}
+              variant="outlined"
+              color="primary"
+              size="small"
+              startIcon={<PersonIcon />}
+              sx={{
+                borderRadius: 2,
+                textTransform: 'none',
+              }}
+            >
+              Profil opiekuna
+            </Button>
+          </Box>
+        </Paper>
+      );
+    } else if (postDetails.post.is_active) {
+      const pendingCount = applicants.filter(app => app.status !== "Rejected").length;
+      
+      return (
+        <Paper
+          elevation={2}
+          sx={{
+            p: 3,
+            borderRadius: 3,
+            mt: 3,
+            background: `linear-gradient(135deg, ${alpha(theme.palette.primary.light, 0.1)}, ${alpha(theme.palette.primary.main, 0.1)})`,
+          }}
+        >
+          <Typography variant="h6" fontWeight="bold" gutterBottom>
+            Aplikacje
+          </Typography>
+          
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography>
+              {pendingCount === 0 ? 
+                'Brak aplikacji do przejrzenia' : 
+                `Masz ${pendingCount} ${pendingCount === 1 ? 'aplikację' : pendingCount < 5 ? 'aplikacje' : 'aplikacji'} do przejrzenia`}
+            </Typography>
+            
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleOpenApplicationsModal}
+              disabled={applicantsLoading || pendingCount === 0}
+              startIcon={applicantsLoading ? <CircularProgress size={20} color="inherit" /> : <NotificationsActiveIcon />}
+              sx={{
+                borderRadius: 2,
+                textTransform: 'none',
+                boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: `0 6px 16px ${alpha(theme.palette.primary.main, 0.4)}`,
+                }
+              }}
+            >
+              {applicantsLoading ? 'Ładowanie...' : pendingCount === 0 ? 'Brak aplikacji' : 'Przeglądaj aplikacje'}
+              {pendingCount > 0 && !applicantsLoading && (
+                <Badge 
+                  badgeContent={pendingCount} 
+                  color="error" 
+                  sx={{ ml: 1 }}
+                />
+              )}
+            </Button>
+          </Box>
+        </Paper>
+      );
+    }
+    
+    return null;
   };
 
   if (loading) {
@@ -286,7 +536,7 @@ const PostPage = () => {
 
   return (
     <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Button
           onClick={() => navigate(-1)}
           startIcon={<ArrowBackIcon />}
@@ -302,7 +552,98 @@ const PostPage = () => {
         >
           Powrót do wyszukiwania
         </Button>
+
+        {isMyPost && postDetails.post.is_active && (
+          <IconButton
+            aria-label="more options"
+            aria-controls="post-menu"
+            aria-haspopup="true"
+            onClick={handleMenuOpen}
+            sx={{
+              backgroundColor: alpha(theme.palette.primary.main, 0.1),
+              '&:hover': {
+                backgroundColor: alpha(theme.palette.primary.main, 0.2),
+              },
+            }}
+          >
+            <MoreVertIcon />
+          </IconButton>
+        )}
+
+        <Menu
+          id="post-menu"
+          anchorEl={menuAnchorEl}
+          open={menuOpen}
+          onClose={handleMenuClose}
+          MenuListProps={{
+            'aria-labelledby': 'post-options-button',
+          }}
+        >
+          <MenuItem onClick={handleEditPost} sx={{
+            color: theme.palette.primary.main,
+            py: 1.5,
+            minWidth: 180
+          }}>
+            <EditIcon sx={{ mr: 2 }} />
+            Edytuj ogłoszenie
+          </MenuItem>
+          <MenuItem onClick={handleDeletePostClick} sx={{
+            color: theme.palette.error.main,
+            py: 1.5
+          }}>
+            <DeleteIcon sx={{ mr: 2 }} />
+            Usuń ogłoszenie
+          </MenuItem>
+        </Menu>
       </Box>
+
+      {/* Delete confirmation dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        PaperProps={{
+          elevation: 5,
+          sx: { borderRadius: 3, p: 1 }
+        }}
+      >
+        <DialogTitle id="alert-dialog-title" sx={{ fontWeight: 'bold' }}>
+          Potwierdzenie usunięcia ogłoszenia
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Czy na pewno chcesz usunąć to ogłoszenie? Ta operacja jest nieodwracalna.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button
+            onClick={handleDeleteDialogClose}
+            variant="outlined"
+            sx={{ borderRadius: 2 }}
+            disabled={deleteLoading}
+          >
+            Anuluj
+          </Button>
+          <Button
+            onClick={handleDeletePost}
+            variant="contained"
+            color="error"
+            autoFocus
+            disabled={deleteLoading}
+            startIcon={deleteLoading ? <CircularProgress size={20} color="inherit" /> : <DeleteIcon />}
+            sx={{
+              borderRadius: 2,
+              boxShadow: `0 4px 12px ${alpha(theme.palette.error.main, 0.3)}`,
+              '&:hover': {
+                boxShadow: `0 6px 16px ${alpha(theme.palette.error.main, 0.4)}`,
+              }
+            }}
+          >
+            {deleteLoading ? 'Usuwanie...' : 'Usuń'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Grid container spacing={4}>
         <Grid item xs={12} md={5}>
@@ -373,6 +714,8 @@ const PostPage = () => {
                 </>
               )}
             </Paper>
+
+            {renderApplicationsSection()}
 
             <Paper
               elevation={2}
@@ -675,6 +1018,16 @@ const PostPage = () => {
       <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
         {renderActionButton()}
       </Box>
+
+      <ApplicantsModal
+        open={applicationsModalOpen}
+        onClose={handleCloseApplicationsModal}
+        applicants={applicants}
+        loading={applicantsLoading}
+        postId={postId}
+        onAcceptSuccess={handleApplicantAccepted}
+        onDeclineSuccess={handleApplicantDeclined}
+      />
     </Box>
   );
 };
