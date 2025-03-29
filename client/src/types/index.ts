@@ -30,6 +30,7 @@ export interface Post {
     pet_list?: string[];
     status?: string;
     pending_applications?: number;
+    is_active?: boolean;
 }
 
 // Backend response types
@@ -44,11 +45,12 @@ export interface BackendPost {
     end_date: string;
     start_time: string;
     end_time: string;
-    description: string | null;
+    description?: string;
     cost: number;
     pet_lst: string[];
     status: string;
     pending_applications?: number;
+    is_active?: boolean;
 }
 
 

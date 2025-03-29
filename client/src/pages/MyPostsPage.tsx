@@ -25,7 +25,7 @@ const MyPostsPage = () => {
         setLoading(true);
         try {
             const response = await getWithAuth('/api/getMyPosts');
-            
+
             if (response.ok) {
                 const data = await response.json() as MyPostsResponse;
                 setUserPosts(convertBackendPosts(data.post_lst).sort((post => post.status === 'active' ? -1 : 1)));
@@ -52,7 +52,7 @@ const MyPostsPage = () => {
         let color: 'success' | 'error' | 'primary' | 'grey';
         let displayStatus: string;
         const pendingCount = post.pending_applications || 0;
-        
+
         switch (post.status) {
             case 'accepted':
                 color = 'success';
@@ -69,12 +69,12 @@ const MyPostsPage = () => {
         }
 
         return (
-            <PostCard 
+            <PostCard
                 post={post}
                 onClick={handlePostClick}
                 actionText="Zarządzaj"
                 showHeader={false}
-                label={post.status ? {text: displayStatus, color} : undefined}
+                label={post.status ? { text: displayStatus, color } : undefined}
                 badgeCount={pendingCount}
             />
         );
@@ -99,7 +99,7 @@ const MyPostsPage = () => {
                     Zarządzaj swoimi ogłoszeniami
                 </Typography>
             </Paper>
-            
+
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
                 <BackButton />
                 <Button
@@ -112,7 +112,7 @@ const MyPostsPage = () => {
                     Dodaj ogłoszenie
                 </Button>
             </Box>
-            
+
             {loading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
                     <CircularProgress size={60} />
