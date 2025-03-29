@@ -167,6 +167,8 @@ def get_post(post_id):
         .filter(PetCareApplication.user_id == int(get_jwt_identity()))
         .first()
     )
+    print(post_application.cancelled)
+    print(type(post_application.cancelled))
 
     return (
         jsonify(
