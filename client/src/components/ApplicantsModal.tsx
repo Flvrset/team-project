@@ -108,8 +108,8 @@ const ApplicantsModal = ({
 
     // Get pending applicants first, then rejected ones
     const sortedApplicants = [...applicants].sort((a, b) => {
-        if (a.status === "Rejected" && b.status !== "Rejected") return 1;
-        if (a.status !== "Rejected" && b.status === "Rejected") return -1;
+        if (a.status === "Declined" && b.status !== "Declined") return 1;
+        if (a.status !== "Declined" && b.status === "Declined") return -1;
         return 0;
     });
 
@@ -138,7 +138,7 @@ const ApplicantsModal = ({
             >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <DialogTitle id="aplikacje-dialog-title" sx={{ p: 0, fontWeight: 'bold', fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
-                        Aplikanci ({applicants.filter(a => a.status !== "Rejected").length} aktywnych)
+                        Aplikanci ({applicants.filter(a => a.status !== "Declined").length} aktywnych)
                     </DialogTitle>
                     <IconButton
                         onClick={onClose}
@@ -175,7 +175,7 @@ const ApplicantsModal = ({
                     ) : (
                         <Stack spacing={3}>
                             {sortedApplicants.map((applicant) => {
-                                const isDeclined = applicant.status === "Rejected";
+                                const isDeclined = applicant.status === "Declined";
 
                                 return (
                                     <Card

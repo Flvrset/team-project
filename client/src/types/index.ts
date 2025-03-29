@@ -64,7 +64,7 @@ export interface User {
 }
 
 export interface Applicant extends User {
-    status: "Accepted" | "Rejected" | "Pending";
+    status: "Accepted" | "Declined" | "Pending";
 }
 
 // Other shared types can be added here

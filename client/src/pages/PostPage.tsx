@@ -278,7 +278,7 @@ const PostPage = () => {
       setApplicants(prev => prev.map(applicant =>
         applicant.user_id === userId
           ? { ...applicant, status: "Accepted" }
-          : { ...applicant, status: "Rejected" }
+          : { ...applicant, status: "Declined" }
       ));
     }
     setApplicationsModalOpen(false);
@@ -287,7 +287,7 @@ const PostPage = () => {
   const handleApplicantDeclined = (userId: number) => {
     setApplicants(prev => prev.map(applicant =>
       applicant.user_id === userId
-        ? { ...applicant, status: "Rejected" }
+        ? { ...applicant, status: "Declined" }
         : applicant
     ));
   };
@@ -378,7 +378,7 @@ const PostPage = () => {
         </Paper>
       );
     } else if (postDetails.post.is_active) {
-      const pendingCount = applicants.filter(app => app.status !== "Rejected").length;
+      const pendingCount = applicants.filter(app => app.status !== "Declined").length;
 
       return (
         <Paper
