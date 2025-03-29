@@ -28,7 +28,7 @@ const MyPostsPage = () => {
             
             if (response.ok) {
                 const data = await response.json() as MyPostsResponse;
-                setUserPosts(convertBackendPosts(data.post_lst));
+                setUserPosts(convertBackendPosts(data.post_lst).sort((post => post.status === 'active' ? -1 : 1)));
             } else {
                 throw new Error('Failed to fetch user posts');
             }

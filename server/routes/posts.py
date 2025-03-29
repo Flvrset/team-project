@@ -382,7 +382,7 @@ def get_post_applications(post_id):
     user_lst = []
     for user, pet_care_application in users_application:
         user_dto = get_user_dto.dump(user)
-        user_dto["status"] = "Accepted" if PetCareApplication.accepted else ("Declined" if PetCareApplication.declined else "Pending")
+        user_dto["status"] = "Accepted" if pet_care_application.accepted else ("Declined" if pet_care_application.declined else "Pending")
         user_lst.append(user_dto)
 
     return jsonify({"users": user_lst}), 200
