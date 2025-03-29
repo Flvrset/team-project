@@ -50,7 +50,7 @@ class PostPageUserDTO(ma.SQLAlchemyAutoSchema):
             "email",
         )
 
-    user_id = ma.auto_field(dump_only=True, load_only=True)
+    user_id = ma.auto_field(dump_only=True)
     name = ma.auto_field(required=True)
     surname = ma.auto_field(required=True)
     city = ma.auto_field(required=True)

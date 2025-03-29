@@ -372,17 +372,20 @@ def get_post_applications(post_id):
             404,
         )
 
-    if not post.is_active:
-        return jsonify({"msg": "Post jest nieaktywny!"}), 404
-
     users_application = (
-        db.session.query(User)
+        db.session.query(User, PetCareApplication)
         .join(PetCareApplication, PetCareApplication.user_id == User.user_id)
-        .filter(PetCareApplication.post_id == post_id)
+        .filter(sqlalchemy.and_(PetCareApplication.post_id == post_id, PetCare.cancelled == False))
         .all()
     )
 
-    return jsonify({"users": get_users_dto.dump(users_application)}), 200
+    user_lst = []
+    for user, pet_care_application in users_application:
+        user_dto = get_user_dto(user)
+        user_dto["status"] = "Accepted" if PetCareApplication.accepted else ("Declined" if PetCareApplication.declined else "Pending")
+        user_lst.append(user_dto)
+
+    return jsonify({"users": user_lst}), 200
 
 
 @post_bprt.route(
