@@ -108,7 +108,7 @@ def get_dashboard_post():
             "cost": post_dashboard.cost,
             "pet_count": pet_cnt,
             "pet_photos": [
-                generate_presigned_url("pet_photo", photo) for photo in photos_lst
+                generate_presigned_url("pet_photo", photo) for photo in photos_lst if photo
             ],
         }
         for post_dashboard, user, pet_cnt, photos_lst in post_lst
