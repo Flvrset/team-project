@@ -29,6 +29,7 @@ export interface Post {
     pet_photos?: string[];
     pet_list?: string[];
     status?: string;
+    pending_applications?: number;
 }
 
 // Backend response types
@@ -47,6 +48,7 @@ export interface BackendPost {
     cost: number;
     pet_lst: string[];
     status: string;
+    pending_applications?: number;
 }
 
 
