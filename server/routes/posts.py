@@ -453,8 +453,7 @@ def decline_application(post_id, user_id):
 
     pet_care_application = (
         db.session.query(PetCareApplication)
-        .join(Post, PetCareApplication.post_id == Post.post_id)
-        .filter(PetCareApplication.user_id == user_id)
+        .filter(sqlalchemy.and_(PetCareApplication.user_id == user_id, PetCareApplication.post_id == post_id))
         .filter(PetCareApplication.cancelled == False)
         .first()
     )
@@ -501,9 +500,8 @@ def accept_application(post_id, user_id):
 
     pet_care_application, post, user_email = (
         db.session.query(PetCareApplication, Post, User.email)
-        .join(Post, Post.post_id == PetCareApplication.post_id)
         .join(User, User.user_id == PetCareApplication.user_id)
-        .filter(PetCareApplication.user_id == user_id)
+        .filter(sqlalchemy.and_(PetCareApplication.user_id == user_id, PetCareApplication.post_id == post_id))
         .filter(PetCareApplication.cancelled == False)
         .first()
     )
