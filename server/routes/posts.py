@@ -187,7 +187,7 @@ def get_post(post_id):
                     else (
                         "" if not post_application else (
                             "applied"
-                            if not post_application.cancelled
+                            if not post_application.cancelled and not post_application.declined
                             else ("declined" if post_application.declined else "")
                         )
                     )
