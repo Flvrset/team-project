@@ -138,7 +138,7 @@ const ApplicantsModal = ({
             >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <DialogTitle id="aplikacje-dialog-title" sx={{ p: 0, fontWeight: 'bold', fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
-                        Aplikanci ({applicants.filter(a => a.status !== "Declined").length} aktywnych)
+                        Aplikanci ({applicants.filter(a => a.status !== "Declined").length} aktywnych, {applicants.filter(a => a.status === "Declined").length} odrzuconych)
                     </DialogTitle>
                     <IconButton
                         onClick={onClose}
@@ -176,6 +176,7 @@ const ApplicantsModal = ({
                         <Stack spacing={3}>
                             {sortedApplicants.map((applicant) => {
                                 const isDeclined = applicant.status === "Declined";
+                                const isPending = applicant.status === "Pending";
 
                                 return (
                                     <Card
@@ -218,6 +219,20 @@ const ApplicantsModal = ({
                                                         <Chip
                                                             label="Odrzucony"
                                                             color="error"
+                                                            size="small"
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                top: -10,
+                                                                right: -20,
+                                                                fontWeight: 'bold',
+                                                                fontSize: '0.7rem'
+                                                            }}
+                                                        />
+                                                    )}
+                                                    {applicant.status === "Accepted" && (
+                                                        <Chip
+                                                            label="Zaakceptowany"
+                                                            color="success"
                                                             size="small"
                                                             sx={{
                                                                 position: 'absolute',
@@ -280,7 +295,8 @@ const ApplicantsModal = ({
                                                             Profil użytkownika
                                                         </Button>
 
-                                                        {!isDeclined && (
+                                                        {/* Show action buttons only for pending applications */}
+                                                        {isPending && (
                                                             <Box sx={{ display: 'flex', gap: 2 }}>
                                                                 <Button
                                                                     variant="contained"
@@ -313,6 +329,13 @@ const ApplicantsModal = ({
                                                                     Zaakceptuj
                                                                 </Button>
                                                             </Box>
+                                                        )}
+                                                        
+                                                        {/* Show status info for non-waiting applicants */}
+                                                        {isDeclined && (
+                                                            <Typography variant="body2" color="error" sx={{ fontStyle: 'italic' }}>
+                                                                Aplikacja została odrzucona
+                                                            </Typography>
                                                         )}
                                                     </Box>
                                                 </Box>

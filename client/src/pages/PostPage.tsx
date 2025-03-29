@@ -64,7 +64,7 @@ interface PostDetails {
   user: User;
   post: Post;
   pets: Pet[];
-  status: string;
+  status: "own" | "applied" | "declined" | "";
 }
 
 const PostPage = () => {
@@ -77,8 +77,6 @@ const PostPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPetIndex, setSelectedPetIndex] = useState<number>(0);
-  const [isMyPost, setIsMyPost] = useState<boolean>(false);
-  const [hasApplied, setHasApplied] = useState<boolean>(false);
   const [applyLoading, setApplyLoading] = useState<boolean>(false);
   const [cancelLoading, setCancelLoading] = useState<boolean>(false);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
@@ -106,9 +104,6 @@ const PostPage = () => {
         if (response.ok) {
           const data = await response.json();
           setPostDetails(data);
-
-          setIsMyPost(data.status === 'own');
-          setHasApplied(data.status === 'applied');
         } else {
           const errorData = await response.json();
           setError(errorData.error || 'Failed to fetch post details');
@@ -125,13 +120,13 @@ const PostPage = () => {
   }, [postId]);
 
   useEffect(() => {
-    if (isMyPost) {
+    if (postDetails?.status === "own") {
       fetchApplicants();
     }
-  }, [isMyPost]);
+  }, [postDetails?.status]);
 
   const fetchApplicants = async () => {
-    if (!postId || !isMyPost) return;
+    if (!postId || postDetails?.status !== "own") return;
 
     setApplicantsLoading(true);
     try {
@@ -224,7 +219,7 @@ const PostPage = () => {
       if (response.ok) {
         const data = await response.json();
         showNotification(data.msg, 'success');
-        setHasApplied(true);
+        setPostDetails(prev => prev ? { ...prev, status: "applied" } : null);
       } else {
         const errorData = await response.json();
         showNotification(errorData.msg || 'Wystąpił błąd podczas składania aplikacji', 'error');
@@ -247,7 +242,7 @@ const PostPage = () => {
       if (response.ok) {
         const data = await response.json();
         showNotification(data.msg, 'success');
-        setHasApplied(false);
+        setPostDetails(prev => prev ? { ...prev, status: "" } : null);
       } else {
         const errorData = await response.json();
         showNotification(errorData.msg || 'Wystąpił błąd podczas wycofywania aplikacji', 'error');
@@ -298,7 +293,7 @@ const PostPage = () => {
   };
 
   const renderApplicationsSection = () => {
-    if (!isMyPost || !postDetails) return null;
+    if (postDetails?.status !== "own" || !postDetails) return null;
 
     const acceptedApplicant = applicants.find(app => app.status === "Accepted");
 
@@ -411,7 +406,7 @@ const PostPage = () => {
               variant="contained"
               color="primary"
               onClick={handleOpenApplicationsModal}
-              disabled={applicantsLoading || pendingCount === 0}
+              disabled={applicantsLoading || applicants.length === 0}
               startIcon={applicantsLoading ? <CircularProgress size={20} color="inherit" /> : <NotificationsActiveIcon />}
               sx={{
                 borderRadius: 2,
@@ -424,7 +419,7 @@ const PostPage = () => {
                 }
               }}
             >
-              {applicantsLoading ? 'Ładowanie...' : pendingCount === 0 ? 'Brak aplikacji' : 'Przeglądaj aplikacje'}
+              {applicantsLoading ? 'Ładowanie...' : applicants.length === 0 ? 'Brak aplikacji' : 'Przeglądaj'}
               {pendingCount > 0 && !applicantsLoading && (
                 <Badge
                   badgeContent={pendingCount}
@@ -489,62 +484,61 @@ const PostPage = () => {
   const currentPet = postDetails.pets[selectedPetIndex];
 
   const renderActionButton = () => {
-    if (isMyPost) {
-      return <></>;
-    }
-
-    if (hasApplied) {
-      return (
-        <Button
-          variant="outlined"
-          color="error"
-          size="large"
-          startIcon={cancelLoading ? undefined : <CancelIcon />}
-          onClick={handleCancelApplication}
-          disabled={cancelLoading}
-          sx={{
-            py: 1.5,
-            px: 4,
-            borderRadius: 3,
-            fontSize: '1.1rem',
-            textTransform: 'none',
-            '&:hover': {
-              backgroundColor: alpha(theme.palette.error.main, 0.04),
-              transform: 'translateY(-3px)',
-              boxShadow: `0 8px 20px ${alpha(theme.palette.error.main, 0.2)}`,
-            }
-          }}
-        >
-          {cancelLoading ? <CircularProgress size={24} color="inherit" /> : 'Wycofaj aplikację'}
-        </Button>
-      );
-    }
-
-    return (
-      <Button
-        variant="contained"
-        color="primary"
-        size="large"
-        startIcon={<CheckCircleOutlineIcon />}
-        onClick={handleApply}
-        disabled={applyLoading}
-        sx={{
-          py: 1.5,
-          px: 4,
-          borderRadius: 3,
-          fontSize: '1.1rem',
-          textTransform: 'none',
-          boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
-          '&:hover': {
-            transform: 'translateY(-3px)',
-            boxShadow: `0 12px 28px ${alpha(theme.palette.primary.main, 0.4)}`,
-          }
-        }}
-      >
-        {applyLoading ? <CircularProgress size={24} color="inherit" /> : 'Aplikuj na to ogłoszenie'}
-      </Button>
-    );
-  };
+    switch (postDetails?.status) {
+      case "declined":
+      case "own": return <></>;
+      case "applied":
+        return (
+          <Button
+            variant="outlined"
+            color="error"
+            size="large"
+            startIcon={cancelLoading ? undefined : <CancelIcon />}
+            onClick={handleCancelApplication}
+            disabled={cancelLoading}
+            sx={{
+              py: 1.5,
+              px: 4,
+              borderRadius: 3,
+              fontSize: '1.1rem',
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: alpha(theme.palette.error.main, 0.04),
+                transform: 'translateY(-3px)',
+                boxShadow: `0 8px 20px ${alpha(theme.palette.error.main, 0.2)}`,
+              }
+            }}
+          >
+            {cancelLoading ? <CircularProgress size={24} color="inherit" /> : 'Wycofaj aplikację'}
+          </Button>
+        );
+      case "":
+        return (
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            startIcon={<CheckCircleOutlineIcon />}
+            onClick={handleApply}
+            disabled={applyLoading || postDetails.post.is_active}
+            sx={{
+              py: 1.5,
+              px: 4,
+              borderRadius: 3,
+              fontSize: '1.1rem',
+              textTransform: 'none',
+              boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
+              '&:hover': {
+                transform: 'translateY(-3px)',
+                boxShadow: `0 12px 28px ${alpha(theme.palette.primary.main, 0.4)}`,
+              }
+            }}
+          >
+            {applyLoading ? <CircularProgress size={24} color="inherit" /> : 'Aplikuj na to ogłoszenie'}
+          </Button>
+        );
+    };
+  }
 
   return (
     <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1200, mx: 'auto' }}>
@@ -565,7 +559,7 @@ const PostPage = () => {
           Powrót do wyszukiwania
         </Button>
 
-        {isMyPost && postDetails.post.is_active && (
+        {postDetails?.status === "own" && postDetails.post.is_active && (
           <IconButton
             aria-label="more options"
             aria-controls="post-menu"
