@@ -150,7 +150,7 @@ const DashboardLayout = () => {
                                 <ListAltIcon fontSize="small" sx={{ mr: 1.5 }} />
                                 Twoje ogłoszenia
                             </MenuItem>
-                            <MenuItem onClick={() => navigateTo('/dashboard/my-posts')} sx={{ py: 1.5 }}>
+                            <MenuItem onClick={() => navigateTo('/dashboard/my-applications')} sx={{ py: 1.5 }}>
                                 <ApprovalIcon fontSize="small" sx={{ mr: 1.5 }} />
                                 Twoje zgłoszenia
                             </MenuItem>

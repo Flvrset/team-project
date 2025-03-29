@@ -299,7 +299,7 @@ const DashboardPage = () => {
                         </Box>
                         <Box>
                             <Typography variant="h6" fontWeight="600" color="text.primary">
-                                Moje ogłoszenia
+                                Twoje ogłoszenia
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 {applicationCount > 0
@@ -355,7 +355,7 @@ const DashboardPage = () => {
                         </Box>
                         <Box>
                             <Typography variant="h6" fontWeight="600" color="text.primary">
-                                Moje zgłoszenia
+                                Twoje zgłoszenia
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 Sprawdź status swoich zgłoszeń

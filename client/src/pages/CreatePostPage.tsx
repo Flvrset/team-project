@@ -1,5 +1,4 @@
 import AddIcon from '@mui/icons-material/Add';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import PaidIcon from '@mui/icons-material/Paid';
 import PetsIcon from '@mui/icons-material/Pets';
@@ -24,8 +23,9 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale/pl';
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
+import BackButton from '../components/BackButton';
 import PetCard from '../components/PetCard';
 import PetFormModal from '../components/PetFormModal';
 import { useNotification } from '../contexts/NotificationContext';
@@ -286,23 +286,7 @@ const CreatePostPage = () => {
                 </Paper>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-                    <Button
-                        variant="outlined"
-                        color="secondary"
-                        startIcon={<ArrowBackIcon />}
-                        component={Link}
-                        to='/dashboard'
-                        sx={{
-                            borderRadius: 2,
-                            py: 1,
-                            '&:hover': {
-                                transform: 'translateY(-2px)',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                            },
-                        }}
-                    >
-                        Powrót
-                    </Button>
+                    <BackButton />
                 </Box>
 
                 <Box component="form" onSubmit={handleSubmit} noValidate>

@@ -1,7 +1,9 @@
-import { Box, Typography, Grid, CircularProgress, Paper, alpha, useTheme } from '@mui/material';
+import { Box, Typography, Grid, CircularProgress, Paper, alpha, useTheme, Button } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import BackButton from '../components/BackButton';
 import PostCard from '../components/PostCard';
 import { useNotification } from '../contexts/NotificationContext';
 import { MyPostsResponse, Post } from '../types';
@@ -40,6 +42,10 @@ const MyPostsPage = () => {
 
     const handlePostClick = (postId: number) => {
         navigate(`/dashboard/posts/${postId}`);
+    };
+
+    const handleCreatePost = () => {
+        navigate('/dashboard/create-post');
     };
 
     const renderPostWithStatus = (post: Post) => {
@@ -85,12 +91,25 @@ const MyPostsPage = () => {
                 }}
             >
                 <Typography variant="h4" component="h1" fontWeight="bold">
-                    Moje ogłoszenia
+                    Twoje ogłoszenia
                 </Typography>
                 <Typography variant="subtitle1" sx={{ mt: 1, opacity: 0.9 }}>
                     Zarządzaj swoimi ogłoszeniami
                 </Typography>
             </Paper>
+            
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
+                <BackButton />
+                <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<AddIcon />}
+                    onClick={handleCreatePost}
+                    sx={{ borderRadius: 2, px: 3 }}
+                >
+                    Dodaj ogłoszenie
+                </Button>
+            </Box>
             
             {loading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
