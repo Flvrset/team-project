@@ -487,7 +487,7 @@ const PostPage = () => {
     switch (postDetails?.status) {
       case "declined":
       case "own": return <></>;
-      case "applied":
+      case "applied": 
         return (
           <Button
             variant="outlined"
@@ -520,7 +520,7 @@ const PostPage = () => {
             size="large"
             startIcon={<CheckCircleOutlineIcon />}
             onClick={handleApply}
-            disabled={applyLoading || postDetails.post.is_active}
+            disabled={applyLoading || !postDetails.post.is_active}
             sx={{
               py: 1.5,
               px: 4,
