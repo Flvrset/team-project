@@ -16,6 +16,7 @@ export const convertBackendPost = (backendPost: BackendPost): Post => {
     pet_list: backendPost.pet_lst,
     pet_count: backendPost.pet_lst.length,
     status: backendPost.status,
+    pending_applications: backendPost.pending_applications,
   };
 };
 

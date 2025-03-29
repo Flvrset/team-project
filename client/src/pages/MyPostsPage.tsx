@@ -51,6 +51,7 @@ const MyPostsPage = () => {
     const renderPostWithStatus = (post: Post) => {
         let color: 'success' | 'error' | 'primary';
         let displayStatus: string;
+        const pendingCount = post.pending_applications || 0;
         
         switch (post.status) {
             case 'accepted':
@@ -74,6 +75,7 @@ const MyPostsPage = () => {
                 actionText="Zarządzaj"
                 showHeader={false}
                 label={post.status ? {text: displayStatus, color} : undefined}
+                badgeCount={pendingCount}
             />
         );
     };

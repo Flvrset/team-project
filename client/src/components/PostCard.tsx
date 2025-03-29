@@ -2,6 +2,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import PetsIcon from '@mui/icons-material/Pets';
 import {
     Box,
@@ -15,7 +16,7 @@ import {
     Stack,
     Avatar,
     AvatarGroup,
-    useTheme
+    useTheme,
 } from '@mui/material';
 import React from 'react';
 
@@ -33,14 +34,16 @@ export interface PostCardProps {
     label?: PostCardLabelProps;
     actionText?: string;
     showHeader?: boolean;
+    badgeCount?: number;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ 
-    post, 
+const PostCard: React.FC<PostCardProps> = ({
+    post,
     onClick,
     label,
     actionText = "Zobacz szczegóły",
-    showHeader = true 
+    showHeader = true,
+    badgeCount = 0
 }) => {
     const theme = useTheme();
 
@@ -48,7 +51,9 @@ const PostCard: React.FC<PostCardProps> = ({
         <Card
             elevation={2}
             sx={{
+                position: 'relative',
                 height: '100%',
+                width: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 borderRadius: '20px',
@@ -123,7 +128,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                 <PetsIcon color="action" sx={{ mr: 1.5, fontSize: '1.2rem' }} />
                                 <Typography variant="body2">
                                     {post.pet_list ? (
-                                        <>Zwierzęta: {post.pet_list.join(', ')}</>
+                                        <>Zwierzęta: {post.pet_list.join(', ')} </>
                                     ) : (
                                         <>Liczba zwierząt: {post.pet_count || 0}</>
                                     )}
@@ -135,7 +140,7 @@ const PostCard: React.FC<PostCardProps> = ({
                                     {post.cost} PLN/h
                                 </Typography>
                             </Box>
-                            
+
                             {label && (
                                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                                     <Chip
@@ -159,6 +164,53 @@ const PostCard: React.FC<PostCardProps> = ({
                     </Stack>
                 </CardContent>
             </CardActionArea>
+            
+            {/* Moved notification badge to the bottom right */}
+            {badgeCount > 0 && (
+                <Box 
+                    sx={{
+                        position: 'absolute',
+                        bottom: 12,
+                        right: 12,
+                        zIndex: 20,
+                    }}
+                >
+                    <Chip
+                        icon={<NotificationsIcon fontSize="small" sx={{ color: 'white !important' }} />}
+                        label={`${badgeCount} ${badgeCount === 1 ? 'nowa aplikacja' : 'nowe aplikacje'}`}
+                        color="error"
+                        size="small"
+                        sx={{
+                            fontWeight: 'bold',
+                            px: 1,
+                            height: 28,
+                            borderRadius: 2,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                            border: '1px solid white',
+                            '& .MuiChip-label': {
+                                px: 0.5
+                            },
+                            '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.25)'
+                            },
+                            transition: 'all 0.2s ease',
+                            animation: 'pulse 2s infinite',
+                            '@keyframes pulse': {
+                                '0%': {
+                                    boxShadow: '0 0 0 0 rgba(211, 47, 47, 0.4)'
+                                },
+                                '70%': {
+                                    boxShadow: '0 0 0 8px rgba(211, 47, 47, 0)'
+                                },
+                                '100%': {
+                                    boxShadow: '0 0 0 0 rgba(211, 47, 47, 0)'
+                                }
+                            }
+                        }}
+                    />
+                </Box>
+            )}
         </Card>
     );
 };
