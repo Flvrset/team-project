@@ -230,23 +230,36 @@ def delete_post(post_id):
 @post_bprt.route("/getMyPosts", methods=["GET"])
 @jwt_required()
 def get_my_posts():
-    post_details = (
-        db.session.query(
-            Post,
-            sqlalchemy.func.array_agg(Pet.pet_name).label("pet_list"),
-            sqlalchemy.func.bool_or(PetCareApplication.accepted),
+    subquery = (
+        sqlalchemy.select(
+            PetCareApplication.post_id,
             sqlalchemy.func.sum(
                 sqlalchemy.case(
+                    (PetCareApplication.petcareapplication_id.is_(None), 0),
                     (PetCareApplication.declined == True, 0),
                     (PetCareApplication.cancelled == True, 0),
                     (PetCareApplication.accepted == True, 0),
                     else_=1
                 )
-            )
+            ).label("app_cnt")
+        )
+        .group_by(PetCareApplication.post_id)
+        .subquery()
+    )
+    subq_alias = sqlalchemy.alias(subquery)
+
+
+    post_details = (
+        db.session.query(
+            Post,
+            sqlalchemy.func.array_agg(Pet.pet_name).label("pet_list"),
+            sqlalchemy.func.bool_or(PetCareApplication.accepted),
+            subq_alias.c.app_cnt
         )
         .join(PetCare, Post.post_id == PetCare.post_id)
         .join(Pet, PetCare.pet_id == Pet.pet_id)
         .outerjoin(PetCareApplication, PetCareApplication.post_id == Post.post_id)
+        .outerjoni(subq_alias, Post.post_id == subq_alias.c.post_id)
         .filter(Post.user_id == int(get_jwt_identity()))
         .group_by(Post.post_id, PetCare.post_id)
         .all()
