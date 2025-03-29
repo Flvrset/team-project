@@ -35,7 +35,7 @@ interface ApplicantsModalProps {
     applicants: Applicant[];
     loading: boolean;
     postId: string | undefined;
-    onAcceptSuccess?: () => void;
+    onAcceptSuccess?: (userId: number) => void;
     onDeclineSuccess?: (userId: number) => void;
 }
 
@@ -66,7 +66,7 @@ const ApplicantsModal = ({
                 showNotification(data.msg, 'success');
 
                 if (onAcceptSuccess) {
-                    onAcceptSuccess();
+                    onAcceptSuccess(userId);
                 }
             } else {
                 const errorData = await response.json();

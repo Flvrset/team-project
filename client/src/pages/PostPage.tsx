@@ -125,13 +125,13 @@ const PostPage = () => {
   }, [postId]);
 
   useEffect(() => {
-    if (isMyPost && postDetails?.post.is_active) {
+    if (isMyPost) {
       fetchApplicants();
     }
-  }, [isMyPost, postDetails?.post.is_active]);
+  }, [isMyPost]);
 
   const fetchApplicants = async () => {
-    if (!postId || !isMyPost || !postDetails?.post.is_active) return;
+    if (!postId || !isMyPost) return;
 
     setApplicantsLoading(true);
     try {
@@ -268,13 +268,18 @@ const PostPage = () => {
     setApplicationsModalOpen(false);
   };
 
-  const handleApplicantAccepted = () => {
+  const handleApplicantAccepted = (userId: number) => {
     // Since accepting makes the post inactive, update post details
     if (postDetails) {
       setPostDetails({
         ...postDetails,
         post: { ...postDetails.post, is_active: false }
       });
+      setApplicants(prev => prev.map(applicant =>
+        applicant.user_id === userId
+          ? { ...applicant, status: "Accepted" }
+          : { ...applicant, status: "Rejected" }
+      ));
     }
     setApplicationsModalOpen(false);
   };
@@ -294,9 +299,9 @@ const PostPage = () => {
 
   const renderApplicationsSection = () => {
     if (!isMyPost || !postDetails) return null;
-  
+
     const acceptedApplicant = applicants.find(app => app.status === "Accepted");
-    
+
     if (acceptedApplicant) {
       return (
         <Paper
@@ -309,12 +314,12 @@ const PostPage = () => {
           }}
         >
           <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-            <CheckCircleOutlineIcon sx={{ mr: 1, color: theme.palette.success.main }} /> 
+            <CheckCircleOutlineIcon sx={{ mr: 1, color: theme.palette.success.main }} />
             Zaakceptowany opiekun
           </Typography>
-          
+
           <Divider sx={{ my: 2 }} />
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <Avatar
               src={acceptedApplicant.photo}
@@ -346,14 +351,14 @@ const PostPage = () => {
               </Box>
             </Box>
           </Box>
-  
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
+
+          {(!!acceptedApplicant.city && !!acceptedApplicant.postal_code && <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
             <LocationOnIcon color="primary" sx={{ mt: 0.3, mr: 1.5 }} />
             <Typography>
               {acceptedApplicant.city}, {acceptedApplicant.postal_code}
             </Typography>
-          </Box>
-  
+          </Box>)}
+
           <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
             <Button
               component={Link}
@@ -374,7 +379,7 @@ const PostPage = () => {
       );
     } else if (postDetails.post.is_active) {
       const pendingCount = applicants.filter(app => app.status !== "Rejected").length;
-      
+
       return (
         <Paper
           elevation={2}
@@ -388,14 +393,20 @@ const PostPage = () => {
           <Typography variant="h6" fontWeight="bold" gutterBottom>
             Aplikacje
           </Typography>
-          
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'space-between',
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            gap: 2
+          }}>
             <Typography>
-              {pendingCount === 0 ? 
-                'Brak aplikacji do przejrzenia' : 
+              {pendingCount === 0 ?
+                'Brak aplikacji do przejrzenia' :
                 `Masz ${pendingCount} ${pendingCount === 1 ? 'aplikację' : pendingCount < 5 ? 'aplikacje' : 'aplikacji'} do przejrzenia`}
             </Typography>
-            
+
             <Button
               variant="contained"
               color="primary"
@@ -405,6 +416,7 @@ const PostPage = () => {
               sx={{
                 borderRadius: 2,
                 textTransform: 'none',
+                width: { xs: '100%', sm: 'auto' },
                 boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
                 '&:hover': {
                   transform: 'translateY(-2px)',
@@ -414,10 +426,10 @@ const PostPage = () => {
             >
               {applicantsLoading ? 'Ładowanie...' : pendingCount === 0 ? 'Brak aplikacji' : 'Przeglądaj aplikacje'}
               {pendingCount > 0 && !applicantsLoading && (
-                <Badge 
-                  badgeContent={pendingCount} 
-                  color="error" 
-                  sx={{ ml: 1 }}
+                <Badge
+                  badgeContent={pendingCount}
+                  color="error"
+                  sx={{ position: 'static', }}
                 />
               )}
             </Button>
@@ -425,7 +437,7 @@ const PostPage = () => {
         </Paper>
       );
     }
-    
+
     return null;
   };
 
