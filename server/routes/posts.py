@@ -185,10 +185,11 @@ def get_post(post_id):
                     "own"
                     if post.user_id == int(get_jwt_identity())
                     else (
-                        "applied"
-                        if post_application is not None
-                        and not post_application.cancelled
-                        else ("declined" if post_application.declined else "")
+                        "" if not post_application else (
+                            "applied"
+                            if not post_application.cancelled
+                            else ("declined" if post_application.declined else "")
+                        )
                     )
                 ),
             }
@@ -261,7 +262,7 @@ def get_my_posts():
         .outerjoin(PetCareApplication, PetCareApplication.post_id == Post.post_id)
         .outerjoin(subq_alias, Post.post_id == subq_alias.c.post_id)
         .filter(Post.user_id == int(get_jwt_identity()))
-        .group_by(Post.post_id, PetCare.post_id)
+        .group_by(Post.post_id, PetCare.post_id, subq_alias.c.app_cnt)
         .all()
     )
 
