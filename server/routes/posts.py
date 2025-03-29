@@ -167,8 +167,6 @@ def get_post(post_id):
         .filter(PetCareApplication.user_id == int(get_jwt_identity()))
         .first()
     )
-    print(post_application.cancelled)
-    print(type(post_application.cancelled))
 
     return (
         jsonify(
@@ -315,7 +313,8 @@ def apply_to_post(post_id):
 
     try:
         if pet_care_application:
-            pet_care_application.cancelled = False
+            if pet_care_application.cancelled:
+                pet_care_application.cancelled = False
         else:
             pet_care_application = PetCareApplication(
                 user_id=int(get_jwt_identity()), post_id=post_id
