@@ -25,7 +25,7 @@ import { formatTimeWithoutSeconds } from '../utils/utils';
 
 interface PostCardLabelProps {
     text: string;
-    color: 'success' | 'error' | 'primary';
+    color: 'success' | 'error' | 'primary' | 'grey';
 }
 
 export interface PostCardProps {
@@ -165,7 +165,6 @@ const PostCard: React.FC<PostCardProps> = ({
                 </CardContent>
             </CardActionArea>
             
-            {/* Moved notification badge to the bottom right */}
             {badgeCount > 0 && (
                 <Box 
                     sx={{
