@@ -246,8 +246,9 @@ def get_post(post_id):
                 "can_rate": (
                     True
                     if db_rating is None
-                    and post.end_date < datetime.today().date()
+                    and post.end_date <= datetime.today().date()
                     and post.end_time < datetime.now().time()
+                    and getattr(post_application, "accepted", False)
                     else False
                 ),
                 "status": (
