@@ -197,7 +197,7 @@ def get_post(post_id):
     user_dto["photo"] = (
         generate_presigned_url("user_photo", user_photo) if user_photo else ""
     )
-    user_dto["rating"] = user_rating
+    user_dto["rating"] = user_rating or 0
 
     post_application = (
         db.session.query(PetCareApplication)
