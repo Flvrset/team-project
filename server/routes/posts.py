@@ -187,7 +187,9 @@ def get_post(post_id):
     )
 
     for pet in pet_lst:
-        pet["photo"] = generate_presigned_url("pet_photo", pet["photo"]) if pet["photo"] else ""
+        pet["photo"] = (
+            generate_presigned_url("pet_photo", pet["photo"]) if pet["photo"] else ""
+        )
 
     # in future set user rating!!
 
@@ -210,13 +212,14 @@ def get_post(post_id):
             db.session.query(UserRating)
             .join(
                 PetCareApplication,
-                PetCareApplication.petcareapplication_id == UserRating.petcareapplication_id,
+                PetCareApplication.petcareapplication_id
+                == UserRating.petcareapplication_id,
             )
             .filter(
                 sqlalchemy.and_(
                     PetCareApplication.post_id == post_id,
                     PetCareApplication.accepted == True,
-                    UserRating.user_id != int(get_jwt_identity())
+                    UserRating.user_id != int(get_jwt_identity()),
                 )
             )
             .first()
@@ -227,7 +230,8 @@ def get_post(post_id):
             .filter(
                 sqlalchemy.and_(
                     UserRating.user_id != int(get_jwt_identity()),
-                    UserRating.petcareapplication_id == post_application.petcareapplication_id
+                    UserRating.petcareapplication_id
+                    == post_application.petcareapplication_id,
                 )
             )
             .first()
@@ -239,7 +243,13 @@ def get_post(post_id):
                 "user": user_dto,
                 "post": create_post_dto.dump(post),
                 "pets": pet_lst,
-                "can_rate": (True if db_rating is None and post.end_date < datetime.today().date() and post.end_time < datetime.now().time() else False),
+                "can_rate": (
+                    True
+                    if db_rating is None
+                    and post.end_date < datetime.today().date()
+                    and post.end_time < datetime.now().time()
+                    else False
+                ),
                 "status": (
                     "own"
                     if post.user_id == int(get_jwt_identity())
