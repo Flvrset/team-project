@@ -18,11 +18,7 @@
 ### TO DO
 - [ ] `/report/:userId`
 - [ ] `/addReportType` (dla admina)
-- [ ] `/applyForCare/:postId`
-- [ ] `/careAgreementStatus/:careId` zwracający status jako odrzucona lub zaakceptowana
-- [ ] `/careFullData` zwracający pełne dane z umowy (imo nie powinniśmy zwracać czyjegoś adresu dokładnie xd troche za risky security wise... Ja bym zwrócił tylko adres email i numer kontaktowy i niech się już osoby dogadają... Jeśli nie chcemy zwracać pełnego adresu użytkownika w umowach to można go też wywalić z `User` tabeli i zostawić tylko postal_code i city)
-- [ ] `/rateOwner/:careAgreementId` oceniamy właściciela na bazie agreementu
-- [ ] `/rateVolunteer/:careAgreementId`
+- [ ] `/rate/:petCareApplicationId` oceniamy usera (na bazie aplikacji)
 - [ ] Tą `AdditionalServices` tabele to bym wyjebał ???
 - [ ] ogarnięcie uprawnień administratora i możliwości zarządzania tym
 - [ ] `/ban/:userId` (dla admina)
