@@ -185,10 +185,17 @@ def get_post(post_id):
                     "own"
                     if post.user_id == int(get_jwt_identity())
                     else (
-                        "" if not post_application else (
-                            "applied"
-                            if not post_application.cancelled and not post_application.declined
-                            else ("declined" if post_application.declined else "")
+                        ""
+                        if not post_application
+                        else (
+                            "accepted"
+                            if post_application.accepted
+                            else (
+                                "applied"
+                                if not post_application.cancelled
+                                and not post_application.declined
+                                else ("declined" if post_application.declined else "")
+                            )
                         )
                     )
                 ),
@@ -240,22 +247,21 @@ def get_my_posts():
                     (PetCareApplication.declined == True, 0),
                     (PetCareApplication.cancelled == True, 0),
                     (PetCareApplication.accepted == True, 0),
-                    else_=1
+                    else_=1,
                 )
-            ).label("app_cnt")
+            ).label("app_cnt"),
         )
         .group_by(PetCareApplication.post_id)
         .subquery()
     )
     subq_alias = sqlalchemy.alias(subquery)
 
-
     post_details = (
         db.session.query(
             Post,
             sqlalchemy.func.array_agg(Pet.pet_name).label("pet_list"),
             sqlalchemy.func.bool_or(PetCareApplication.accepted),
-            subq_alias.c.app_cnt
+            subq_alias.c.app_cnt,
         )
         .join(PetCare, Post.post_id == PetCare.post_id)
         .join(Pet, PetCare.pet_id == Pet.pet_id)
@@ -276,7 +282,9 @@ def get_my_posts():
             if accepted_pet_care
             else ("active" if post.is_active else "cancelled")
         )
-        post_dict["pending_applications"] = pending_applications if post_dict["status"] == "active" else 0
+        post_dict["pending_applications"] = (
+            pending_applications if post_dict["status"] == "active" else 0
+        )
         post_lst.append(post_dict)
 
     return (
@@ -468,7 +476,12 @@ def decline_application(post_id, user_id):
 
     pet_care_application = (
         db.session.query(PetCareApplication)
-        .filter(sqlalchemy.and_(PetCareApplication.user_id == user_id, PetCareApplication.post_id == post_id))
+        .filter(
+            sqlalchemy.and_(
+                PetCareApplication.user_id == user_id,
+                PetCareApplication.post_id == post_id,
+            )
+        )
         .filter(PetCareApplication.cancelled == False)
         .first()
     )
@@ -516,7 +529,12 @@ def accept_application(post_id, user_id):
     pet_care_application, post, user_email = (
         db.session.query(PetCareApplication, Post, User.email)
         .join(User, User.user_id == PetCareApplication.user_id)
-        .filter(sqlalchemy.and_(PetCareApplication.user_id == user_id, PetCareApplication.post_id == post_id))
+        .filter(
+            sqlalchemy.and_(
+                PetCareApplication.user_id == user_id,
+                PetCareApplication.post_id == post_id,
+            )
+        )
         .filter(PetCareApplication.cancelled == False)
         .first()
     )

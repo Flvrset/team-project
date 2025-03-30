@@ -130,14 +130,14 @@ CREATE TABLE petbuddies_schema."PetCareApplication" (
 );
 
 -- Create the CareAgreement table
-CREATE TABLE petbuddies_schema."CareAgreement" (
-    "care_agreement_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    "post_id" INTEGER NOT NULL,
-    "volunteer_id" INTEGER NOT NULL,
-    "agreement_date" DATE NOT NULL,
-    CONSTRAINT fk_careagreement_post FOREIGN KEY ("post_id") REFERENCES petbuddies_schema."Post"("post_id") ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_careagreement_volunteer FOREIGN KEY ("volunteer_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE
-);
+-- CREATE TABLE petbuddies_schema."CareAgreement" (
+--    "care_agreement_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+--    "post_id" INTEGER NOT NULL,
+--    "volunteer_id" INTEGER NOT NULL,
+--    "agreement_date" DATE NOT NULL,
+--    CONSTRAINT fk_careagreement_post FOREIGN KEY ("post_id") REFERENCES petbuddies_schema."Post"("post_id") ON UPDATE CASCADE ON DELETE CASCADE,
+--    CONSTRAINT fk_careagreement_volunteer FOREIGN KEY ("volunteer_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE
+-- );
 
 -- Create the Report table
 CREATE TABLE petbuddies_schema."Report" (
@@ -153,23 +153,17 @@ CREATE TABLE petbuddies_schema."Report" (
     CONSTRAINT fk_report_type FOREIGN KEY ("report_type_id") REFERENCES petbuddies_schema."ReportType"("report_type_id") ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- Create the OwnerRating table
-CREATE TABLE petbuddies_schema."OwnerRating" (
-    "owner_rating_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    "care_agreement_id" INTEGER NOT NULL,
+-- Create the UserRating table
+CREATE TABLE petbuddies_schema."UserRating" (
+    "user_rating_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "user_id" INTEGER NOT NULL,
+    "petcareapplication_id" INTEGER NOT NULL,
     "description" TEXT,
     "star_number" INTEGER NOT NULL CHECK ("star_number" BETWEEN 1 AND 5),
-    CONSTRAINT fk_ownerrating_agreement FOREIGN KEY ("care_agreement_id") REFERENCES petbuddies_schema."CareAgreement"("care_agreement_id") ON UPDATE CASCADE ON DELETE CASCADE
+    CONSTRAINT fk_rating_application FOREIGN KEY ("petcareapplication_id") REFERENCES petbuddies_schema."PetCareApplication"("petcareapplication_id") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_rating_user FOREIGN KEY ("user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- Create the VolunteerRating table
-CREATE TABLE petbuddies_schema."VolunteerRating" (
-    "volunteer_rating_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    "care_agreement_id" INTEGER NOT NULL,
-    "description" TEXT,
-    "star_number" INTEGER NOT NULL CHECK ("star_number" BETWEEN 1 AND 5),
-    CONSTRAINT fk_volunteerrating_agreement FOREIGN KEY ("care_agreement_id") REFERENCES petbuddies_schema."CareAgreement"("care_agreement_id") ON UPDATE CASCADE ON DELETE CASCADE
-);
 
 -- Create the AdditionalServices table
 CREATE TABLE petbuddies_schema."AdditionalServices" (

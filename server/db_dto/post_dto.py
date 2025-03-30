@@ -1,5 +1,4 @@
 from marshmallow import fields
-import marshmallow
 
 from app import ma
 from db_models.database_tables import Post, PetCare, User, Pet

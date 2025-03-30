@@ -86,6 +86,7 @@ class Post(db.Model):
     cost = db.Column(db.Numeric, nullable=True)
     is_active = db.Column(db.Boolean, default=True)
 
+
 class PetCare(db.Model):
     __tablename__ = "PetCare"
     __table_args__ = {"schema": "petbuddies_schema"}
@@ -137,51 +138,38 @@ class MedDocs(db.Model):
     doc = db.Column(db.LargeBinary, nullable=False)
 
 
-class CareAgreement(db.Model):
-    __tablename__ = "CareAgreement"
+# class CareAgreement(db.Model):
+#     __tablename__ = "CareAgreement"
+#     __table_args__ = {"schema": "petbuddies_schema"}
+#
+#     care_agreement_id = db.Column(
+#         db.Integer, primary_key=True, autoincrement=True, unique=True
+#     )
+#     post_id = db.Column(
+#         db.Integer, db.ForeignKey("petbuddies_schema.Post.post_id", ondelete="CASCADE")
+#     )
+#     volunteer_id = db.Column(
+#         db.Integer, db.ForeignKey("petbuddies_schema.User.user_id", ondelete="CASCADE")
+#     )
+#     agreement_date = db.Column(db.Date, nullable=False)
+
+
+class UserRating(db.Model):
+    __tablename__ = "UserRating"
     __table_args__ = {"schema": "petbuddies_schema"}
 
-    care_agreement_id = db.Column(
+    user_rating_id = db.Column(
         db.Integer, primary_key=True, autoincrement=True, unique=True
     )
-    post_id = db.Column(
-        db.Integer, db.ForeignKey("petbuddies_schema.Post.post_id", ondelete="CASCADE")
+    petcareapplication_id = db.Column(
+        db.Integer,
+        db.ForeignKey(
+            "petbuddies_schema.PetCareApplication.petcareapplication_id",
+            ondelete="CASCADE",
+        ),
     )
-    volunteer_id = db.Column(
+    user_id = db.Column(
         db.Integer, db.ForeignKey("petbuddies_schema.User.user_id", ondelete="CASCADE")
-    )
-    agreement_date = db.Column(db.Date, nullable=False)
-
-
-class OwnerRating(db.Model):
-    __tablename__ = "OwnerRating"
-    __table_args__ = {"schema": "petbuddies_schema"}
-
-    owner_rating_id = db.Column(
-        db.Integer, primary_key=True, autoincrement=True, unique=True
-    )
-    care_agreement_id = db.Column(
-        db.Integer,
-        db.ForeignKey(
-            "petbuddies_schema.CareAgreement.care_agreement_id", ondelete="CASCADE"
-        ),
-    )
-    description = db.Column(db.Text, nullable=True)
-    star_number = db.Column(db.Integer, nullable=False)
-
-
-class VolunteerRating(db.Model):
-    __tablename__ = "VolunteerRating"
-    __table_args__ = {"schema": "petbuddies_schema"}
-
-    volunteer_rating_id = db.Column(
-        db.Integer, primary_key=True, autoincrement=True, unique=True
-    )
-    care_agreement_id = db.Column(
-        db.Integer,
-        db.ForeignKey(
-            "petbuddies_schema.CareAgreement.care_agreement_id", ondelete="CASCADE"
-        ),
     )
     description = db.Column(db.Text, nullable=True)
     star_number = db.Column(db.Integer, nullable=False)

@@ -11,14 +11,15 @@
 - [ ] `/editPost/:postId` (jakaś walidacja żeby nie można było zedytować posta w przeszłości)
   - now it's return only the post info that is stored in database
   - editing of post need logic to be discussed
-- [ ] `/user/:userId` ale nie zwracaj jego danych osobowych, tylko imię, nazwisko, rating jako volunteer, rating jako owner, i ewentualnie zwierzaki ( to jest jak ktoś wchodzi na czyjś profil )
-- [ ] Dodanie statusu accepted jak wchodze na post do którego zostałem zaakceptowany
+- [x] `/user/<int:user_id>` ale nie zwracaj jego danych osobowych, tylko imię, nazwisko, rating jako volunteer, rating jako owner, i ewentualnie zwierzaki ( to jest jak ktoś wchodzi na czyjś profil )
+- [x] Dodanie statusu accepted jak wchodze na post do którego zostałem zaakceptowany
+- [x] `/rate/:petCareApplicationId` oceniamy usera (na bazie aplikacji)
+  - `/post/<int:post_id>/reviewUser/<int:user_id>` ocena user na podstawie postu i jego id, możemy w ten sposób ocenić i właściciela i opiekuna
 
 
 ### TO DO
 - [ ] `/report/:userId`
 - [ ] `/addReportType` (dla admina)
-- [ ] `/rate/:petCareApplicationId` oceniamy usera (na bazie aplikacji)
 - [ ] Tą `AdditionalServices` tabele to bym wyjebał ???
 - [ ] ogarnięcie uprawnień administratora i możliwości zarządzania tym
 - [ ] `/ban/:userId` (dla admina)
