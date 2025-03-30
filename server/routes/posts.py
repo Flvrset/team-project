@@ -12,6 +12,7 @@ from db_models.database_tables import (
     UserPhoto,
     PetPhoto,
     PetCareApplication,
+    UserRating,
 )
 from db_dto.post_dto import (
     create_post_dto,
@@ -23,6 +24,7 @@ from db_dto.post_dto import (
 )
 import sqlalchemy
 from utils.file_storage import generate_presigned_url
+from datetime import datetime
 
 post_bprt = Blueprint("post", __name__)
 
@@ -122,51 +124,78 @@ def get_dashboard_post():
 @post_bprt.route("/getPost/<int:post_id>", methods=["GET"])
 @jwt_required()
 def get_post(post_id):
-    post_details = (
+    subquery_rating = (
+        db.session.query(
+            UserRating.user_id,
+            sqlalchemy.func.avg(UserRating.star_number).label("rating_overall"),
+        )
+        .join(Post, Post.user_id == UserRating.user_id)
+        .filter(Post.post_id == post_id)
+        .group_by(UserRating.user_id)
+        .subquery()
+    )
+    alias_subquery_rating = sqlalchemy.alias(subquery_rating)
+
+    subquery_pet = (
+        db.session.query(
+            PetCare.post_id,
+            sqlalchemy.func.json_agg(
+                sqlalchemy.func.json_build_object(
+                    "pet_id",
+                    Pet.pet_id,
+                    "pet_name",
+                    Pet.pet_name,
+                    "type",
+                    Pet.type,
+                    "race",
+                    Pet.race,
+                    "size",
+                    Pet.size,
+                    "birth_date",
+                    Pet.birth_date,
+                    "description",
+                    Pet.description,
+                    "photo",
+                    PetPhoto.photo_name,
+                )
+            ).label("pet_lst"),
+        )
+        .join(PetCare, PetCare.pet_id == Pet.pet_id)
+        .outerjoin(PetPhoto, PetPhoto.pet_id == Pet.pet_id)
+        .filter(PetCare.post_id == post_id)
+        .group_by(PetCare.post_id)
+        .subquery()
+    )
+    alias_subquery_pet = sqlalchemy.alias(subquery_pet)
+
+    post, user, pet_lst, user_photo, user_rating = (
         db.session.query(
             Post,
             User,
-            Pet,
+            alias_subquery_pet.c.pet_lst,
             UserPhoto.photo_name.label("user_photo"),
-            PetPhoto.photo_name.label("pet_photo"),
+            alias_subquery_rating.c.rating_overall,
         )
-        .join(Post, Post.user_id == User.user_id)
-        .join(PetCare, Post.post_id == PetCare.post_id)
-        .join(Pet, PetCare.pet_id == Pet.pet_id)
+        .join(User, Post.user_id == User.user_id)
+        .join(alias_subquery_pet, alias_subquery_pet.c.post_id == Post.post_id)
         .outerjoin(UserPhoto, UserPhoto.user_id == User.user_id)
-        .outerjoin(PetPhoto, PetPhoto.pet_id == Pet.pet_id)
+        .outerjoin(
+            alias_subquery_rating, alias_subquery_rating.c.user_id == Post.user_id
+        )
         .filter(Post.post_id == post_id)
-        .all()
+        .first()
     )
 
-    post_set = set()
-    user_set = set()
-    user_photo_set = set()
-    pet_lst = []
-    for post, user, pet, user_photo, pet_photo in post_details:
-        pet_dto = get_pet_dto.dump(pet)
-        if pet_photo:
-            pet_dto["photo"] = generate_presigned_url("pet_photo", pet_photo)
-
-        post_set.add(post)
-        user_set.add(user)
-        if user_photo:
-            user_photo_set.add(user_photo)
-        pet_lst.append(pet_dto)
-
-    if len(post_set) > 1 or len(user_set) > 1 or len(user_photo_set) > 1:
-        return jsonify({"error": "More than one user or post with provided id!"}), 403
+    for pet in pet_lst:
+        pet["photo"] = generate_presigned_url("pet_photo", pet["photo"]) if pet["photo"] else ""
 
     # in future set user rating!!
 
-    user = get_user_dto.dump(user_set.pop())
-    user["photo"] = (
-        generate_presigned_url("user_photo", user_photo_set.pop())
-        if user_photo_set
-        else ""
+    user_dto = get_user_dto.dump(user)
+    user_dto["photo"] = (
+        generate_presigned_url("user_photo", user_photo) if user_photo else ""
     )
-
-    post = post_set.pop()
+    user_dto["rating"] = user_rating
 
     post_application = (
         db.session.query(PetCareApplication)
@@ -175,12 +204,42 @@ def get_post(post_id):
         .first()
     )
 
+    db_rating = None
+    if post.user_id == int(get_jwt_identity()):
+        db_rating = (
+            db.session.query(UserRating)
+            .join(
+                PetCareApplication,
+                PetCareApplication.petcareapplication_id == UserRating.petcareapplication_id,
+            )
+            .filter(
+                sqlalchemy.and_(
+                    PetCareApplication.post_id == post_id,
+                    PetCareApplication.accepted == True,
+                    UserRating.user_id != int(get_jwt_identity())
+                )
+            )
+            .first()
+        )
+    elif getattr(post_application, "accepted", False):
+        db_rating = (
+            db.session.query(UserRating)
+            .filter(
+                sqlalchemy.and_(
+                    UserRating.user_id != int(get_jwt_identity()),
+                    UserRating.petcareapplication_id == post_application.petcareapplication_id
+                )
+            )
+            .first()
+        )
+
     return (
         jsonify(
             {
-                "user": user,
+                "user": user_dto,
                 "post": create_post_dto.dump(post),
                 "pets": pet_lst,
+                "can_rate": (True if db_rating is None and post.end_date < datetime.today().date() and post.end_time < datetime.now().time() else False),
                 "status": (
                     "own"
                     if post.user_id == int(get_jwt_identity())

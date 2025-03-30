@@ -15,7 +15,6 @@ from db_models.database_tables import (
 )
 from db_dto.post_dto import get_user_dto
 from db_dto.rating_dto import user_rating_dto, user_ratings_dto
-from db_dto.pet_dto import get_pets_dto
 
 import sqlalchemy
 from utils.file_storage import generate_presigned_url
