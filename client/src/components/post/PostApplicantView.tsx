@@ -116,6 +116,7 @@ const PostApplicantView = ({ postDetails, postId }: PostApplicantViewProps) => {
     const renderActionButton = () => {
         switch (postDetails?.status) {
             case "declined":
+            case "accepted":
             case "own": return <></>;
             case "applied":
                 return (
@@ -171,8 +172,8 @@ const PostApplicantView = ({ postDetails, postId }: PostApplicantViewProps) => {
     }
 
     const renderRateOwnerSection = () => {
-        if (!postDetails?.can_rate || postDetails?.status !== "applied") return null;
-        
+        if (!postDetails?.can_rate || postDetails?.status === "accepted") return null;
+
         return (
             <Paper
                 elevation={2}
@@ -217,7 +218,7 @@ const PostApplicantView = ({ postDetails, postId }: PostApplicantViewProps) => {
                         Oceń właściciela
                     </Button>
                 </Box>
-                
+
                 <UserRatingModal
                     open={ratingModalOpen}
                     onClose={() => setRatingModalOpen(false)}
@@ -234,7 +235,7 @@ const PostApplicantView = ({ postDetails, postId }: PostApplicantViewProps) => {
 
     return (
         <Box>
-            
+
             <Box sx={{ width: '100%', mb: 4 }}>
                 {renderRateOwnerSection()}
             </Box>
