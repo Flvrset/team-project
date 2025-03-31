@@ -172,7 +172,7 @@ const PostApplicantView = ({ postDetails, postId }: PostApplicantViewProps) => {
     }
 
     const renderRateOwnerSection = () => {
-        if (!postDetails?.can_rate || postDetails?.status === "accepted") return null;
+        if (!postDetails?.can_rate || postDetails?.status !== "accepted") return null;
 
         return (
             <Paper
