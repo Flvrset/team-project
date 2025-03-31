@@ -267,8 +267,7 @@ def get_post(post_id):
                 "can_rate": (
                     True
                     if db_rating is None
-                    and post.end_date <= datetime.today().date()
-                    and post.end_time < datetime.now().time()
+                    and datetime.combine(post.end_date, post.end_time) < datetime.now()
                     and status in ["own", "accepted"]
                     else False
                 ),
