@@ -200,7 +200,7 @@ def get_post(post_id):
     user_dto["photo"] = (
         generate_presigned_url("user_photo", user_photo) if user_photo else ""
     )
-    user_dto["rating"] = user_rating
+    user_dto["rating"] = float(user_rating)
 
     post_application = (
         db.session.query(PetCareApplication)
@@ -518,7 +518,7 @@ def get_post_applications(post_id):
             if pet_care_application.accepted
             else ("Declined" if pet_care_application.declined else "Pending")
         )
-        user_dto["rating"] = user_rating
+        user_dto["rating"] = float(user_rating)
         user_lst.append(user_dto)
 
     return jsonify({"users": user_lst}), 200
