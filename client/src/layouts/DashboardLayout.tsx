@@ -2,6 +2,7 @@ import ApprovalIcon from '@mui/icons-material/Approval';
 import EditIcon from '@mui/icons-material/Edit';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
 import PetsIcon from '@mui/icons-material/Pets';
 import { Avatar, Box, Container, Divider, Menu, MenuItem, Toolbar, Typography, AppBar, useTheme, Button } from '@mui/material';
 import { useState, MouseEvent } from 'react';
@@ -146,6 +147,10 @@ const DashboardLayout = () => {
                                 </Typography>
                             </Box>
                             <Divider />
+                            <MenuItem onClick={() => navigateTo(`/dashboard/users/${auth.userData?.user_id}`)} sx={{ py: 1.5 }}>
+                                <PersonIcon fontSize="small" sx={{ mr: 1.5 }} />
+                                Twój profil
+                            </MenuItem>
                             <MenuItem onClick={() => navigateTo('/dashboard/my-posts')} sx={{ py: 1.5 }}>
                                 <ListAltIcon fontSize="small" sx={{ mr: 1.5 }} />
                                 Twoje ogłoszenia

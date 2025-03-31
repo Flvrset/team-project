@@ -5,6 +5,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import PersonIcon from '@mui/icons-material/Person';
+import StarIcon from '@mui/icons-material/Star';
 import {
     Avatar,
     Badge,
@@ -32,19 +33,12 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useNotification } from '../../contexts/NotificationContext';
-import { User, Post, Pet, Applicant } from '../../types';
+import { Applicant, PostDetails } from '../../types';
 import { getWithAuth, putWithAuth } from '../../utils/auth';
 import ApplicantsModal from '../ApplicantsModal';
+import UserRatingModal from '../UserRatingModal';
 
 import PostDetailsSummary from './PostDetailsSummary';
-
-
-interface PostDetails {
-    user: User;
-    post: Post;
-    pets: Pet[];
-    status: "own" | "applied" | "declined" | "";
-}
 
 interface PostOwnerViewProps {
     postDetails: PostDetails;
@@ -65,6 +59,7 @@ const PostOwnerView = ({
     const [applicants, setApplicants] = useState<Applicant[]>([]);
     const [applicantsLoading, setApplicantsLoading] = useState<boolean>(false);
     const [applicationsModalOpen, setApplicationsModalOpen] = useState<boolean>(false);
+    const [ratingModalOpen, setRatingModalOpen] = useState<boolean>(false);
 
     const menuOpen = Boolean(menuAnchorEl);
 
@@ -171,7 +166,7 @@ const PostOwnerView = ({
     };
 
     const renderApplicationsSection = () => {
-        const pendingCount = applicants.filter(app => app.status !== "Declined").length;
+        const pendingCount = applicants.filter(app => app.status !== "Declined" && app.status !== "Accepted").length;
 
         return (
             <Paper
@@ -299,17 +294,20 @@ const PostOwnerView = ({
                             <Typography variant="h5" fontWeight="bold">
                                 {acceptedApplicant.name} {acceptedApplicant.surname}
                             </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
-                                <Rating
-                                    value={acceptedApplicant.rating}
-                                    precision={0.5}
-                                    readOnly
-                                    size="small"
-                                />
-                                <Typography variant="body2" sx={{ ml: 1 }}>
-                                    {acceptedApplicant.rating.toFixed(1)}
-                                </Typography>
-                            </Box>
+
+                            {!!acceptedApplicant.rating && (
+                                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
+                                    <Rating
+                                        value={acceptedApplicant.rating}
+                                        precision={0.5}
+                                        readOnly
+                                        size="small"
+                                    />
+                                    <Typography variant="body2" sx={{ ml: 1 }}>
+                                        {acceptedApplicant.rating.toFixed(1)}
+                                    </Typography>
+                                </Box>
+                            )}
 
                             {(!!acceptedApplicant.city && !!acceptedApplicant.postal_code) && (
                                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
@@ -323,7 +321,7 @@ const PostOwnerView = ({
 
                         <Button
                             component={Link}
-                            to={`/user/${acceptedApplicant.user_id}`}
+                            to={`/dashboard/users/${acceptedApplicant.user_id}`}
                             variant="outlined"
                             color="success"
                             startIcon={<PersonIcon />}
@@ -332,7 +330,7 @@ const PostOwnerView = ({
                                 textTransform: 'none',
                                 borderColor: theme.palette.success.main,
                                 color: theme.palette.success.main,
-                                alignSelf: { xs: 'stretch', sm: 'flex-start' },
+                                alignSelf: { xs: 'stretch', sm: 'center' },
                                 '&:hover': {
                                     borderColor: theme.palette.success.dark,
                                     backgroundColor: alpha(theme.palette.success.main, 0.04),
@@ -346,6 +344,71 @@ const PostOwnerView = ({
                     </Box>
                 </CardContent>
             </Card>
+        );
+    };
+
+    const renderRateApplicantSection = () => {
+        if (!postDetails.can_rate || !postDetails?.pets?.length) return null;
+
+        const acceptedApplicant = applicants.find(app => app.status === "Accepted");
+        if (!acceptedApplicant) return null;
+
+        return (
+            <Paper
+                elevation={2}
+                sx={{
+                    p: 3,
+                    mb: 3,
+                    borderRadius: 3,
+                    background: `linear-gradient(135deg, ${alpha(theme.palette.warning.light, 0.1)}, ${alpha(theme.palette.warning.main, 0.1)})`,
+                }}
+            >
+                <Typography variant="h6" fontWeight="bold" gutterBottom>
+                    Oceń opiekuna
+                </Typography>
+
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    justifyContent: 'space-between',
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    gap: 2
+                }}>
+                    <Typography>
+                        Podziel się swoją opinią o opiekunie {acceptedApplicant.name}
+                    </Typography>
+
+                    <Button
+                        variant="contained"
+                        color="warning"
+                        onClick={() => setRatingModalOpen(true)}
+                        startIcon={<StarIcon />}
+                        sx={{
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            width: { xs: '100%', sm: 'auto' },
+                            boxShadow: `0 4px 12px ${alpha(theme.palette.warning.main, 0.3)}`,
+                            '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: `0 6px 16px ${alpha(theme.palette.warning.main, 0.4)}`,
+                            }
+                        }}
+                    >
+                        Oceń opiekuna
+                    </Button>
+                </Box>
+
+                {acceptedApplicant && (
+                    <UserRatingModal
+                        open={ratingModalOpen}
+                        onClose={() => setRatingModalOpen(false)}
+                        userId={acceptedApplicant.user_id}
+                        postId={postId || ''}
+                        userName={`${acceptedApplicant.name} ${acceptedApplicant.surname}`}
+                        userPhoto={acceptedApplicant.photo}
+                    />
+                )}
+            </Paper>
         );
     };
 
@@ -453,6 +516,7 @@ const PostOwnerView = ({
                 </Grid>
 
                 <Grid item xs={12} md={5}>
+                    {renderRateApplicantSection()}
                     {renderAcceptedApplicantCard()}
                     {renderApplicationsSection()}
                 </Grid>

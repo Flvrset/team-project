@@ -14,6 +14,7 @@ import PetsPage from './pages/PetsPage';
 import PostPage from './pages/PostPage';
 import RegisterPage from './pages/RegisterPage';
 import SearchPostsPage from './pages/SearchPostsPage';
+import UserPage from './pages/UserPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
                   <Route path='/dashboard/posts/:postId' element={<PostPage />} />
                   <Route path='/dashboard/my-posts' element={<MyPostsPage />} />
                   <Route path='/dashboard/my-applications' element={<MyApplicationsPage />} />
+                  <Route path='/dashboard/users/:userId' element={<UserPage />} />
                 </Route>
               </Route>
             </Routes>

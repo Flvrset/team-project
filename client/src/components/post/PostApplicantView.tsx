@@ -3,6 +3,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import PetsIcon from '@mui/icons-material/Pets';
+import StarIcon from '@mui/icons-material/Star';
 import {
     Box,
     Button,
@@ -20,18 +21,12 @@ import {
 import { useState } from 'react';
 
 import { useNotification } from '../../contexts/NotificationContext';
-import { Pet, Post, User } from '../../types';
+import { PostDetails } from '../../types';
 import { putWithAuth, postWithAuth } from '../../utils/auth';
+import UserRatingModal from '../UserRatingModal';
 
 import PostDetailsSummary from './PostDetailsSummary';
 import PostOwnerSummary from './PostOwnerSummary';
-
-interface PostDetails {
-    user: User;
-    post: Post;
-    pets: Pet[];
-    status: "own" | "applied" | "declined" | "";
-}
 
 interface PostApplicantViewProps {
     postDetails: PostDetails;
@@ -45,6 +40,7 @@ const PostApplicantView = ({ postDetails, postId }: PostApplicantViewProps) => {
     const [selectedPetIndex, setSelectedPetIndex] = useState<number>(0);
     const [applyLoading, setApplyLoading] = useState<boolean>(false);
     const [cancelLoading, setCancelLoading] = useState<boolean>(false);
+    const [ratingModalOpen, setRatingModalOpen] = useState<boolean>(false);
 
     const handleNextPet = () => {
         if (postDetails) {
@@ -174,10 +170,75 @@ const PostApplicantView = ({ postDetails, postId }: PostApplicantViewProps) => {
         };
     }
 
+    const renderRateOwnerSection = () => {
+        if (!postDetails?.can_rate || postDetails?.status !== "applied") return null;
+        
+        return (
+            <Paper
+                elevation={2}
+                sx={{
+                    p: 3,
+                    mt: 4,
+                    borderRadius: 3,
+                    background: `linear-gradient(135deg, ${alpha(theme.palette.warning.light, 0.1)}, ${alpha(theme.palette.warning.main, 0.1)})`,
+                }}
+            >
+                <Typography variant="h6" fontWeight="bold" gutterBottom>
+                    Oceń właściciela
+                </Typography>
+
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    justifyContent: 'space-between',
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    gap: 2
+                }}>
+                    <Typography>
+                        Podziel się swoją opinią o {postDetails.user.name}
+                    </Typography>
+
+                    <Button
+                        variant="contained"
+                        color="warning"
+                        onClick={() => setRatingModalOpen(true)}
+                        startIcon={<StarIcon />}
+                        sx={{
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            width: { xs: '100%', sm: 'auto' },
+                            boxShadow: `0 4px 12px ${alpha(theme.palette.warning.main, 0.3)}`,
+                            '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: `0 6px 16px ${alpha(theme.palette.warning.main, 0.4)}`,
+                            }
+                        }}
+                    >
+                        Oceń właściciela
+                    </Button>
+                </Box>
+                
+                <UserRatingModal
+                    open={ratingModalOpen}
+                    onClose={() => setRatingModalOpen(false)}
+                    userId={postDetails.user.user_id}
+                    postId={postId || ''}
+                    userName={`${postDetails.user.name} ${postDetails.user.surname}`}
+                    userPhoto={postDetails.user.photo}
+                />
+            </Paper>
+        );
+    };
+
     const currentPet = postDetails.pets[selectedPetIndex];
 
     return (
         <Box>
+            
+            <Box sx={{ width: '100%', mb: 4 }}>
+                {renderRateOwnerSection()}
+            </Box>
+
             <Grid container spacing={4}>
                 <Grid item xs={12} md={5}>
                     <PostOwnerSummary user={postDetails.user} />
@@ -394,7 +455,10 @@ const PostApplicantView = ({ postDetails, postId }: PostApplicantViewProps) => {
                                             variant="body1"
                                             sx={{
                                                 whiteSpace: 'pre-line',
-                                                lineHeight: 1.7
+                                                lineHeight: 1.7,
+                                                wordBreak: 'break-word',
+                                                overflowWrap: 'break-word',
+                                                width: '100%'
                                             }}
                                         >
                                             {currentPet.description}

@@ -60,9 +60,24 @@ export interface User {
     surname: string;
     city: string;
     postal_code: string;
-    rating: number;
+    rating?: number;
     photo?: string;
     description?: string;
+}
+
+export interface IRating {
+    usr_rating_id: number;
+    star_number: number;
+    description: string;
+}
+
+
+export interface PostDetails {
+    user: User;
+    post: Post;
+    pets: Pet[];
+    status: "own" | "applied" | "declined" | "";
+    can_rate?: boolean;
 }
 
 export interface Applicant extends User {

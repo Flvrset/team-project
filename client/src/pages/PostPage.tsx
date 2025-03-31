@@ -10,15 +10,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import PostApplicantView from '../components/post/PostApplicantView';
 import PostOwnerView from '../components/post/PostOwnerView';
-import { Pet, Post, User } from '../types';
+import { PostDetails } from '../types';
 import { getWithAuth } from '../utils/auth';
-
-interface PostDetails {
-  user: User;
-  post: Post;
-  pets: Pet[];
-  status: "own" | "applied" | "declined" | "";
-}
 
 const PostPage = () => {
   const { postId } = useParams<{ postId: string }>();

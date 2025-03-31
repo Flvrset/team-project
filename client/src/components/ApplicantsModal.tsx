@@ -244,16 +244,20 @@ const ApplicantsModal = ({
                                                         />
                                                     )}
                                                 </Box>
-                                                <Rating
-                                                    value={applicant.rating}
-                                                    precision={0.5}
-                                                    readOnly
-                                                    size="small"
-                                                    sx={{ my: 1 }}
-                                                />
-                                                <Typography variant="body2" fontWeight="medium">
-                                                    {applicant.rating.toFixed(1)}/5.0
-                                                </Typography>
+                                                {applicant.rating && (
+                                                    <>
+                                                        <Rating
+                                                            value={applicant.rating}
+                                                            precision={0.5}
+                                                            readOnly
+                                                            size="small"
+                                                            sx={{ my: 1 }}
+                                                        />
+                                                        <Typography variant="body2" fontWeight="medium">
+                                                            {applicant.rating.toFixed(1)}/5.0
+                                                        </Typography>
+                                                    </>
+                                                )}
                                             </Grid>
                                             <Grid item xs={12} sm={9} md={10}>
                                                 <Box sx={{ p: { xs: 2, sm: 3 } }}>
@@ -282,7 +286,7 @@ const ApplicantsModal = ({
                                                     }}>
                                                         <Button
                                                             component={Link}
-                                                            to={`/user/${applicant.user_id}`}
+                                                            to={`/dashboard/users/${applicant.user_id}`}
                                                             variant="outlined"
                                                             color="primary"
                                                             size="small"
@@ -330,7 +334,7 @@ const ApplicantsModal = ({
                                                                 </Button>
                                                             </Box>
                                                         )}
-                                                        
+
                                                         {/* Show status info for non-waiting applicants */}
                                                         {isDeclined && (
                                                             <Typography variant="body2" color="error" sx={{ fontStyle: 'italic' }}>

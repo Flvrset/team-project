@@ -1,17 +1,20 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import PetsIcon from '@mui/icons-material/Pets';
-import { 
-    Box, 
-    Card, 
-    CardContent, 
+import {
+    Box,
+    Card,
+    CardContent,
     CardActions,
-    Typography, 
+    Typography,
     Divider,
     Button,
     Tooltip,
     alpha,
-    useTheme 
+    useTheme,
+    Modal,
+    Paper
 } from '@mui/material';
+import { useState } from 'react';
 
 import { Pet, PetType } from '../types';
 
@@ -24,16 +27,17 @@ interface PetCardProps {
     showDeleteButton?: boolean;
 }
 
-const PetCard: React.FC<PetCardProps> = ({ 
-    pet, 
-    size = 'medium', 
-    selected = false, 
+const PetCard: React.FC<PetCardProps> = ({
+    pet,
+    size = 'medium',
+    selected = false,
     onSelect,
     onDelete,
     showDeleteButton = false
 }) => {
     const theme = useTheme();
-    
+    const [descriptionModalOpen, setDescriptionModalOpen] = useState(false);
+
     // Get pet icon color
     const getPetIconColor = (type: PetType) => {
         switch (type) {
@@ -53,32 +57,32 @@ const PetCard: React.FC<PetCardProps> = ({
     };
 
     const petAge: number = new Date().getFullYear() - new Date(pet.birth_date).getFullYear();
-    
+
     const handleClick = () => {
         if (onSelect) {
             onSelect(pet.pet_id);
         }
     };
-    
+
     const handleDelete = (e: React.MouseEvent) => {
         e.stopPropagation(); // Prevent card selection when clicking delete
         if (onDelete) {
             onDelete(pet.pet_id);
         }
     };
-    
+
     const iconColor = getPetIconColor(pet.type);
-    
+
     if (size === 'small') {
         return (
-            <Card 
+            <Card
                 sx={{
                     borderRadius: 2,
-                    border: selected 
-                        ? `2px solid ${iconColor}` 
+                    border: selected
+                        ? `2px solid ${iconColor}`
                         : `1px solid ${theme.palette.divider}`,
-                    boxShadow: selected 
-                        ? `0 4px 12px ${alpha(iconColor, 0.3)}` 
+                    boxShadow: selected
+                        ? `0 4px 12px ${alpha(iconColor, 0.3)}`
                         : 'none',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
@@ -89,13 +93,13 @@ const PetCard: React.FC<PetCardProps> = ({
                 onClick={handleClick}
             >
                 {pet.photo ? (
-                    <Box sx={{ 
-                        height: 80, 
-                        width: '100%', 
+                    <Box sx={{
+                        height: 80,
+                        width: '100%',
                         overflow: 'hidden',
                         position: 'relative'
                     }}>
-                        <Box 
+                        <Box
                             component="img"
                             src={pet.photo}
                             alt={pet.pet_name}
@@ -141,9 +145,9 @@ const PetCard: React.FC<PetCardProps> = ({
                             {pet.pet_name}
                         </Typography>
                     </Box>
-                    
+
                     <Divider sx={{ mb: 1.5 }} />
-                    
+
                     <Typography variant="body2" color="text.secondary">
                         <strong>{pet.type}</strong> • {pet.race}
                     </Typography>
@@ -154,7 +158,7 @@ const PetCard: React.FC<PetCardProps> = ({
             </Card>
         );
     }
-    
+
     return (
         <Card
             sx={{
@@ -172,13 +176,13 @@ const PetCard: React.FC<PetCardProps> = ({
             }}
         >
             {pet.photo ? (
-                <Box sx={{ 
-                    height: 180, 
-                    width: '100%', 
+                <Box sx={{
+                    height: 180,
+                    width: '100%',
                     overflow: 'hidden',
                     position: 'relative'
                 }}>
-                    <Box 
+                    <Box
                         component="img"
                         src={pet.photo}
                         alt={pet.pet_name}
@@ -249,8 +253,55 @@ const PetCard: React.FC<PetCardProps> = ({
                         <Box component="span" sx={{ fontWeight: 'bold', color: 'text.secondary' }}>Wiek:</Box> {petAge} {petAge === 1 ? 'rok' : petAge < 5 ? 'lata' : 'lat'}
                     </Typography>
                 </Box>
+
+                {pet.description && (
+                    <>
+                        <Divider sx={{ my: 2 }} />
+                        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                            Opis:
+                        </Typography>
+                        <Box sx={{
+                            p: 1.5,
+                            backgroundColor: alpha(theme.palette.background.default, 0.5),
+                            borderRadius: 2,
+                            border: `1px solid ${alpha(iconColor, 0.2)}`,
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}>
+                            <Typography variant="body2" color="text.primary" sx={{
+                                display: '-webkit-box',
+                                WebkitBoxOrient: 'vertical',
+                                WebkitLineClamp: 3,
+                                overflow: 'hidden',
+                                mb: pet.description.length > 120 ? 1 : 0
+                            }}>
+                                {pet.description}
+                            </Typography>
+
+                            {pet.description.length > 120 && (
+                                <Button
+                                    size="small"
+                                    sx={{
+                                        fontSize: '0.75rem',
+                                        color: iconColor,
+                                        mt: 0.5,
+                                        '&:hover': {
+                                            backgroundColor: alpha(iconColor, 0.1)
+                                        }
+                                    }}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setDescriptionModalOpen(true);
+                                    }}
+                                >
+                                    Czytaj więcej
+                                </Button>
+                            )}
+                        </Box>
+                    </>
+                )}
             </CardContent>
-            
+
             {showDeleteButton && (
                 <CardActions sx={{ justifyContent: 'flex-end', p: 2, pt: 0 }}>
                     <Tooltip title="Usuń zwierzaka">
@@ -272,6 +323,63 @@ const PetCard: React.FC<PetCardProps> = ({
                     </Tooltip>
                 </CardActions>
             )}
+
+            <Modal
+                open={descriptionModalOpen}
+                onClose={() => setDescriptionModalOpen(false)}
+                aria-labelledby="pet-description-modal"
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 3
+                }}
+            >
+                <Paper sx={{
+                    maxWidth: 600,
+                    width: '100%',
+                    maxHeight: '90vh',
+                    p: 3,
+                    borderRadius: 3,
+                    boxShadow: `0 12px 24px ${alpha(theme.palette.common.black, 0.2)}`,
+                    outline: 'none'
+                }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <PetsIcon sx={{ color: iconColor, mr: 1.5 }} />
+                        <Typography variant="h6" component="h2" id="pet-description-modal">
+                            {pet.pet_name}
+                        </Typography>
+                    </Box>
+                    <Divider sx={{ mb: 2 }} />
+                    <Typography variant="body1" sx={{
+                        mb: 2,
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word',
+                        maxHeight: '60vh',
+                        overflow: 'auto'
+                    }}>
+                        {pet.description}
+                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Button
+                            variant="outlined"
+                            onClick={() => setDescriptionModalOpen(false)}
+                            sx={{
+                                borderRadius: 2,
+                                color: iconColor,
+                                borderColor: iconColor,
+                                '&:hover': {
+                                    backgroundColor: alpha(iconColor, 0.1),
+                                    borderColor: iconColor
+                                }
+                            }}
+                        >
+                            Zamknij
+                        </Button>
+                    </Box>
+                </Paper>
+            </Modal>
         </Card>
     );
 };

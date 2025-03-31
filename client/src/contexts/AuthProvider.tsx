@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getWithAuth } from '../utils/auth';
 
 interface UserData {
+    user_id: number;
     name: string;
     surname: string;
     email: string;

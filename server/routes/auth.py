@@ -105,6 +105,7 @@ def protected():
         "surname": claims.get("surname"),
         "email": claims.get("email"),
         "login": claims.get("login"),
+        "user_id": get_jwt_identity(),
     }
 
     if photo:
