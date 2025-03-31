@@ -187,9 +187,11 @@ def get_post(post_id):
     )
 
     if pet_lst:
-        for pet in (pet_lst or []):
+        for pet in pet_lst or []:
             pet["photo"] = (
-                generate_presigned_url("pet_photo", pet["photo"]) if pet["photo"] else ""
+                generate_presigned_url("pet_photo", pet["photo"])
+                if pet["photo"]
+                else ""
             )
 
     # in future set user rating!!
@@ -238,6 +240,24 @@ def get_post(post_id):
             .first()
         )
 
+    status = (
+        "own"
+        if post.user_id == int(get_jwt_identity())
+        else (
+            ""
+            if not post_application
+            else (
+                "accepted"
+                if post_application.accepted
+                else (
+                    "applied"
+                    if not post_application.cancelled and not post_application.declined
+                    else ("declined" if post_application.declined else "")
+                )
+            )
+        )
+    )
+
     return (
         jsonify(
             {
@@ -249,27 +269,10 @@ def get_post(post_id):
                     if db_rating is None
                     and post.end_date <= datetime.today().date()
                     and post.end_time < datetime.now().time()
-                    and post_application.accepted
+                    and status in ["own", "accepted"]
                     else False
                 ),
-                "status": (
-                    "own"
-                    if post.user_id == int(get_jwt_identity())
-                    else (
-                        ""
-                        if not post_application
-                        else (
-                            "accepted"
-                            if post_application.accepted
-                            else (
-                                "applied"
-                                if not post_application.cancelled
-                                and not post_application.declined
-                                else ("declined" if post_application.declined else "")
-                            )
-                        )
-                    )
-                ),
+                "status": status,
             }
         ),
         200,
@@ -493,7 +496,9 @@ def get_post_applications(post_id):
         )
 
     users_application = (
-        db.session.query(User, PetCareApplication, sqlalchemy.func.avg(UserRating.star_number))
+        db.session.query(
+            User, PetCareApplication, sqlalchemy.func.avg(UserRating.star_number)
+        )
         .join(PetCareApplication, PetCareApplication.user_id == User.user_id)
         .outerjoin(UserRating, UserRating.user_id == User.user_id)
         .filter(

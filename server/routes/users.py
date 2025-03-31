@@ -106,7 +106,9 @@ def get_user(user_id):
     if pet_lst:
         for pet in pet_lst:
             pet["photo"] = (
-                generate_presigned_url("pet_photo", pet["photo"]) if pet["photo"] else ""
+                generate_presigned_url("pet_photo", pet["photo"])
+                if pet["photo"]
+                else ""
             )
 
     return (
