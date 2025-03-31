@@ -101,12 +101,14 @@ def get_user(user_id):
     user_dict["photo"] = (
         generate_presigned_url("user_photo", user_photo.photo) if user_photo else ""
     )
-    user_dict["rating"] = rating_overall
+    user_dict["rating"] = float(rating_overall) if rating_overall else rating_overall
 
     if pet_lst:
         for pet in pet_lst:
             pet["photo"] = (
-                generate_presigned_url("pet_photo", pet["photo"]) if pet["photo"] else ""
+                generate_presigned_url("pet_photo", pet["photo"])
+                if pet["photo"]
+                else ""
             )
 
     return (
@@ -150,7 +152,7 @@ def review_owner(post_id, user_id):
         .first()
     )
 
-    if not (volunteer and owner):
+    if volunteer or owner:
         return (
             jsonify(
                 {
