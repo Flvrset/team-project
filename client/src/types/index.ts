@@ -76,7 +76,7 @@ export interface PostDetails {
     user: User;
     post: Post;
     pets: Pet[];
-    status: "own" | "applied" | "declined" | "";
+    status: "own" | "applied" | "accepted" | "declined" | "";
     can_rate?: boolean;
 }
 
