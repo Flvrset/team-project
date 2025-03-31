@@ -102,7 +102,7 @@ const EditDataPage = () => {
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
-                showNotification('Wystąpił błąd podczas pobierania danych','error');
+                showNotification('Wystąpił błąd podczas pobierania danych', 'error');
             } finally {
                 setLoadingData(false);
             }
@@ -164,7 +164,11 @@ const EditDataPage = () => {
         } else if (name === 'house_number') {
             newErrors.house_number = validateMaxLength(value, 'Numer domu', 10);
         } else if (name === 'apartment_number') {
-            newErrors.apartment_number = validateChain(validateMaxLength(value, 'Numer mieszkania', 10), validateNumber(value, 'Numer mieszkania'));
+            if (value.trim() === '') {
+                newErrors.apartment_number = undefined;
+            } else {
+                newErrors.apartment_number = validateChain(validateMaxLength(value, 'Numer mieszkania', 10), validateNumber(value, 'Numer mieszkania'));
+            }
         } else if (name === 'description') {
             newErrors.description = validateMaxLength(value || '', 'Opis', 500);
         }
@@ -185,7 +189,11 @@ const EditDataPage = () => {
         newErrors.phone_number = validatePhoneNumber(formData.phone_number);
         newErrors.street = validateMaxLength(formData.street, 'Ulica', 100);
         newErrors.house_number = validateMaxLength(formData.house_number, 'Numer domu', 10);
-        newErrors.apartment_number = validateChain(validateMaxLength(formData.apartment_number, 'Numer mieszkania', 10), validateNumber(formData.apartment_number, 'Numer mieszkania'));
+
+        if (formData.apartment_number.trim() !== '') {
+            newErrors.apartment_number = validateChain(validateMaxLength(formData.apartment_number, 'Numer mieszkania', 10), validateNumber(formData.apartment_number, 'Numer mieszkania'));
+        }
+
         newErrors.description = validateMaxLength(formData.description || '', 'Opis', 500);
         setErrors(newErrors);
 
@@ -213,10 +221,10 @@ const EditDataPage = () => {
             const response = await putWithAuth('/api/edit_user', formDataToSend);
 
             if (response.ok) {
-                showNotification('Dane zostały zaktualizowane pomyślnie!','success');
+                showNotification('Dane zostały zaktualizowane pomyślnie!', 'success');
             } else {
                 const data = await response.json();
-                showNotification( data.msg || 'Wystąpił błąd podczas aktualizacji danych.','error');
+                showNotification(data.msg || 'Wystąpił błąd podczas aktualizacji danych.', 'error');
             }
         } catch (error) {
             showNotification('Wystąpił błąd podczas komunikacji z serwerem.', 'error');
@@ -496,7 +504,7 @@ const EditDataPage = () => {
                                         fullWidth
                                         id="apartment_number"
                                         name="apartment_number"
-                                        label="Numer mieszkania"
+                                        label="Numer mieszkania (opcjonalnie)"
                                         value={formData.apartment_number}
                                         onChange={handleInputChange}
                                         error={!!errors.apartment_number}
