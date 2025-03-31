@@ -193,7 +193,7 @@ def review_owner(post_id, user_id):
 
 @user_bprt.route("/user/<int:user_id>/report", methods=["POST"])
 @jwt_required()
-def get_user(user_id):
+def report_user(user_id):
     last_report = (
         db.session.query(Report)
         .filter(
