@@ -1,0 +1,18 @@
+report_type_id, report_type_name
+1,Oszustwo,
+2,"Użytkownik pobiera zaliczkę za usługę, której nie wykonuje"
+3,Nieodpowiednie traktowanie zwierząt
+4,Nieuczciwe praktyki
+5,Podawanie fałszywych informacji o doświadczeniu czy referencjach
+6,Nieprzestrzeganie umów
+7,Brak wywiązania się z uzgodnionych obowiązków bez wcześniejszego uprzedzenia
+8,Naruszenie regulaminu portalu
+9,Publikowanie ogłoszeń niezwiązanych z tematyką serwisu
+10,Spam i nadużywanie systemu
+11,Obraźliwe zachowanie
+12,Próby omijania płatności przez serwis
+13,Prośba o kontakt poza portalem w celu uniknięcia prowizji
+14,Publikacja treści nieodpowiednich lub niezgodnych z prawem
+15,Obraźliwe treści
+16,Oferty sprzedaży zwierząt wbrew regulaminowi
+17,Fałszywe dane, kradzież tożsamości innego opiekuna

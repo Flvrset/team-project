@@ -1,4 +1,4 @@
-from datetime import date, time
+from datetime import date, datetime
 from app import db
 
 
@@ -186,9 +186,11 @@ class Report(db.Model):
     whom_user_id = db.Column(
         db.Integer, db.ForeignKey("petbuddies_schema.User.user_id", ondelete="CASCADE")
     )
-    post_id = db.Column(
-        db.Integer, db.ForeignKey("petbuddies_schema.Post.post_id", ondelete="CASCADE")
-    )
+    report_date = db.Column(db.Date, nullable=False, default=date.today)
+    report_time = db.Column(db.Time, nullable=False, default=datetime.now().time())
+    # post_id = db.Column(
+    #     db.Integer, db.ForeignKey("petbuddies_schema.Post.post_id", ondelete="CASCADE")
+    # )
     report_type_id = db.Column(
         db.Integer,
         db.ForeignKey(

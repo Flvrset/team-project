@@ -144,12 +144,14 @@ CREATE TABLE petbuddies_schema."Report" (
     "report_id" INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "who_user_id" INTEGER NOT NULL,
     "whom_user_id" INTEGER NOT NULL,
-    "post_id" INTEGER NOT NULL,
+    -- "post_id" INTEGER NOT NULL,
     "report_type_id" INTEGER NOT NULL,
     "description" TEXT NOT NULL,
+    "report_date" DATE NOT NULL,
+    "report_time" TIME NOT NULL,
     CONSTRAINT fk_report_who FOREIGN KEY ("who_user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_report_whom FOREIGN KEY ("whom_user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_report_post FOREIGN KEY ("post_id") REFERENCES petbuddies_schema."Post"("post_id") ON UPDATE CASCADE ON DELETE CASCADE,
+    -- CONSTRAINT fk_report_post FOREIGN KEY ("post_id") REFERENCES petbuddies_schema."Post"("post_id") ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_report_type FOREIGN KEY ("report_type_id") REFERENCES petbuddies_schema."ReportType"("report_type_id") ON UPDATE CASCADE ON DELETE CASCADE
 );
 
@@ -201,5 +203,11 @@ CSV HEADER;
 -- Load pets into database
 COPY petbuddies_schema."Pet" (user_id, pet_name, creation_date, type, race, size, birth_date)
 FROM '/var/lib/postgresql/data_files/pets.csv'
+DELIMITER ','
+CSV HEADER;
+
+-- Load report types into database
+COPY petbuddies_schema."ReportType" (report_type_id, report_type_name)
+FROM '/var/lib/postgresql/data_files/report_type.csv'
 DELIMITER ','
 CSV HEADER;

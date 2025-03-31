@@ -12,12 +12,15 @@ from db_models.database_tables import (
     Post,
     PetCareApplication,
     UserRating,
+    Report,
 )
 from db_dto.post_dto import get_user_dto
 from db_dto.rating_dto import user_rating_dto, user_ratings_dto
+from db_dto.report_dto import report_dto
 
 import sqlalchemy
 from utils.file_storage import generate_presigned_url
+from datetime import datetime, timedelta
 
 user_bprt = Blueprint("user", __name__)
 
@@ -180,6 +183,56 @@ def review_owner(post_id, user_id):
         db.session.commit()
 
         return jsonify({"msg": "Dziękujemy za Twoją opinię i czas! :)"}), 200
+    except sqlalchemy.exc.IntegrityError:
+        db.session.rollback()
+        return (
+            jsonify({"msg": "Nie można dodać oceny aktualnie! Spróbuj później!"}),
+            400,
+        )
+
+
+@user_bprt.route("/user/<int:user_id>/report", methods=["POST"])
+@jwt_required()
+def get_user(user_id):
+    last_report = (
+        db.session.query(Report)
+        .filter(
+            sqlalchemy.or_(
+                Report.who_user_id == int(get_jwt_identity()),
+                Report.whom_user_id == user_id,
+            )
+        )
+        .first()
+    )
+
+    if abs(
+        datetime.combine(last_report.report_date, last_report.report_time)
+        - datetime.now()
+    ) < timedelta(days=3):
+        return (
+            jsonify(
+                {
+                    "msg": "Użytkownik został zgłoszony przez Ciebie w ostatnich trzech dniach!"
+                }
+            ),
+            404,
+        )
+
+    report = report_dto.dump(request.json)
+    report.who_user_id = int(get_jwt_identity())
+    report.whom_user_id = user_id
+
+    try:
+        db.session.add(report)
+        db.session.commit()
+        return jsonify(
+            {
+                "msg": (
+                    "Dziękujemy za zgłoszenie i Twój udział w polepszaniu naszej społeczności! "
+                    + "Rozpatrzymy wniosek jak najszybciej!"
+                )
+            }
+        )
     except sqlalchemy.exc.IntegrityError:
         db.session.rollback()
         return (
