@@ -35,9 +35,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useNotification } from '../../contexts/NotificationContext';
 import { Applicant, PostDetails } from '../../types';
 import { getWithAuth, putWithAuth } from '../../utils/auth';
-import ApplicantsModal from '../ApplicantsModal';
 import UserRatingModal from '../UserRatingModal';
 
+import ApplicantsModal from './ApplicantsModal';
 import PostDetailsSummary from './PostDetailsSummary';
 
 interface PostOwnerViewProps {

@@ -25,9 +25,9 @@ import {
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useNotification } from '../contexts/NotificationContext';
-import { Applicant } from '../types';
-import { putWithAuth } from '../utils/auth';
+import { useNotification } from '../../contexts/NotificationContext';
+import { Applicant } from '../../types';
+import { putWithAuth } from '../../utils/auth';
 
 interface ApplicantsModalProps {
     open: boolean;
