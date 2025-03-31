@@ -152,7 +152,7 @@ def review_owner(post_id, user_id):
         .first()
     )
 
-    if not (volunteer and owner):
+    if not (volunteer or owner):
         return (
             jsonify(
                 {
