@@ -103,10 +103,11 @@ def get_user(user_id):
     )
     user_dict["rating"] = rating_overall
 
-    for pet in pet_lst:
-        pet["photo"] = (
-            generate_presigned_url("pet_photo", pet["photo"]) if pet["photo"] else ""
-        )
+    if pet_lst:
+        for pet in pet_lst:
+            pet["photo"] = (
+                generate_presigned_url("pet_photo", pet["photo"]) if pet["photo"] else ""
+            )
 
     return (
         jsonify(

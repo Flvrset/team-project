@@ -186,10 +186,11 @@ def get_post(post_id):
         .first()
     )
 
-    for pet in pet_lst:
-        pet["photo"] = (
-            generate_presigned_url("pet_photo", pet["photo"]) if pet["photo"] else ""
-        )
+    if pet_lst:
+        for pet in (pet_lst or []):
+            pet["photo"] = (
+                generate_presigned_url("pet_photo", pet["photo"]) if pet["photo"] else ""
+            )
 
     # in future set user rating!!
 
@@ -248,6 +249,7 @@ def get_post(post_id):
                     if db_rating is None
                     and post.end_date <= datetime.today().date()
                     and post.end_time < datetime.now().time()
+                    and post_application.accepted
                     else False
                 ),
                 "status": (
@@ -491,25 +493,28 @@ def get_post_applications(post_id):
         )
 
     users_application = (
-        db.session.query(User, PetCareApplication)
+        db.session.query(User, PetCareApplication, sqlalchemy.func.avg(UserRating.star_number))
         .join(PetCareApplication, PetCareApplication.user_id == User.user_id)
+        .outerjoin(UserRating, UserRating.user_id == User.user_id)
         .filter(
             sqlalchemy.and_(
                 PetCareApplication.post_id == post_id,
                 PetCareApplication.cancelled == False,
             )
         )
+        .group_by(User.user_id, PetCareApplication.petcareapplication_id)
         .all()
     )
 
     user_lst = []
-    for user, pet_care_application in users_application:
+    for user, pet_care_application, user_rating in users_application:
         user_dto = get_user_dto.dump(user)
         user_dto["status"] = (
             "Accepted"
             if pet_care_application.accepted
             else ("Declined" if pet_care_application.declined else "Pending")
         )
+        user_dto["rating"] = user_rating
         user_lst.append(user_dto)
 
     return jsonify({"users": user_lst}), 200
