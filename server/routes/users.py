@@ -101,7 +101,7 @@ def get_user(user_id):
     user_dict["photo"] = (
         generate_presigned_url("user_photo", user_photo.photo) if user_photo else ""
     )
-    user_dict["rating"] = float(rating_overall)
+    user_dict["rating"] = float(rating_overall) if rating_overall else rating_overall
 
     if pet_lst:
         for pet in pet_lst:
