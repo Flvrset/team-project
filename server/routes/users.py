@@ -197,7 +197,7 @@ def report_user(user_id):
     last_report = (
         db.session.query(Report)
         .filter(
-            sqlalchemy.or_(
+            sqlalchemy.and_(
                 Report.who_user_id == int(get_jwt_identity()),
                 Report.whom_user_id == user_id,
             )
