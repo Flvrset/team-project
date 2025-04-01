@@ -198,6 +198,7 @@ class Report(db.Model):
             "petbuddies_schema.ReportType.report_type_id", ondelete="CASCADE"
         ),
     )
+    was_considered = db.Column(db.Boolean, default=False)
     description = db.Column(db.Text, nullable=False)
 
 

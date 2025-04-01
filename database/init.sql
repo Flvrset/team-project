@@ -150,6 +150,7 @@ CREATE TABLE petbuddies_schema."Report" (
     "description" TEXT NOT NULL,
     "report_date" DATE NOT NULL,
     "report_time" TIME NOT NULL,
+    was_considered BOOLEAN NOT NULL DEFAULT false,
     CONSTRAINT fk_report_who FOREIGN KEY ("who_user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_report_whom FOREIGN KEY ("whom_user_id") REFERENCES petbuddies_schema."User"("user_id") ON UPDATE CASCADE ON DELETE CASCADE,
     -- CONSTRAINT fk_report_post FOREIGN KEY ("post_id") REFERENCES petbuddies_schema."Post"("post_id") ON UPDATE CASCADE ON DELETE CASCADE,
