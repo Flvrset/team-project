@@ -1,6 +1,6 @@
 from app import ma
 from db_models.database_tables import Report, ReportType
-
+from marshmallow import fields
 
 class CreateReportDTO(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -14,4 +14,24 @@ class CreateReportDTO(ma.SQLAlchemyAutoSchema):
     description = ma.auto_field(allow_none=True)
 
 
+class AdminReportDto(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Report
+        load_instance = True
+
+    who_user_id = ma.auto_field()
+    whom_user_id = ma.auto_field()
+    report_type_id = ma.auto_field()
+    description = ma.auto_field(allow_none=True)
+    report_date = ma.auto_field()
+    report_time = ma.auto_field()
+
+    # custom filed with report name
+    report_type_name = fields.String(allow_none=True)
+
+    def assign_report_type_name(self, value):
+        self.report_type_name = value
+
+
 report_dto = CreateReportDTO()
+admin_report_dto = AdminReportDto()
