@@ -26,7 +26,8 @@ CREATE TABLE petbuddies_schema."User" (
     "phone_number" VARCHAR(20),
     "email" VARCHAR(255) NOT NULL UNIQUE,
     "description" TEXT,
-    "is_banned" BOOLEAN NOT NULL DEFAULT false
+    "is_banned" BOOLEAN NOT NULL DEFAULT false,
+    "is_admin" BOOLEAN NOT NULL DEFAULT false
 );
 
 -- Create the Pet table
@@ -195,7 +196,7 @@ DELIMITER ','
 CSV HEADER;
 
 -- Load users into database
-COPY petbuddies_schema."User" (name, surname, login, password_hash, join_date, city, postal_code, street, house_number, apartment_number, phone_number, email, is_banned)
+COPY petbuddies_schema."User" (name, surname, login, password_hash, join_date, city, postal_code, street, house_number, apartment_number, phone_number, email, is_banned, is_admin)
 FROM '/var/lib/postgresql/data_files/users.csv'
 DELIMITER ','
 CSV HEADER;

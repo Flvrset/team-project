@@ -26,6 +26,7 @@ class CreateUserDTO(ma.SQLAlchemyAutoSchema):
     login = ma.auto_field(required=True)
     password_hash = ma.auto_field(load_only=True)
     email = ma.auto_field(required=True)
+    is_admin = ma.auto_field(default=False, dump_only=True)
 
 
 class EditUserDTO(ma.SQLAlchemyAutoSchema):
@@ -40,6 +41,7 @@ class EditUserDTO(ma.SQLAlchemyAutoSchema):
             "email",
             "join_date",
             "is_banned",
+            "is_admin"
         )
 
     user_id = ma.auto_field(dump_only=True)

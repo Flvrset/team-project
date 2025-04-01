@@ -21,6 +21,7 @@ class User(db.Model):
     email = db.Column(db.String(255), nullable=False, unique=True)
     description = db.Column(db.Text, nullable=True)
     is_banned = db.Column(db.Boolean, nullable=False, default=False)
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
 
 class Pet(db.Model):

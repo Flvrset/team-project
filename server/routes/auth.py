@@ -77,6 +77,7 @@ def login_mail_page():
                 "surname": user.surname,
                 "email": user.email,
                 "login": user.login,
+                "is_admin": user.is_admin
             },
             expires_delta=timedelta(days=30),
         )
@@ -106,6 +107,7 @@ def protected():
         "email": claims.get("email"),
         "login": claims.get("login"),
         "user_id": get_jwt_identity(),
+        "is_admin": claims.get("is_admin")
     }
 
     if photo:

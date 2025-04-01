@@ -1,32 +1,32 @@
-name,surname,login,password_hash,join_date,city,postal_code,street,house_number,apartment_number,phone_number,email,is_banned
-Jan,Kowalski,jankowalski1,$2b$12$jgK8CAygkyeap7y8cCxPHu820T33f57Oy9H2mMJEoGeAQb4jWmJlm,2024-01-10,Warszawa,00-001,Marszałkowska,12A,5,500-123-456,jankowalski@email.com,False
-Anna,Nowak,annanowak2,$2b$12$i0YyBLM0uX9WbQ0z6qguv.5qJQQza7EaZqtZF6g5spMgpLjehbxVe,2023-11-15,Warszawa,00-002,Krakowskie Przedmieście,22B,,511-234-567,annanowak@email.com,False
-Piotr,Wójcik,piotrwojcik3,$2b$12$v5fn34SfJfB4U1yKOzBvA.Eq5sojPbmNyfFrDtesFEob.wNcrZNee,2024-03-05,Radom,26-600,Żeromskiego,8,,522-345-678,piotrwojcik@email.com,False
-Katarzyna,Wiśniewska,katarzyna4,$2b$12$MCcOGPK8rnK.9EGfe5FqzupQ.ZFo2GvK7MXgbw/vdORkKepmTULQe,2023-09-20,Pruszków,05-800,Kościuszki,19C,2,533-456-789,katarzyna@email.com,False
-Marek,Kamiński,marekk5,$2b$12$Bs0S/RPosl4GL6fq3fur8OTQhlm1/lp0MBduVAAhIjZ77MOlinQW6,2024-02-28,Płock,09-400,Tumskie,5D,,544-567-890,marekkaminski@email.com,True
-Ewa,Lewandowska,ewal6,$2b$12$Niy9KmCdm07PQYSegXIZxuO3tPrNFS/xxVBq1kZ60Ym4Y.xqC7/dC,2023-07-18,Ciechanów,06-400,Sienkiewicza,33,7,555-678-901,ewalewandowska@email.com,False
-Tomasz,Dąbrowski,tomaszd7,$2b$12$20i3jCvIOg2OxzDIl3nuoeYIQzPFQBvQ9wLCZ.PbM7g2ymNtmTa4a,2024-05-01,Ostrołęka,07-410,Goworowska,101,,566-789-012,tomaszdabrowski@email.com,False
-Magdalena,Zielińska,magdaz8,$2b$12$YXWS4JgPt8pCuteIYqyODuNeGgO.u/h5CRFu6Sdm2WINRR3UmGhAS,2023-12-12,Siedlce,08-110,Piłsudskiego,12,3,577-890-123,magdalenaz@email.com,False
-Robert,Szymański,roberts9,$2b$12$pnT7PJKigiImfhZldVEkZepXlcqfxLN7ThTgfnSTF.Ar61QeXjO2K,2024-04-22,Legionowo,05-120,Piłsudskiego,14A,,588-901-234,robertszymanski@email.com,False
-Agnieszka,Wójcik,agnieszkaw10,$2b$12$fjEh9LXZDPDL90i2Zf5siOeJook3Jy.Tg1GSwEThNrX49o6633mce,2023-10-30,Warszawa,00-003,Chmielna,7B,1,599-012-345,agnieszkawojcik@email.com,False
-Krzysztof,Kowalczyk,krzysztofk11,$2b$12$X7st6RgLMeBITaRsNt1H1OCexWXYhTw.ZUjixHd2fRjkAvdkBOOFi,2024-02-14,Warszawa,00-004,Nowy Świat,10,,600-123-456,krzysztofk@email.com,False
-Joanna,Mazurek,joannam12,$2b$12$M2tO9/82PE8Hc5BuVVmty.ss35LPqvB7VfxrfNo9g2KcxBolWoyBW,2023-11-22,Radom,26-600,Struga,15,2,611-234-567,joannamazurek@email.com,False
-Paweł,Lisowski,pawell13,$2b$12$UQqwsZl0PTf9q2R.Xf/M.uqOSaGUrf3WdXkMdhg5AyZNMmIMDuEPa,2024-01-08,Pruszków,05-800,Kościuszki,2,,622-345-678,pawell@email.com,False
-Barbara,Jankowska,barbaraj14,$2b$12$ywqImHrL5RzMY0pCewNAXOt5c/HOblRBo7OpX4LSCH7lwfkOtf5/u,2023-12-05,Płock,09-400,Mostowa,30,5,633-456-789,barbaraj@email.com,False
-Grzegorz,Nowicki,grzegorz15,$2b$12$ToVQwAEspnd.vcUzmEJKXuFQ6Um73hqykZyirkYNsQPTQ1/fbplt2,2024-03-12,Ciechanów,06-400,3 Maja,22A,,644-567-890,grzegorz@email.com,False
-Monika,Woźniak,monikaw16,$2b$12$.DI38W0Pk5Bp9rEhwqu32eGOWfW7JyRfdW/m6zS2G1UbRULlFqIVG,2023-08-28,Ostrołęka,07-410,Kościuszki,6,1,655-678-901,monikawozniak@email.com,False
-Adrian,Sobczak,adrians17,$2b$12$dWEk9cJoycbWyA42Ovrl8OUwq68bSOqI0TfpyLrzCfviEu.xJJg6K,2024-04-30,Siedlce,08-110,Starowiejska,5B,,666-789-012,adrians@email.com,False
-Natalia,Czarnecka,nataliac18,$2b$12$3KAGhHSWhB25BYlsn97EKOJK5coFAmajmUZ5.qd32fuK40l4ft82y,2023-09-14,Legionowo,05-120,Zegrzyńska,12,,677-890-123,nataliac@email.com,False
-Damian,Urban,damianu19,$2b$12$ekrWKURSuUwjZFE41vRaC.MQal7Uxona7K4TnzxK4AcDKrKps5NYm,2024-02-25,Warszawa,00-005,Świętokrzyska,8,4,688-901-234,damianu@email.com,False
-Aleksandra,Borowska,aleksandrab20,$2b$12$fs9K1.o1B5xI9yU9fCXgM.2/UyZe3qklnsx9mbjHxKZdjfil2Rb5m,2023-10-18,Warszawa,00-006,Plac Konstytucji,17,3,699-012-345,aleksandrab@email.com,False
-Tadeusz,Olszewski,tadeuszo21,$2b$12$Xq033mi.lxsvghgjKyRfw.ypangyM8zoyzL2WpHwNfM.XXEwnrbXu,2024-03-07,Radom,26-600,Reja,10,,700-123-456,tadeuszo@email.com,False
-Karolina,Kołodziej,karolinak22,$2b$12$k9LqTubfd2JtTPuKyjC3UeibEKIyU2NhvZXAzJ2tdvKl0T7nnQ/AO,2023-12-20,Pruszków,05-800,Nadarzyńska,5,2,711-234-567,karolinak@email.com,False
-Marcin,Górski,marcing23,$2b$12$AvCFXFUgxN7/UFvgyG4e6OuPWj8CKQxV5PNg3gDOtrpq8gAtyXzEy,2024-05-02,Płock,09-400,Plac Narutowicza,3,,722-345-678,marcing@email.com,False
-Patrycja,Wilk,patrycjaw24,$2b$12$PUdcqjqhvR9x.PsH3wywue8PJw9cMY10Occe562lf532NxY7vZaJ.,2023-07-30,Ciechanów,06-400,Warszawska,9,,733-456-789,patrycjaw@email.com,False
-Wojciech,Białek,wojciechb25,$2b$12$G/wFG3qcyi61V9qEKii1UuPNoc/sp/6rgDXjDSWsSTowJw7JTAq,2024-04-15,Ostrołęka,07-410,Łomżyńska,22,1,744-567-890,wojciechb@email.com,False
-Beata,Król,beatak26,$2b$12$trq0eMk9.sZipVwV1XGezucM.BSZABHrYMGVGJsr9adjNS6AxRGQW,2023-11-17,Siedlce,08-110,Długa,19,,755-678-901,beatak@email.com,False
-Jakub,Piotrowski,jakubp27,$2b$12$EwxWkCjHqrejfHbEkUjbnetonxY2clbwDWiQ28ZVuIPU11.ef/vOC,2024-02-19,Legionowo,05-120,Kopernika,16,,766-789-012,jakubp@email.com,False
-Dorota,Kubiak,dorotak28,$2b$12$dqjqV5Gz5gYeB/gewOWzY.JVLGG/4KO73mhIMQPBEo.MNhQ9./4jW,2023-09-25,Warszawa,00-007,Grzybowska,11,,777-890-123,dorotak@email.com,False
-Łukasz,Chmielewski,lukaszc29,$2b$12$6TyTfhstPBL0j6GbdicAje0YrylOupbo0e7aa4N5ZjFIYJK.JxWxu,2024-01-21,Warszawa,00-008,Twarda,24,5,788-901-234,lukaszc@email.com,False
-Zuzanna,Adamska,zuzannaa30,$2b$12$VM2MdSfwxOi3BWduUKp5C.wJWUYKl.sVl7oIOy5izyofqsul9HRdK,2023-06-11,Radom,26-600,Wysoka,13,3,799-012-345,zuzannaa@email.com,False
-Mateusz,Tomczak,mateuszt31,$2b$12$81/nB3HsMRWX3gaY9uDtpugB9xwdgT7qASyscpFSq38qRE0GINeCa,2024-03-18,Pruszków,05-800,3 Maja,27,,800-123-456,mateuszt@email.com,False
+name,surname,login,password_hash,join_date,city,postal_code,street,house_number,apartment_number,phone_number,email,is_banned,is_admin
+Jan,Kowalski,jankowalski1,$2b$12$jgK8CAygkyeap7y8cCxPHu820T33f57Oy9H2mMJEoGeAQb4jWmJlm,2024-01-10,Warszawa,00-001,Marszałkowska,12A,5,500-123-456,jankowalski@email.com,False,True
+Anna,Nowak,annanowak2,$2b$12$i0YyBLM0uX9WbQ0z6qguv.5qJQQza7EaZqtZF6g5spMgpLjehbxVe,2023-11-15,Warszawa,00-002,Krakowskie Przedmieście,22B,,511-234-567,annanowak@email.com,False,False
+Piotr,Wójcik,piotrwojcik3,$2b$12$v5fn34SfJfB4U1yKOzBvA.Eq5sojPbmNyfFrDtesFEob.wNcrZNee,2024-03-05,Radom,26-600,Żeromskiego,8,,522-345-678,piotrwojcik@email.com,False,False
+Katarzyna,Wiśniewska,katarzyna4,$2b$12$MCcOGPK8rnK.9EGfe5FqzupQ.ZFo2GvK7MXgbw/vdORkKepmTULQe,2023-09-20,Pruszków,05-800,Kościuszki,19C,2,533-456-789,katarzyna@email.com,False,False
+Marek,Kamiński,marekk5,$2b$12$Bs0S/RPosl4GL6fq3fur8OTQhlm1/lp0MBduVAAhIjZ77MOlinQW6,2024-02-28,Płock,09-400,Tumskie,5D,,544-567-890,marekkaminski@email.com,True,False
+Ewa,Lewandowska,ewal6,$2b$12$Niy9KmCdm07PQYSegXIZxuO3tPrNFS/xxVBq1kZ60Ym4Y.xqC7/dC,2023-07-18,Ciechanów,06-400,Sienkiewicza,33,7,555-678-901,ewalewandowska@email.com,False,False
+Tomasz,Dąbrowski,tomaszd7,$2b$12$20i3jCvIOg2OxzDIl3nuoeYIQzPFQBvQ9wLCZ.PbM7g2ymNtmTa4a,2024-05-01,Ostrołęka,07-410,Goworowska,101,,566-789-012,tomaszdabrowski@email.com,False,False
+Magdalena,Zielińska,magdaz8,$2b$12$YXWS4JgPt8pCuteIYqyODuNeGgO.u/h5CRFu6Sdm2WINRR3UmGhAS,2023-12-12,Siedlce,08-110,Piłsudskiego,12,3,577-890-123,magdalenaz@email.com,False,False
+Robert,Szymański,roberts9,$2b$12$pnT7PJKigiImfhZldVEkZepXlcqfxLN7ThTgfnSTF.Ar61QeXjO2K,2024-04-22,Legionowo,05-120,Piłsudskiego,14A,,588-901-234,robertszymanski@email.com,False,False
+Agnieszka,Wójcik,agnieszkaw10,$2b$12$fjEh9LXZDPDL90i2Zf5siOeJook3Jy.Tg1GSwEThNrX49o6633mce,2023-10-30,Warszawa,00-003,Chmielna,7B,1,599-012-345,agnieszkawojcik@email.com,False,False
+Krzysztof,Kowalczyk,krzysztofk11,$2b$12$X7st6RgLMeBITaRsNt1H1OCexWXYhTw.ZUjixHd2fRjkAvdkBOOFi,2024-02-14,Warszawa,00-004,Nowy Świat,10,,600-123-456,krzysztofk@email.com,False,False
+Joanna,Mazurek,joannam12,$2b$12$M2tO9/82PE8Hc5BuVVmty.ss35LPqvB7VfxrfNo9g2KcxBolWoyBW,2023-11-22,Radom,26-600,Struga,15,2,611-234-567,joannamazurek@email.com,False,False
+Paweł,Lisowski,pawell13,$2b$12$UQqwsZl0PTf9q2R.Xf/M.uqOSaGUrf3WdXkMdhg5AyZNMmIMDuEPa,2024-01-08,Pruszków,05-800,Kościuszki,2,,622-345-678,pawell@email.com,False,False
+Barbara,Jankowska,barbaraj14,$2b$12$ywqImHrL5RzMY0pCewNAXOt5c/HOblRBo7OpX4LSCH7lwfkOtf5/u,2023-12-05,Płock,09-400,Mostowa,30,5,633-456-789,barbaraj@email.com,False,False
+Grzegorz,Nowicki,grzegorz15,$2b$12$ToVQwAEspnd.vcUzmEJKXuFQ6Um73hqykZyirkYNsQPTQ1/fbplt2,2024-03-12,Ciechanów,06-400,3 Maja,22A,,644-567-890,grzegorz@email.com,False,False
+Monika,Woźniak,monikaw16,$2b$12$.DI38W0Pk5Bp9rEhwqu32eGOWfW7JyRfdW/m6zS2G1UbRULlFqIVG,2023-08-28,Ostrołęka,07-410,Kościuszki,6,1,655-678-901,monikawozniak@email.com,False,False
+Adrian,Sobczak,adrians17,$2b$12$dWEk9cJoycbWyA42Ovrl8OUwq68bSOqI0TfpyLrzCfviEu.xJJg6K,2024-04-30,Siedlce,08-110,Starowiejska,5B,,666-789-012,adrians@email.com,False,False
+Natalia,Czarnecka,nataliac18,$2b$12$3KAGhHSWhB25BYlsn97EKOJK5coFAmajmUZ5.qd32fuK40l4ft82y,2023-09-14,Legionowo,05-120,Zegrzyńska,12,,677-890-123,nataliac@email.com,False,False
+Damian,Urban,damianu19,$2b$12$ekrWKURSuUwjZFE41vRaC.MQal7Uxona7K4TnzxK4AcDKrKps5NYm,2024-02-25,Warszawa,00-005,Świętokrzyska,8,4,688-901-234,damianu@email.com,False,False
+Aleksandra,Borowska,aleksandrab20,$2b$12$fs9K1.o1B5xI9yU9fCXgM.2/UyZe3qklnsx9mbjHxKZdjfil2Rb5m,2023-10-18,Warszawa,00-006,Plac Konstytucji,17,3,699-012-345,aleksandrab@email.com,False,False
+Tadeusz,Olszewski,tadeuszo21,$2b$12$Xq033mi.lxsvghgjKyRfw.ypangyM8zoyzL2WpHwNfM.XXEwnrbXu,2024-03-07,Radom,26-600,Reja,10,,700-123-456,tadeuszo@email.com,False,False
+Karolina,Kołodziej,karolinak22,$2b$12$k9LqTubfd2JtTPuKyjC3UeibEKIyU2NhvZXAzJ2tdvKl0T7nnQ/AO,2023-12-20,Pruszków,05-800,Nadarzyńska,5,2,711-234-567,karolinak@email.com,False,False
+Marcin,Górski,marcing23,$2b$12$AvCFXFUgxN7/UFvgyG4e6OuPWj8CKQxV5PNg3gDOtrpq8gAtyXzEy,2024-05-02,Płock,09-400,Plac Narutowicza,3,,722-345-678,marcing@email.com,False,False
+Patrycja,Wilk,patrycjaw24,$2b$12$PUdcqjqhvR9x.PsH3wywue8PJw9cMY10Occe562lf532NxY7vZaJ.,2023-07-30,Ciechanów,06-400,Warszawska,9,,733-456-789,patrycjaw@email.com,False,False
+Wojciech,Białek,wojciechb25,$2b$12$G/wFG3qcyi61V9qEKii1UuPNoc/sp/6rgDXjDSWsSTowJw7JTAq,2024-04-15,Ostrołęka,07-410,Łomżyńska,22,1,744-567-890,wojciechb@email.com,False,False
+Beata,Król,beatak26,$2b$12$trq0eMk9.sZipVwV1XGezucM.BSZABHrYMGVGJsr9adjNS6AxRGQW,2023-11-17,Siedlce,08-110,Długa,19,,755-678-901,beatak@email.com,False,False
+Jakub,Piotrowski,jakubp27,$2b$12$EwxWkCjHqrejfHbEkUjbnetonxY2clbwDWiQ28ZVuIPU11.ef/vOC,2024-02-19,Legionowo,05-120,Kopernika,16,,766-789-012,jakubp@email.com,False,False
+Dorota,Kubiak,dorotak28,$2b$12$dqjqV5Gz5gYeB/gewOWzY.JVLGG/4KO73mhIMQPBEo.MNhQ9./4jW,2023-09-25,Warszawa,00-007,Grzybowska,11,,777-890-123,dorotak@email.com,False,False
+Łukasz,Chmielewski,lukaszc29,$2b$12$6TyTfhstPBL0j6GbdicAje0YrylOupbo0e7aa4N5ZjFIYJK.JxWxu,2024-01-21,Warszawa,00-008,Twarda,24,5,788-901-234,lukaszc@email.com,False,False
+Zuzanna,Adamska,zuzannaa30,$2b$12$VM2MdSfwxOi3BWduUKp5C.wJWUYKl.sVl7oIOy5izyofqsul9HRdK,2023-06-11,Radom,26-600,Wysoka,13,3,799-012-345,zuzannaa@email.com,False,False
+Mateusz,Tomczak,mateuszt31,$2b$12$81/nB3HsMRWX3gaY9uDtpugB9xwdgT7qASyscpFSq38qRE0GINeCa,2024-03-18,Pruszków,05-800,3 Maja,27,,800-123-456,mateuszt@email.com,False,False
