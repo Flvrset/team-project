@@ -75,11 +75,13 @@ def ban_user(user_id):
     try:
         user.is_banned = True
 
-        for post in user_posts:
-            post.is_active = False
+        if user_posts:
+            for post in user_posts:
+                post.is_active = False
 
-        for report in user_reports:
-            report.was_considered = True
+        if user_reports:
+            for report in user_reports:
+                report.was_considered = True
         db.session.commit()
         return jsonify({"msg": "Użytkownik zbanowany!"}), 200
     except sqlalchemy.exc.IntegrityError:
