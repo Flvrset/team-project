@@ -104,6 +104,7 @@ def protected():
     claims = get_jwt()
 
     is_baned = db.session.query(User.is_banned).filter(User.user_id == int(get_jwt_identity())).first()
+    print(is_baned)
 
     if is_baned:
         return redirect(url_for("routes.logout"))
