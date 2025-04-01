@@ -7,7 +7,7 @@ class CreateReportDTO(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Report
         load_instance = True
-        exclude = ("report_date", "report_time")
+        exclude = ("report_date", "report_time", "was_considered")
 
     who_user_id = ma.auto_field(dump_only=True)
     whom_user_id = ma.auto_field(dump_only=True)
@@ -19,6 +19,7 @@ class AdminReportDto(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Report
         load_instance = True
+        exclude = ("was_considered", )
 
     report_id = ma.auto_field()
     who_user_id = ma.auto_field()

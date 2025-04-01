@@ -28,6 +28,7 @@ def get_reports_admin():
         .join(Reported, Report.whom_user_id == Reported.user_id)
         .join(Reporter, Report.who_user_id == Reporter.user_id)
         .join(ReportType, Report.report_type_id == ReportType.report_type_id)
+        .filter(Report.was_considered == False)
         .all()
     )
 
