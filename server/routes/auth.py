@@ -4,7 +4,7 @@ import sqlalchemy
 import marshmallow
 import json
 
-from flask import request, jsonify, make_response, Blueprint
+from flask import request, jsonify, make_response, Blueprint, redirect, url_for
 from app import db, bcrypt, limiter, ma
 from db_models.database_tables import User, UserPhoto
 from flask_jwt_extended import (
@@ -102,6 +102,12 @@ def logout():
 @jwt_required()
 def protected():
     claims = get_jwt()
+
+    is_baned = db.session.query(User.is_banned).filter(User.user_id == int(get_jwt_identity())).first()
+
+    if is_baned:
+        return redirect(url_for("logout"))
+
     photo = UserPhoto.query.filter_by(user_id=get_jwt_identity()).first() or None
 
     resp_dict = {
