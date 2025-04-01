@@ -1,4 +1,5 @@
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PersonIcon from '@mui/icons-material/Person';
 import PetsIcon from '@mui/icons-material/Pets';
 import StarIcon from '@mui/icons-material/Star';
@@ -16,12 +17,16 @@ import {
     useTheme,
     Container,
     Paper,
-    Chip
+    Chip,
+    IconButton,
+    Menu,
+    MenuItem,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import PetCard from '../components/PetCard';
+import ReportUserModal from '../components/ReportUserModal';
 import { useNotification } from '../contexts/NotificationContext';
 import { User, Pet, IRating } from '../types';
 import { getWithAuth } from '../utils/auth';
@@ -38,6 +43,21 @@ const UserPage = () => {
     const [loading, setLoading] = useState(true);
     const theme = useTheme();
     const { showNotification } = useNotification();
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [reportModalOpen, setReportModalOpen] = useState(false);
+
+    const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleReportUser = () => {
+        handleMenuClose();
+        setReportModalOpen(true);
+    };
 
     useEffect(() => {
         const fetchUserDetails = async () => {
@@ -51,9 +71,11 @@ const UserPage = () => {
                 } else {
                     const error = await response.json();
                     showNotification(error.msg || 'Nie udało się pobrać danych użytkownika', 'error');
+                    setUserDetails(null);
                 }
             } catch {
                 showNotification('Wystąpił błąd podczas ładowania danych użytkownika', 'error');
+                setUserDetails(null);
             } finally {
                 setLoading(false);
             }
@@ -62,7 +84,7 @@ const UserPage = () => {
         if (userId) {
             fetchUserDetails();
         }
-    }, []);
+    }, [userId, showNotification]);
 
     if (loading) {
         return (
@@ -147,12 +169,38 @@ const UserPage = () => {
                     sx={{
                         p: { xs: 2, sm: 3 },
                         background: `linear-gradient(135deg, ${theme.palette.primary.light}, ${theme.palette.primary.main})`,
-                        color: 'white'
+                        color: 'white',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
                     }}
                 >
                     <Typography variant="h4" fontWeight="bold">
                         Profil użytkownika
                     </Typography>
+                    <IconButton 
+                        aria-label="więcej opcji" 
+                        onClick={handleMenuClick}
+                        sx={{ 
+                            color: 'white',
+                            '&:hover': { 
+                                backgroundColor: alpha('#fff', 0.15)
+                            }
+                        }}
+                    >
+                        <MoreVertIcon />
+                    </IconButton>
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleMenuClose}
+                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                    >
+                        <MenuItem onClick={handleReportUser} sx={{ color: theme.palette.error.main }}>
+                            Zgłoś użytkownika
+                        </MenuItem>
+                    </Menu>
                 </Box>
 
                 <CardContent sx={{ p: { xs: 2, md: 4 } }}>
@@ -280,7 +328,6 @@ const UserPage = () => {
                 </CardContent>
             </Card>
 
-
             <Box sx={{ mb: 3 }}>
                 <Typography
                     variant="h4"
@@ -343,7 +390,6 @@ const UserPage = () => {
 
                 <Divider sx={{ mb: 3 }} />
 
-
                 {ratings && ratings.length > 0 ? (
                     <Grid container spacing={3}>
                         {ratings.map((rating) => (
@@ -398,6 +444,11 @@ const UserPage = () => {
                 )}
             </Box>
 
+            <ReportUserModal 
+                open={reportModalOpen}
+                onClose={() => setReportModalOpen(false)}
+                userId={userId || ''}
+            />
         </Container>
     );
 };

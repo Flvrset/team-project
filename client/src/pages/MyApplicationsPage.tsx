@@ -18,27 +18,28 @@ const MyApplicationsPage = () => {
     const theme = useTheme();
 
     useEffect(() => {
-        fetchUserApplications();
-    }, []);
+        const fetchUserApplications = async () => {
+            setLoading(true);
+            try {
+                const response = await getWithAuth('/api/getMyApplications');
 
-    const fetchUserApplications = async () => {
-        setLoading(true);
-        try {
-            const response = await getWithAuth('/api/getMyApplications');
-            
-            if (response.ok) {
-                const data = await response.json() as MyPostsResponse;
-                setApplications(convertBackendPosts(data.post_lst));
-            } else {
-                throw new Error('Failed to fetch user applications');
+                if (response.ok) {
+                    const data = await response.json() as MyPostsResponse;
+                    setApplications(convertBackendPosts(data.post_lst));
+                } else {
+                    throw new Error('Failed to fetch user applications');
+                }
+            } catch (error) {
+                console.error('Error fetching user applications:', error);
+                showNotification('Nie udało się załadować Twoich aplikacji', 'error');
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error fetching user applications:', error);
-            showNotification('Nie udało się załadować Twoich aplikacji', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+
+        fetchUserApplications();
+    }, [showNotification]);
+
 
     const handlePostClick = (postId: number) => {
         navigate(`/dashboard/posts/${postId}`);
@@ -51,7 +52,7 @@ const MyApplicationsPage = () => {
     const renderPostWithStatus = (post: Post) => {
         let color: 'success' | 'error' | 'primary';
         let displayStatus: string;
-        
+
         switch (post.status) {
             case 'accepted':
                 color = 'success';
@@ -72,9 +73,9 @@ const MyApplicationsPage = () => {
         }
 
         return (
-            <PostCard 
+            <PostCard
                 post={post}
-                label={{text: displayStatus, color}}
+                label={{ text: displayStatus, color }}
                 onClick={handlePostClick}
                 actionText="Zobacz szczegóły"
                 showHeader={false}
@@ -101,7 +102,7 @@ const MyApplicationsPage = () => {
                     Zobacz status swoich aplikacji do ogłoszeń
                 </Typography>
             </Paper>
-            
+
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
                 <BackButton />
                 <Button
@@ -114,7 +115,7 @@ const MyApplicationsPage = () => {
                     Szukaj ogłoszeń
                 </Button>
             </Box>
-            
+
             {loading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
                     <CircularProgress size={60} />

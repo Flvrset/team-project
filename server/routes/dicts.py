@@ -19,7 +19,7 @@ def city(place):
 
 @dicts.route("/getReportTypes", methods=["GET"])
 def get_report_type():
-    report_type_lst = ReportType.query()
+    report_type_lst = ReportType.query.all()
 
     response = [
         {

@@ -205,7 +205,7 @@ def report_user(user_id):
         .first()
     )
 
-    if abs(
+    if last_report and abs(
         datetime.combine(last_report.report_date, last_report.report_time)
         - datetime.now()
     ) < timedelta(days=3):
@@ -218,7 +218,7 @@ def report_user(user_id):
             404,
         )
 
-    report = report_dto.dump(request.json)
+    report = report_dto.load(request.json)
     report.who_user_id = int(get_jwt_identity())
     report.whom_user_id = user_id
 

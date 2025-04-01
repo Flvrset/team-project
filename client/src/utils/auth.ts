@@ -1,8 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-interface FetchOptions extends RequestInit {
-    body?: any;
-}
-
 /**
  * Makes an authenticated fetch request with CSRF token
  * @param url - The URL to fetch
@@ -13,7 +8,7 @@ interface FetchOptions extends RequestInit {
 export const fetchWithAuth = async (
     url: string,
     method: string = 'GET',
-    options: FetchOptions = {}
+    options: RequestInit = {}
 ): Promise<Response> => {
     const csrfCookie = document.cookie
         .split('; ')
@@ -59,14 +54,14 @@ export const fetchWithAuth = async (
     return fetch(url, requestOptions);
 };
 
-export const getWithAuth = (url: string, options: FetchOptions = {}) =>
+export const getWithAuth = (url: string, options: RequestInit = {}) =>
     fetchWithAuth(url, 'GET', options);
 
-export const postWithAuth = (url: string, data: any, options: FetchOptions = {}) =>
-    fetchWithAuth(url, 'POST', { ...options, body: data });
+export const postWithAuth = <T = unknown>(url: string, data: T, options: RequestInit = {}) =>
+    fetchWithAuth(url, 'POST', { ...options, body: data as unknown as BodyInit });
 
-export const putWithAuth = (url: string, data: any, options: FetchOptions = {}) =>
-    fetchWithAuth(url, 'PUT', { ...options, body: data });
+export const putWithAuth = (url: string, data: unknown, options: RequestInit = {}) =>
+    fetchWithAuth(url, 'PUT', { ...options, body: data as unknown as BodyInit });
 
-export const deleteWithAuth = (url: string, options: FetchOptions = {}) =>
+export const deleteWithAuth = (url: string, options: RequestInit = {}) =>
     fetchWithAuth(url, 'DELETE', options);

@@ -109,7 +109,7 @@ const EditDataPage = () => {
         };
 
         fetchUserData();
-    }, []);
+    }, [showNotification]);
 
     const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

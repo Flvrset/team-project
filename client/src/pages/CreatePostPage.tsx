@@ -22,7 +22,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale/pl';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import BackButton from '../components/BackButton';
@@ -66,7 +66,7 @@ const CreatePostPage = () => {
     const [submitting, setSubmitting] = useState(false);
     const [openPetModal, setOpenPetModal] = useState(false);
 
-    const fetchPets = async () => {
+    const fetchPets = useCallback(async () => {
         setLoadingPets(true);
 
         try {
@@ -86,11 +86,11 @@ const CreatePostPage = () => {
         } finally {
             setLoadingPets(false);
         }
-    };
+    }, [showNotification])
 
     useEffect(() => {
         fetchPets();
-    }, []);
+    }, [fetchPets]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;

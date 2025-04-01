@@ -64,31 +64,31 @@ const PostOwnerView = ({
     const menuOpen = Boolean(menuAnchorEl);
 
     useEffect(() => {
+        const fetchApplicants = async () => {
+            if (!postId || postDetails?.status !== "own") return;
+    
+            setApplicantsLoading(true);
+            try {
+                const response = await getWithAuth(`/api/getPost/${postId}/applications`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setApplicants(data.users);
+                } else {
+                    const errorData = await response.json();
+                    showNotification(errorData.msg || 'Błąd podczas pobierania aplikacji', 'error');
+                }
+            } catch (error) {
+                console.error('Error fetching applicants:', error);
+                showNotification('Nie udało się pobrać aplikacji', 'error');
+            } finally {
+                setApplicantsLoading(false);
+            }
+        };
+    
         if (postDetails?.status === "own") {
             fetchApplicants();
         }
-    }, [postDetails?.status]);
-
-    const fetchApplicants = async () => {
-        if (!postId || postDetails?.status !== "own") return;
-
-        setApplicantsLoading(true);
-        try {
-            const response = await getWithAuth(`/api/getPost/${postId}/applications`);
-            if (response.ok) {
-                const data = await response.json();
-                setApplicants(data.users);
-            } else {
-                const errorData = await response.json();
-                showNotification(errorData.msg || 'Błąd podczas pobierania aplikacji', 'error');
-            }
-        } catch (error) {
-            console.error('Error fetching applicants:', error);
-            showNotification('Nie udało się pobrać aplikacji', 'error');
-        } finally {
-            setApplicantsLoading(false);
-        }
-    };
+    }, [postDetails?.status, postId, showNotification]);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setMenuAnchorEl(event.currentTarget);

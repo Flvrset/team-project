@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useCallback } from 'react';
 
 export type NotificationSeverity = 'success' | 'error' | 'info' | 'warning';
 
@@ -19,13 +19,13 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     severity: 'success' as NotificationSeverity
   });
 
-  const showNotification = (message: string, severity: NotificationSeverity) => {
+  const showNotification = useCallback((message: string, severity: NotificationSeverity) => {
     setNotification({
       open: true,
       message,
       severity
     });
-  };
+  }, []);
 
   const hideNotification = () => {
     setNotification(prev => ({ ...prev, open: false }));

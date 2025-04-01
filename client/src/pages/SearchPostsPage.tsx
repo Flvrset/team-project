@@ -12,7 +12,7 @@ import {
     alpha,
     InputAdornment,
 } from '@mui/material';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import BackButton from '../components/BackButton';
@@ -46,14 +46,58 @@ const SearchPostsPage = () => {
     const [kilometersError, setKilometersError] = useState<string | null>(null);
     const [cityError, setCityError] = useState<string | null>(null);
 
+    const fetchPosts = useCallback(async () => {
+        if (!searchModel.city || !searchModel.postal_code) {
+            setCityError('Proszę najpierw wybrać miasto');
+            return;
+        }
+
+        if (searchModel.kms < 0) {
+            setKilometersError('Odległość nie może być mniejsza niż 0');
+            return;
+        }
+
+        if (kilometersError) {
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const queryParams = new URLSearchParams({
+                city: searchModel.city,
+                postal_code: searchModel.postal_code,
+                kms: searchModel.kms.toString()
+            });
+
+            setSearchParams(queryParams);
+
+            const response = await getWithAuth(`/api/getDashboardPost?${queryParams}`);
+
+            if (!response.ok) {
+                throw new Error('Nie udało się pobrać ogłoszeń');
+            }
+
+            const data = await response.json();
+            setPosts(data);
+
+        } catch (err) {
+            showNotification('Nie udało się pobrać ogłoszeń. Spróbuj ponownie.', 'error');
+            console.error('Błąd podczas pobierania ogłoszeń:', err);
+            setPosts([]);
+        } finally {
+            setLoading(false);
+        }
+    }, [kilometersError, searchModel, setSearchParams, showNotification]);
+
+
     useEffect(() => {
         if (searchParams.has('city') && searchParams.has('postal_code')) {
             fetchPosts();
         } else {
             fetchUserData();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [fetchPosts, searchParams]);
 
     const handleModelChange = (updatedModel: SearchModel) => {
         if (updatedModel.city && updatedModel.postal_code) {
@@ -116,49 +160,6 @@ const SearchPostsPage = () => {
         });
     };
 
-    const fetchPosts = async () => {
-        if (!searchModel.city || !searchModel.postal_code) {
-            setCityError('Proszę najpierw wybrać miasto');
-            return;
-        }
-
-        if (searchModel.kms < 0) {
-            setKilometersError('Odległość nie może być mniejsza niż 0');
-            return;
-        }
-
-        if (kilometersError) {
-            return;
-        }
-
-        setLoading(true);
-
-        try {
-            const queryParams = new URLSearchParams({
-                city: searchModel.city,
-                postal_code: searchModel.postal_code,
-                kms: searchModel.kms.toString()
-            });
-
-            setSearchParams(queryParams);
-
-            const response = await getWithAuth(`/api/getDashboardPost?${queryParams}`);
-
-            if (!response.ok) {
-                throw new Error('Nie udało się pobrać ogłoszeń');
-            }
-
-            const data = await response.json();
-            setPosts(data);
-
-        } catch (err) {
-            showNotification('Nie udało się pobrać ogłoszeń. Spróbuj ponownie.', 'error');
-            console.error('Błąd podczas pobierania ogłoszeń:', err);
-            setPosts([]);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleSearch = () => {
         fetchPosts();

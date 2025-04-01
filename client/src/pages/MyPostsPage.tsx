@@ -17,28 +17,30 @@ const MyPostsPage = () => {
     const { showNotification } = useNotification();
     const theme = useTheme();
 
+
     useEffect(() => {
-        fetchUserPosts();
-    }, []);
-
-    const fetchUserPosts = async () => {
-        setLoading(true);
-        try {
-            const response = await getWithAuth('/api/getMyPosts');
-
-            if (response.ok) {
-                const data = await response.json() as MyPostsResponse;
-                setUserPosts(convertBackendPosts(data.post_lst).sort((post => post.status === 'active' ? -1 : 1)));
-            } else {
-                throw new Error('Failed to fetch user posts');
+        const fetchUserPosts = async () => {
+            setLoading(true);
+            try {
+                const response = await getWithAuth('/api/getMyPosts');
+    
+                if (response.ok) {
+                    const data = await response.json() as MyPostsResponse;
+                    setUserPosts(convertBackendPosts(data.post_lst).sort((post => post.status === 'active' ? -1 : 1)));
+                } else {
+                    throw new Error('Failed to fetch user posts');
+                }
+            } catch (error) {
+                console.error('Error fetching user posts:', error);
+                showNotification('Nie udało się załadować Twoich ogłoszeń', 'error');
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error fetching user posts:', error);
-            showNotification('Nie udało się załadować Twoich ogłoszeń', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+    
+        fetchUserPosts();
+    }, [showNotification]);
+
 
     const handlePostClick = (postId: number) => {
         navigate(`/dashboard/posts/${postId}`);
