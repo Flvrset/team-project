@@ -106,7 +106,7 @@ def protected():
     is_baned = db.session.query(User.is_banned).filter(User.user_id == int(get_jwt_identity())).first()
 
     if is_baned:
-        return redirect(url_for("logout"))
+        return redirect(url_for("routes.logout"))
 
     photo = UserPhoto.query.filter_by(user_id=get_jwt_identity()).first() or None
 
