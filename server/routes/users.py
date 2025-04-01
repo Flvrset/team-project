@@ -105,6 +105,7 @@ def get_user(user_id):
         generate_presigned_url("user_photo", user_photo.photo) if user_photo else ""
     )
     user_dict["rating"] = float(rating_overall) if rating_overall else rating_overall
+    user_dict["can_report"] = user_dict["user_id"] != int(get_jwt_identity())
 
     if pet_lst:
         for pet in pet_lst:
