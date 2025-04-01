@@ -20,15 +20,13 @@ class AdminReportDto(ma.SQLAlchemyAutoSchema):
         model = Report
         load_instance = True
 
+    report_id = ma.auto_field()
     who_user_id = ma.auto_field()
     whom_user_id = ma.auto_field()
     report_type_id = ma.auto_field()
     description = ma.auto_field(allow_none=True)
     report_date = ma.auto_field()
     report_time = ma.auto_field()
-
-    # custom filed with report name
-    report_type_name = fields.String(allow_none=True)
 
 
 report_dto = CreateReportDTO()
