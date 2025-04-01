@@ -1,9 +1,6 @@
 from flask import request, jsonify, Blueprint
 from app import db
-from flask_jwt_extended import (
-    jwt_required,
-    get_jwt
-)
+from flask_jwt_extended import jwt_required, get_jwt
 from db_models.database_tables import User, Report, ReportType
 from db_dto.post_dto import get_user_dto
 from db_dto.rating_dto import user_rating_dto, user_ratings_dto
@@ -39,7 +36,13 @@ def get_reports_admin():
 
     return jsonify(
         [
-            {"report": admin_report_dto.dump(report).assign_report_type_name(report_type_name), "reporter_user": get_user_dto.dump(reporter), "reported_user": get_user_dto.dump(reported)}
+            {
+                "report": admin_report_dto.dump(report).update(
+                    {"report_type_name": report_type_name}
+                ),
+                "reporter_user": get_user_dto.dump(reporter),
+                "reported_user": get_user_dto.dump(reported),
+            }
             for report, reported, reporter, report_type_name in report_lst
         ]
     )
