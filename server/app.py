@@ -43,11 +43,13 @@ def create_app(config_class="config.Config"):
     from routes.pets import pet
     from routes.posts import post_bprt
     from routes.users import user_bprt
+    from routes.admins import admin_bprt
 
     app.register_blueprint(auth)
     app.register_blueprint(dicts)
     app.register_blueprint(pet)
     app.register_blueprint(post_bprt)
     app.register_blueprint(user_bprt)
+    app.register_blueprint(admin_bprt)
 
     return app

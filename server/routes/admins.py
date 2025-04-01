@@ -19,7 +19,7 @@ from utils.file_storage import generate_presigned_url
 admin_bprt = Blueprint("admin", __name__)
 
 
-@admin_bprt.route("/admin_panel/reports", methods=["GET"])
+@admin_bprt.route("/adminPanel/reports", methods=["GET"])
 @jwt_required()
 def get_reports_admin():
     report_agg_subquery = db.session.query(
