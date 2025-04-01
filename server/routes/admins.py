@@ -18,20 +18,34 @@ admin_bprt = Blueprint("admin", __name__)
 @admin_bprt.route("/adminPanel/reports", methods=["GET"])
 @jwt_required()
 def get_reports_admin():
-    report_agg_subquery = (
+    report_desc_agg_query = (
         db.session.query(
             Report.whom_user_id,
+            Report.report_type_id,
+            sqlalchemy.func.array_agg(Report.description).label("agg_desc"),
+        )
+        .group_by(Report.whom_user_id)
+        .subquery()
+    )
+    report_desc_agg_alias = sqlalchemy.alias(report_desc_agg_query)
+
+    report_agg_subquery = (
+        db.session.query(
+            report_desc_agg_alias.c.whom_user_id,
             sqlalchemy.func.json_agg(
                 sqlalchemy.func.json_build_object(
                     "report_type_name",
                     ReportType.report_type_name,
                     "descriptions",
-                    sqlalchemy.func.array_agg(Report.description),
+                    report_desc_agg_alias.c.agg_desc,
                 )
             ).label("agg_report"),
         )
-        .join(ReportType, Report.report_type_id == ReportType.report_type_id)
-        .group_by(Report.whom_user_id, ReportType.report_type_name)
+        .join(
+            ReportType,
+            report_desc_agg_alias.c.report_type_id == ReportType.report_type_id,
+        )
+        .group_by(report_desc_agg_alias.c.whom_user_id)
         .subquery()
     )
 
