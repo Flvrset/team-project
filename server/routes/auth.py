@@ -67,6 +67,9 @@ def login_mail_page():
     if not user:
         return jsonify({"msg": "Provided user does not exist!"}), 401
 
+    if user.is_banned:
+        return jsonify({"msg": "To konto zostało zablokowane!"}), 404
+
     if bcrypt.check_password_hash(
         user.password_hash.encode("utf-8"), password.encode("utf-8")
     ):
