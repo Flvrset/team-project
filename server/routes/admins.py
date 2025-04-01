@@ -24,7 +24,7 @@ def get_reports_admin():
             Report.report_type_id,
             sqlalchemy.func.array_agg(Report.description).label("agg_desc"),
         )
-        .group_by(Report.whom_user_id)
+        .group_by(Report.whom_user_id, Report.report_type_id)
         .subquery()
     )
     report_desc_agg_alias = sqlalchemy.alias(report_desc_agg_query)
