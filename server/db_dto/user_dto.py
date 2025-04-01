@@ -41,7 +41,7 @@ class EditUserDTO(ma.SQLAlchemyAutoSchema):
             "email",
             "join_date",
             "is_banned",
-            "is_admin"
+            "is_admin",
         )
 
     user_id = ma.auto_field(dump_only=True)

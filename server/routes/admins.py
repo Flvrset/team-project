@@ -4,11 +4,7 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
-from db_models.database_tables import (
-    User,
-    Report,
-    ReportType
-)
+from db_models.database_tables import User, Report, ReportType
 from db_dto.post_dto import get_user_dto
 from db_dto.rating_dto import user_rating_dto, user_ratings_dto
 from db_dto.report_dto import report_dto
@@ -22,15 +18,22 @@ admin_bprt = Blueprint("admin", __name__)
 @admin_bprt.route("/adminPanel/reports", methods=["GET"])
 @jwt_required()
 def get_reports_admin():
-    report_agg_subquery = db.session.query(
-        Report.whom_user_id,
-        sqlalchemy.func.json_agg(
-            sqlalchemy.func.json_build_object(
-                "report_type_name", ReportType.report_type_name,
-                "descriptions", sqlalchemy.func.array_agg(Report.description)
-            )
-        ).label("agg_report")
-    ).join(ReportType, Report.report_type_id == ReportType.report_type_id).group_by(Report.whom_user_id, ReportType.report_type_name).subquey()
+    report_agg_subquery = (
+        db.session.query(
+            Report.whom_user_id,
+            sqlalchemy.func.json_agg(
+                sqlalchemy.func.json_build_object(
+                    "report_type_name",
+                    ReportType.report_type_name,
+                    "descriptions",
+                    sqlalchemy.func.array_agg(Report.description),
+                )
+            ).label("agg_report"),
+        )
+        .join(ReportType, Report.report_type_id == ReportType.report_type_id)
+        .group_by(Report.whom_user_id, ReportType.report_type_name)
+        .subquery()
+    )
 
     report_agg_alias = sqlalchemy.alias(report_agg_subquery)
 
@@ -43,9 +46,9 @@ def get_reports_admin():
     if not report_lst:
         return jsonify({"msg": "Brak nowych zgłoszeń"}), 200
 
-    return jsonify([
-        {"user": get_user_dto.dump(user), "reports": agg_report_info}
-        for user, agg_report_info in report_lst
-    ])
-
-
+    return jsonify(
+        [
+            {"user": get_user_dto.dump(user), "reports": agg_report_info}
+            for user, agg_report_info in report_lst
+        ]
+    )
