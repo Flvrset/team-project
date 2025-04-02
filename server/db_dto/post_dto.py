@@ -43,7 +43,6 @@ class PostPageUserDTO(ma.SQLAlchemyAutoSchema):
             "apartment_number",
             "phone_number",
             "join_date",
-            "is_banned",
             "login",
             "password_hash",
             "email",

@@ -1,10 +1,20 @@
 from flask import request, jsonify, Blueprint
 from app import db
 from flask_jwt_extended import jwt_required, get_jwt
-from db_models.database_tables import User, Report, ReportType, Post, UserRating
-from db_dto.post_dto import get_user_dto
+from db_models.database_tables import (
+    User,
+    Report,
+    ReportType,
+    Post,
+    UserRating,
+    Pet,
+    UserPhoto,
+    PetPhoto,
+)
+from db_dto.post_dto import get_user_dto, get_users_dto
 from db_dto.rating_dto import user_rating_dto, user_ratings_dto
 from db_dto.report_dto import admin_report_dto
+from utils.file_storage import generate_presigned_url
 
 import sqlalchemy
 from sqlalchemy.orm import aliased
@@ -50,12 +60,12 @@ def get_reports_admin():
         .join(
             alias_reported_user_rating,
             alias_reported_user_rating.c.user_id == Report.who_user_id,
-            is_outer=True,
+            isouter=True,
         )
         .join(
             alias_reporter_user_rating,
             alias_reporter_user_rating.c.user_id == Report.whom_user_id,
-            is_outer=True,
+            isouter=True,
         )
         .filter(Report.was_considered == False)
         .all()
@@ -140,3 +150,133 @@ def unban_user(user_id):
             jsonify({"msg": "Serwer nie działa! Idź pospamić o to do IT!"}),
             400,
         )
+
+
+@admin_bprt.route("/adminPanel/removePost/<int:post_id>", methods=["PUT"])
+@jwt_required()
+def remove_post(post_id):
+    claims = get_jwt()
+
+    if not claims.get("is_admin"):
+        return jsonify({"msg": "Nie masz dostępu do tej funkcji!"}), 404
+
+    post = db.session.query(Post).filter(Post.post_id == post_id).first()
+
+    try:
+        post.is_active = False
+
+        db.session.commit()
+        return jsonify({"msg": "Post usunięty!"}), 200
+    except sqlalchemy.exc.IntegrityError:
+        db.session.rollback()
+        return (
+            jsonify({"msg": "Serwer nie działa! Idź pospamić o to do IT!"}),
+            400,
+        )
+
+
+@admin_bprt.route("/adminPanel/users", methods=["GET"])
+@jwt_required()
+def get_users_admin():
+    claims = get_jwt()
+
+    if not claims.get("is_admin"):
+        return jsonify({"msg": "Nie masz dostępu do tej funkcji!"}), 404
+
+    subquery_rating = (
+        db.session.query(
+            UserRating.user_id,
+            sqlalchemy.func.avg(UserRating.star_number).label("rating_overall"),
+            sqlalchemy.func.json_agg(
+                sqlalchemy.func.json_build_object(
+                    "usr_rating_id",
+                    UserRating.user_rating_id,
+                    "star_number",
+                    UserRating.star_number,
+                    "description",
+                    UserRating.description,
+                )
+            ).label("rating_lst"),
+        )
+        .group_by(UserRating.user_id)
+        .subquery()
+    )
+    alias_subquery_rating = sqlalchemy.alias(subquery_rating)
+
+    subquery_pet = (
+        db.session.query(
+            Pet.user_id,
+            sqlalchemy.func.json_agg(
+                sqlalchemy.func.json_build_object(
+                    "pet_id",
+                    Pet.pet_id,
+                    "pet_name",
+                    Pet.pet_name,
+                    "type",
+                    Pet.type,
+                    "race",
+                    Pet.race,
+                    "size",
+                    Pet.size,
+                    "birth_date",
+                    Pet.birth_date,
+                    "description",
+                    Pet.description,
+                    "photo",
+                    PetPhoto.photo_name,
+                )
+            ).label("pet_lst"),
+        )
+        .outerjoin(PetPhoto, PetPhoto.pet_id == Pet.pet_id)
+        .group_by(Pet.user_id)
+        .subquery()
+    )
+    alias_subquery_pet = sqlalchemy.alias(subquery_pet)
+
+    users_info_lst = (
+        db.session.query(
+            User,
+            UserPhoto,
+            alias_subquery_rating.c.rating_overall,
+            alias_subquery_rating.c.rating_lst,
+            alias_subquery_pet.c.pet_lst,
+        )
+        .outerjoin(UserPhoto, User.user_id == UserPhoto.user_id)
+        .outerjoin(
+            alias_subquery_rating, User.user_id == alias_subquery_rating.c.user_id
+        )
+        .outerjoin(alias_subquery_pet, User.user_id == alias_subquery_pet.c.user_id)
+        .all()
+    )
+
+    users_resp_lst = []
+    for user, user_photo, rating_overall, rating_lst, pet_lst in users_info_lst:
+        user_dict = get_user_dto.dump(user)
+        user_dict["photo"] = (
+            generate_presigned_url("user_photo", user_photo.photo) if user_photo else ""
+        )
+        user_dict["rating"] = (
+            float(rating_overall) if rating_overall else rating_overall
+        )
+        user_dict["can_report"] = True
+
+        if pet_lst:
+            for pet in pet_lst:
+                pet["photo"] = (
+                    generate_presigned_url("pet_photo", pet["photo"])
+                    if pet["photo"]
+                    else ""
+                )
+
+        users_resp_lst.append(
+            {
+                "user": user_dict,
+                "pets": pet_lst,
+                "ratings": user_ratings_dto.dump(rating_lst),
+            }
+        )
+
+    return (
+        jsonify(users_resp_lst),
+        200,
+    )
