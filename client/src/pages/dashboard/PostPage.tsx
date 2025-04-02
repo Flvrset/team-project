@@ -8,10 +8,10 @@ import {
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import PostApplicantView from '../components/post/PostApplicantView';
-import PostOwnerView from '../components/post/PostOwnerView';
-import { PostDetails } from '../types';
-import { getWithAuth } from '../utils/auth';
+import PostApplicantView from '../../components/post/PostApplicantView';
+import PostOwnerView from '../../components/post/PostOwnerView';
+import { PostDetails } from '../../types';
+import { getWithAuth } from '../../utils/auth';
 
 const PostPage = () => {
   const { postId } = useParams<{ postId: string }>();

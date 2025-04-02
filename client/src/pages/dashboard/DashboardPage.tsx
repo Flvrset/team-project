@@ -18,8 +18,8 @@ import {
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useAuth } from '../contexts/AuthProvider';
-import { getWithAuth } from '../utils/auth';
+import { useAuth } from '../../contexts/AuthProvider';
+import { getWithAuth } from '../../utils/auth';
 
 const DashboardPage = () => {
     const auth = useAuth();

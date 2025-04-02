@@ -25,11 +25,11 @@ import {
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import PetCard from '../components/PetCard';
-import ReportUserModal from '../components/ReportUserModal';
-import { useNotification } from '../contexts/NotificationContext';
-import { User, Pet, IRating } from '../types';
-import { getWithAuth } from '../utils/auth';
+import PetCard from '../../components/PetCard';
+import ReportUserModal from '../../components/ReportUserModal';
+import { useNotification } from '../../contexts/NotificationContext';
+import { User, Pet, IRating } from '../../types';
+import { getWithAuth } from '../../utils/auth';
 
 interface UserResponse {
     user: User;

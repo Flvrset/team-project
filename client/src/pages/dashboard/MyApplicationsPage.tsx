@@ -1,44 +1,43 @@
-import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
 import { Box, Typography, Grid, CircularProgress, Paper, alpha, useTheme, Button } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import BackButton from '../components/BackButton';
-import PostCard from '../components/PostCard';
-import { useNotification } from '../contexts/NotificationContext';
-import { MyPostsResponse, Post } from '../types';
-import { getWithAuth } from '../utils/auth';
-import { convertBackendPosts } from '../utils/postUtils';
+import BackButton from '../../components/BackButton';
+import PostCard from '../../components/PostCard';
+import { useNotification } from '../../contexts/NotificationContext';
+import { MyPostsResponse, Post } from '../../types';
+import { getWithAuth } from '../../utils/auth';
+import { convertBackendPosts } from '../../utils/postUtils';
 
-const MyPostsPage = () => {
-    const [userPosts, setUserPosts] = useState<Post[]>([]);
+const MyApplicationsPage = () => {
+    const [applications, setApplications] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const { showNotification } = useNotification();
     const theme = useTheme();
 
-
     useEffect(() => {
-        const fetchUserPosts = async () => {
+        const fetchUserApplications = async () => {
             setLoading(true);
             try {
-                const response = await getWithAuth('/api/getMyPosts');
-    
+                const response = await getWithAuth('/api/getMyApplications');
+
                 if (response.ok) {
                     const data = await response.json() as MyPostsResponse;
-                    setUserPosts(convertBackendPosts(data.post_lst).sort((post => post.status === 'active' ? -1 : 1)));
+                    setApplications(convertBackendPosts(data.post_lst));
                 } else {
-                    throw new Error('Failed to fetch user posts');
+                    throw new Error('Failed to fetch user applications');
                 }
             } catch (error) {
-                console.error('Error fetching user posts:', error);
-                showNotification('Nie udało się załadować Twoich ogłoszeń', 'error');
+                console.error('Error fetching user applications:', error);
+                showNotification('Nie udało się załadować Twoich aplikacji', 'error');
             } finally {
                 setLoading(false);
             }
         };
-    
-        fetchUserPosts();
+
+        fetchUserApplications();
     }, [showNotification]);
 
 
@@ -46,38 +45,40 @@ const MyPostsPage = () => {
         navigate(`/dashboard/posts/${postId}`);
     };
 
-    const handleCreatePost = () => {
-        navigate('/dashboard/create-post');
+    const handleSearchPosts = () => {
+        navigate('/dashboard/search-posts');
     };
 
     const renderPostWithStatus = (post: Post) => {
-        let color: 'success' | 'error' | 'primary' | 'grey';
+        let color: 'success' | 'error' | 'primary';
         let displayStatus: string;
-        const pendingCount = post.pending_applications || 0;
 
         switch (post.status) {
             case 'accepted':
                 color = 'success';
-                displayStatus = 'Zaakceptowane';
+                displayStatus = 'Zaakceptowana';
+                break;
+            case 'declined':
+                color = 'error';
+                displayStatus = 'Odrzucona';
                 break;
             case 'cancelled':
-                color = 'grey';
-                displayStatus = 'Anulowane';
+                color = 'error';
+                displayStatus = 'Anulowana';
                 break;
-            case 'active':
+            case 'waiting':
             default:
                 color = 'primary';
-                displayStatus = 'Aktywne';
+                displayStatus = 'Oczekująca';
         }
 
         return (
             <PostCard
                 post={post}
+                label={{ text: displayStatus, color }}
                 onClick={handlePostClick}
-                actionText="Zarządzaj"
+                actionText="Zobacz szczegóły"
                 showHeader={false}
-                label={post.status ? { text: displayStatus, color } : undefined}
-                badgeCount={pendingCount}
             />
         );
     };
@@ -90,15 +91,15 @@ const MyPostsPage = () => {
                     p: 3,
                     mb: 4,
                     borderRadius: 3,
-                    background: `linear-gradient(135deg, ${theme.palette.primary.light}, ${theme.palette.primary.main})`,
+                    background: `linear-gradient(135deg, ${theme.palette.secondary.light}, ${theme.palette.secondary.main})`,
                     color: 'white',
                 }}
             >
                 <Typography variant="h4" component="h1" fontWeight="bold">
-                    Twoje ogłoszenia
+                    Twoje zgłoszenia
                 </Typography>
                 <Typography variant="subtitle1" sx={{ mt: 1, opacity: 0.9 }}>
-                    Zarządzaj swoimi ogłoszeniami
+                    Zobacz status swoich aplikacji do ogłoszeń
                 </Typography>
             </Paper>
 
@@ -106,12 +107,12 @@ const MyPostsPage = () => {
                 <BackButton />
                 <Button
                     variant="contained"
-                    color="primary"
-                    startIcon={<AddIcon />}
-                    onClick={handleCreatePost}
+                    color="secondary"
+                    startIcon={<SearchIcon />}
+                    onClick={handleSearchPosts}
                     sx={{ borderRadius: 2, px: 3 }}
                 >
-                    Dodaj ogłoszenie
+                    Szukaj ogłoszeń
                 </Button>
             </Box>
 
@@ -121,11 +122,11 @@ const MyPostsPage = () => {
                 </Box>
             ) : (
                 <>
-                    {userPosts.length > 0 ? (
+                    {applications.length > 0 ? (
                         <Grid container spacing={3}>
-                            {userPosts.map((post) => (
-                                <Grid item xs={12} sm={6} md={4} key={post.post_id}>
-                                    {renderPostWithStatus(post)}
+                            {applications.map((application) => (
+                                <Grid item xs={12} sm={6} md={4} key={application.post_id}>
+                                    {renderPostWithStatus(application)}
                                 </Grid>
                             ))}
                         </Grid>
@@ -139,10 +140,10 @@ const MyPostsPage = () => {
                             }}
                         >
                             <Typography variant="h6" gutterBottom>
-                                Nie masz jeszcze żadnych ogłoszeń
+                                Nie masz jeszcze żadnych aplikacji
                             </Typography>
                             <Typography variant="body1" color="text.secondary">
-                                Utwórz nowe ogłoszenie, aby rozpocząć
+                                Przeglądaj ogłoszenia i aplikuj, aby zobaczyć tutaj swoją listę
                             </Typography>
                         </Paper>
                     )}
@@ -152,4 +153,4 @@ const MyPostsPage = () => {
     );
 };
 
-export default MyPostsPage;
+export default MyApplicationsPage;

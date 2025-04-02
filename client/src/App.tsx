@@ -3,18 +3,21 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthProvider';
 import { NotificationProvider } from './contexts/NotificationContext';
 import DashboardLayout from './layouts/DashboardLayout';
-import CreatePostPage from './pages/CreatePostPage';
-import DashboardPage from './pages/DashboardPage';
-import EditDataPage from './pages/EditDataPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminReportsPage from './pages/admin/AdminReportsPage';
+import CreatePostPage from './pages/dashboard/CreatePostPage';
+import DashboardPage from './pages/dashboard/DashboardPage';
+import EditDataPage from './pages/dashboard/EditDataPage';
+import MyApplicationsPage from './pages/dashboard/MyApplicationsPage';
+import MyPostsPage from './pages/dashboard/MyPostsPage';
+import PetsPage from './pages/dashboard/PetsPage';
+import PostPage from './pages/dashboard/PostPage';
+import SearchPostsPage from './pages/dashboard/SearchPostsPage';
+import UserPage from './pages/dashboard/UserPage';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
-import MyApplicationsPage from './pages/MyApplicationsPage';
-import MyPostsPage from './pages/MyPostsPage';
-import PetsPage from './pages/PetsPage';
-import PostPage from './pages/PostPage';
 import RegisterPage from './pages/RegisterPage';
-import SearchPostsPage from './pages/SearchPostsPage';
-import UserPage from './pages/UserPage';
+import AdminRoute from './routes/AdminRoute';
 import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
@@ -39,6 +42,13 @@ function App() {
                   <Route path='/dashboard/my-posts' element={<MyPostsPage />} />
                   <Route path='/dashboard/my-applications' element={<MyApplicationsPage />} />
                   <Route path='/dashboard/users/:userId' element={<UserPage />} />
+                </Route>
+              </Route>
+
+              <Route element={<AdminRoute />}>
+                <Route element={<DashboardLayout />}>
+                  <Route path='/admin' element={<AdminDashboardPage />} />
+                  <Route path='/admin/reports' element={<AdminReportsPage />} />
                 </Route>
               </Route>
             </Routes>

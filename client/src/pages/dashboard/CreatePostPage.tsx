@@ -25,13 +25,13 @@ import { pl } from 'date-fns/locale/pl';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import BackButton from '../components/BackButton';
-import PetCard from '../components/PetCard';
-import PetFormModal from '../components/PetFormModal';
-import { useNotification } from '../contexts/NotificationContext';
-import { Pet } from '../types';
-import { getWithAuth, postWithAuth } from '../utils/auth';
-import { combineDateAndTime } from '../utils/utils';
+import BackButton from '../../components/BackButton';
+import PetCard from '../../components/PetCard';
+import PetFormModal from '../../components/PetFormModal';
+import { useNotification } from '../../contexts/NotificationContext';
+import { Pet } from '../../types';
+import { getWithAuth, postWithAuth } from '../../utils/auth';
+import { combineDateAndTime } from '../../utils/utils';
 
 interface FormData {
     startDate: Date | null;

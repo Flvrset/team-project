@@ -24,11 +24,11 @@ import {
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import CitySearchSelect from '../components/CitySearchSelect';
-import { useAuth } from '../contexts/AuthProvider';
-import { useNotification } from '../contexts/NotificationContext';
-import { getWithAuth, putWithAuth } from '../utils/auth';
-import { validateChain, validateMaxLength, validateNumber, validatePhoneNumber } from '../utils/validation';
+import CitySearchSelect from '../../components/CitySearchSelect';
+import { useAuth } from '../../contexts/AuthProvider';
+import { useNotification } from '../../contexts/NotificationContext';
+import { getWithAuth, putWithAuth } from '../../utils/auth';
+import { validateChain, validateMaxLength, validateNumber, validatePhoneNumber } from '../../utils/validation';
 
 interface UserFormData {
     city: string;

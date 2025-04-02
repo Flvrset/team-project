@@ -20,11 +20,11 @@ import {
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import PetCard from '../components/PetCard';
-import PetFormModal from '../components/PetFormModal';
-import { useNotification } from '../contexts/NotificationContext';
-import { Pet } from '../types';
-import { getWithAuth, postWithAuth } from '../utils/auth';
+import PetCard from '../../components/PetCard';
+import PetFormModal from '../../components/PetFormModal';
+import { useNotification } from '../../contexts/NotificationContext';
+import { Pet } from '../../types';
+import { getWithAuth, postWithAuth } from '../../utils/auth';
 
 const PetsPage = () => {
     const theme = useTheme();

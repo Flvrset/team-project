@@ -15,13 +15,13 @@ import {
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import BackButton from '../components/BackButton';
-import CitySearchSelect from '../components/CitySearchSelect';
-import PostCard from '../components/PostCard';
-import { useNotification } from '../contexts/NotificationContext';
-import { Post } from '../types';
-import { getWithAuth } from '../utils/auth';
-import { validateNumber } from '../utils/validation';
+import BackButton from '../../components/BackButton';
+import CitySearchSelect from '../../components/CitySearchSelect';
+import PostCard from '../../components/PostCard';
+import { useNotification } from '../../contexts/NotificationContext';
+import { Post } from '../../types';
+import { getWithAuth } from '../../utils/auth';
+import { validateNumber } from '../../utils/validation';
 
 interface SearchModel {
     city: string;
@@ -97,7 +97,7 @@ const SearchPostsPage = () => {
         } else {
             fetchUserData();
         }
-    }, [searchParams]);
+    }, []);
 
     const handleModelChange = (updatedModel: SearchModel) => {
         if (updatedModel.city && updatedModel.postal_code) {

@@ -10,11 +10,13 @@ interface UserData {
     email: string;
     login: string;
     file_link?: string;
+    is_admin?: boolean;
 }
 
 interface AuthContextType {
     userData: UserData | null;
     isAuthenticated: boolean;
+    isAdmin: boolean;
     loading: boolean;
     login: (userData: UserData) => void;
     logout: () => void;
@@ -24,6 +26,7 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType>({
     userData: null,
     isAuthenticated: false,
+    isAdmin: false,
     loading: true,
     login: () => { },
     logout: () => { },
@@ -87,6 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         <AuthContext.Provider value={{
             userData,
             isAuthenticated: !!userData,
+            isAdmin: !!userData?.is_admin,
             loading,
             login,
             logout,
