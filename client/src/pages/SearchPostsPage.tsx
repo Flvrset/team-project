@@ -97,7 +97,7 @@ const SearchPostsPage = () => {
         } else {
             fetchUserData();
         }
-    }, [fetchPosts, searchParams]);
+    }, [searchParams]);
 
     const handleModelChange = (updatedModel: SearchModel) => {
         if (updatedModel.city && updatedModel.postal_code) {
