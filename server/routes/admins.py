@@ -22,6 +22,39 @@ from sqlalchemy.orm import aliased
 admin_bprt = Blueprint("admin", __name__)
 
 
+@admin_bprt.route("/adminPanel/dashboard", methods=["GET"])
+@jwt_required()
+def get_admin_dashboard():
+    claims = get_jwt()
+
+    if not claims.get("is_admin"):
+        return jsonify({"msg": "Nie masz dostępu do tej funkcji!"}), 404
+
+    active_report_count = (
+        db.session.query(sqlalchemy.func.count(Report.report_id))
+        .filter(Report.was_considered == False)
+        .scalar()
+    )
+
+    post_count, active_post_count = db.session.query(
+        sqlalchemy.func.count(Post.post_id),
+        sqlalchemy.func.sum(sqlalchemy.case((Post.is_active == True, 1), else_=0)),
+    ).first()
+
+    user_count, banned_user_count = db.session.query(
+        sqlalchemy.func.count(User.user_id),
+        sqlalchemy.func.sum(sqlalchemy.case((User.is_banned == True, 1), else_=0)),
+    ).first()
+
+    return jsonify({
+        "active_report_count": active_report_count,
+        "post_count": post_count,
+        "active_post_count": active_post_count,
+        "user_count": user_count,
+        "banned_user_count": banned_user_count,
+    })
+
+
 @admin_bprt.route("/adminPanel/reports", methods=["GET"])
 @jwt_required()
 def get_reports_admin():
