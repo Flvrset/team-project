@@ -55,9 +55,10 @@ class PostPageUserDTO(ma.SQLAlchemyAutoSchema):
     city = ma.auto_field(required=True)
     postal_code = ma.auto_field(required=True)
     description = ma.auto_field(allow_none=True)
+    is_banned = ma.auto_field()
 
     # custom rating field
-    rating = fields.Float(default=4.5)
+    rating = fields.Float(allow_none=True)
 
 
 class PostPetDTO(ma.SQLAlchemyAutoSchema):

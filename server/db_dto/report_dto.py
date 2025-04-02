@@ -19,7 +19,7 @@ class AdminReportDto(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Report
         load_instance = True
-        exclude = ("was_considered", )
+        exclude = ("was_considered",)
 
     report_id = ma.auto_field()
     who_user_id = ma.auto_field()

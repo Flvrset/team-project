@@ -1,9 +1,6 @@
 from flask import request, jsonify, Blueprint
 from app import db
-from flask_jwt_extended import (
-    jwt_required,
-    get_jwt_identity,
-)
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from db_models.database_tables import (
     User,
     Post,
@@ -78,7 +75,8 @@ def get_dashboard_post():
     kms = request.args.get("kms", 0)
     print(f"city: {city}, postal code: {postal_code}, km: {kms}")
     # dodac logike do wybierania 10 (albo wiecej) dla uzytkownika
-    post_lst = (
+
+    post_query = (
         db.session.query(
             Post,
             User,
@@ -88,12 +86,15 @@ def get_dashboard_post():
         .join(User, Post.user_id == User.user_id, isouter=True)
         .join(PetCare, Post.post_id == PetCare.post_id, isouter=True)
         .outerjoin(PetPhoto, PetCare.pet_id == PetPhoto.pet_id)
-        .filter(Post.user_id != int(get_jwt_identity()))
-        .filter(Post.is_active == True)
         .group_by(Post.post_id, User.user_id)
-        .limit(10)
-        .all()
     )
+
+    if not get_jwt().get("is_admin", False):
+        post_query = post_query.filter(Post.user_id != int(get_jwt_identity())).filter(
+            Post.is_active == True
+        )
+
+    post_lst = post_query.all()
 
     resp_lst = [
         {
