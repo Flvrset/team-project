@@ -281,7 +281,7 @@ def get_post(post_id):
     user_dto["phone_number"] = user.phone_number if status == "accepted" else None
     user_dto["email"] = user.email if status == "accepted" else None
 
-    caregiver_dto = get_user_dto(caregiver) if caregiver else None
+    caregiver_dto = get_user_dto.dump(caregiver) if caregiver else None
     if caregiver_dto:
         caregiver_dto["phone_number"] = caregiver_dto.phone_number
         caregiver_dto["email"] = caregiver_dto.email
