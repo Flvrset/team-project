@@ -173,7 +173,7 @@ def unban_user(user_id):
     user = db.session.query(User).filter(User.user_id == user_id).first()
 
     try:
-        user.is_banned = True
+        user.is_banned = False
 
         db.session.commit()
         return jsonify({"msg": "Użytkownik odbanowany!"}), 200
