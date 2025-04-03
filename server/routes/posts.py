@@ -283,8 +283,8 @@ def get_post(post_id):
 
     caregiver_dto = get_user_dto.dump(caregiver) if caregiver else None
     if caregiver_dto:
-        caregiver_dto["phone_number"] = caregiver_dto.phone_number
-        caregiver_dto["email"] = caregiver_dto.email
+        caregiver_dto["phone_number"] = caregiver.phone_number
+        caregiver_dto["email"] = caregiver.email
 
     return (
         jsonify(
