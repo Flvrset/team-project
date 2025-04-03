@@ -2,8 +2,8 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import PetsIcon from '@mui/icons-material/Pets';
 import ReportIcon from '@mui/icons-material/Report';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import { 
-  Box, Typography, Container, Grid, Card, CardContent, 
+import {
+  Box, Typography, Container, Grid, Card, CardContent,
   Button, CircularProgress, Paper, Divider,
   CardActionArea, CardActions
 } from '@mui/material';
@@ -33,23 +33,17 @@ const AdminDashboardPage = () => {
     const fetchDashboardStats = async () => {
       setLoading(true);
       try {
-        const reportsResponse = await getWithAuth('/api/adminPanel/reports');
-        
-        if (reportsResponse.ok) {
-          const reports = await reportsResponse.json();
-          if (Array.isArray(reports)) {
-            setStats(prev => ({ ...prev, pendingReports: reports.length }));
-          }
+        const dashboardResponse = await getWithAuth('/api/adminPanel/dashboard');
+
+        if (dashboardResponse.ok) {
+          const dashboardData = await dashboardResponse.json();
+          setStats({
+            totalUsers: dashboardData.user_count || 0,
+            totalPosts: dashboardData.post_count || 0,
+            pendingReports: dashboardData.active_report_count || 0,
+            bannedUsers: dashboardData.banned_user_count || 0
+          });
         }
-        
-        // We could add more API calls here to fetch other stats
-        // For now, we'll use dummy data for the rest
-        setStats(prev => ({
-          ...prev,
-          totalUsers: 120,
-          totalPosts: 345,
-          bannedUsers: 5
-        }));
       } catch (error) {
         console.error('Błąd podczas pobierania statystyk:', error);
       } finally {
@@ -64,6 +58,14 @@ const AdminDashboardPage = () => {
     navigate('/admin/reports');
   };
 
+  const navigateToUsers = () => {
+    navigate('/admin/users');
+  };
+
+  const navigateToPosts = () => {
+    navigate('/admin/posts');
+  };
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ mt: 4, mb: 2 }}>
@@ -71,7 +73,7 @@ const AdminDashboardPage = () => {
           Panel Administracyjny
         </Typography>
         <Divider sx={{ mb: 4 }} />
-        
+
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
             <CircularProgress />
@@ -96,7 +98,7 @@ const AdminDashboardPage = () => {
                     </CardContent>
                   </Card>
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6} md={3}>
                   <Card sx={{ bgcolor: '#c8e6c9', height: '100%' }}>
                     <CardContent>
@@ -110,7 +112,7 @@ const AdminDashboardPage = () => {
                     </CardContent>
                   </Card>
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6} md={3}>
                   <Card sx={{ bgcolor: '#ffecb3', height: '100%' }}>
                     <CardContent>
@@ -124,7 +126,7 @@ const AdminDashboardPage = () => {
                     </CardContent>
                   </Card>
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6} md={3}>
                   <Card sx={{ bgcolor: '#ffcdd2', height: '100%' }}>
                     <CardContent>
@@ -159,10 +161,10 @@ const AdminDashboardPage = () => {
                     </Box>
                   </CardActionArea>
                   <CardActions>
-                    <Button 
-                      fullWidth 
-                      variant="contained" 
-                      color="warning" 
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      color="warning"
                       onClick={navigateToReports}
                       startIcon={<ReportIcon />}
                     >
@@ -171,10 +173,10 @@ const AdminDashboardPage = () => {
                   </CardActions>
                 </Card>
               </Grid>
-              
+
               <Grid item xs={12} md={4}>
                 <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <CardActionArea sx={{ flexGrow: 1, p: 2 }}>
+                  <CardActionArea sx={{ flexGrow: 1, p: 2 }} onClick={navigateToUsers}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 2 }}>
                       <PeopleAltIcon sx={{ fontSize: 60, color: '#1976d2', mb: 2 }} />
                       <Typography variant="h6" align="center">
@@ -186,21 +188,22 @@ const AdminDashboardPage = () => {
                     </Box>
                   </CardActionArea>
                   <CardActions>
-                    <Button 
-                      fullWidth 
-                      variant="contained" 
+                    <Button
+                      fullWidth
+                      variant="contained"
                       color="primary"
                       startIcon={<PeopleAltIcon />}
+                      onClick={navigateToUsers}
                     >
                       Zarządzaj użytkownikami
                     </Button>
                   </CardActions>
                 </Card>
               </Grid>
-              
+
               <Grid item xs={12} md={4}>
                 <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <CardActionArea sx={{ flexGrow: 1, p: 2 }}>
+                  <CardActionArea sx={{ flexGrow: 1, p: 2 }} onClick={navigateToPosts}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 2 }}>
                       <PetsIcon sx={{ fontSize: 60, color: '#388e3c', mb: 2 }} />
                       <Typography variant="h6" align="center">
@@ -212,11 +215,12 @@ const AdminDashboardPage = () => {
                     </Box>
                   </CardActionArea>
                   <CardActions>
-                    <Button 
-                      fullWidth 
-                      variant="contained" 
+                    <Button
+                      fullWidth
+                      variant="contained"
                       color="success"
                       startIcon={<PetsIcon />}
+                      onClick={navigateToPosts}
                     >
                       Zarządzaj ogłoszeniami
                     </Button>

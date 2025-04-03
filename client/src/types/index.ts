@@ -63,6 +63,7 @@ export interface User {
     rating?: number;
     photo?: string;
     description?: string;
+    is_banned?: boolean;
 }
 
 export interface IRating {

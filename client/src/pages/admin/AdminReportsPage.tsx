@@ -1,21 +1,19 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import BlockIcon from '@mui/icons-material/Block';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import PersonIcon from '@mui/icons-material/Person';
-import ReportIcon from '@mui/icons-material/Report';
 import {
   Box, Typography, Container, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Button, Chip, CircularProgress,
-  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
-  Grid, Card, CardContent, Avatar, Divider, Stack, IconButton,
-  Link
+  Dialog, DialogActions, DialogContent, DialogTitle, Grid, Divider,
+  IconButton, Link
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import BanUserDialog from '../../components/admin/BanUserDialog';
+import UserDetailsDialog from '../../components/admin/UserDetailsDialog';
+import { useUserModeration } from '../../hooks/useUserModeration';
 import { User } from '../../types';
-import { getWithAuth, putWithAuth } from '../../utils/auth';
-import { formatTimeWithoutSeconds } from '../../utils/utils';
+import { getWithAuth } from '../../utils/auth';
 
 interface ReportType {
   report_id: number;
@@ -38,10 +36,27 @@ const AdminReportsPage = () => {
   const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState<Report[]>([]);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const [banDialogOpen, setBanDialogOpen] = useState(false);
-  const [bannedUsers, setBannedUsers] = useState<number[]>([]);
-  const [actionInProgress, setActionInProgress] = useState(false);
+  const [viewingReportedUser, setViewingReportedUser] = useState(false);
+
   const navigate = useNavigate();
+
+  const {
+    actionInProgress,
+    banDialogOpen,
+    handleOpenBanDialog,
+    handleCloseBanDialog,
+    handleBanUser,
+  } = useUserModeration({
+    onUserUpdate: (userId, isBanned) => {
+      if (isBanned) {
+        setReports(reports.filter(r => r.reported_user.user_id !== userId));
+      }
+
+      if (selectedReport && selectedReport.reported_user.user_id === userId) {
+        setSelectedReport(null);
+      }
+    }
+  });
 
   useEffect(() => {
     fetchReports();
@@ -51,7 +66,7 @@ const AdminReportsPage = () => {
     setLoading(true);
     try {
       const response = await getWithAuth('/api/adminPanel/reports');
-      
+
       if (response.ok) {
         const data = await response.json();
         if (Array.isArray(data)) {
@@ -75,37 +90,12 @@ const AdminReportsPage = () => {
     setSelectedReport(null);
   };
 
-  const handleOpenBanDialog = () => {
-    if (selectedReport) {
-      setBanDialogOpen(true);
-    }
+  const handleViewReportedUser = () => {
+    setViewingReportedUser(true);
   };
 
-  const handleCloseBanDialog = () => {
-    setBanDialogOpen(false);
-  };
-
-  const handleBanUser = async () => {
-    if (!selectedReport) return;
-
-    setActionInProgress(true);
-    try {
-      const userId = selectedReport.reported_user.user_id;
-      const response = await putWithAuth(`/api/adminPanel/reports/${userId}/ban`, {});
-      
-      if (response.ok) {
-        setBannedUsers([...bannedUsers, userId]);
-        setReports(reports.filter(r => r.reported_user.user_id !== userId));
-        setBanDialogOpen(false);
-        setSelectedReport(null);
-      } else {
-        console.error('Nie udało się zbanować użytkownika');
-      }
-    } catch (error) {
-      console.error('Błąd podczas banowania użytkownika:', error);
-    } finally {
-      setActionInProgress(false);
-    }
+  const handleCloseReportedUserView = () => {
+    setViewingReportedUser(false);
   };
 
   const goBack = () => {
@@ -118,7 +108,7 @@ const AdminReportsPage = () => {
 
   const formatDate = (dateStr: string, timeStr: string) => {
     const [year, month, day] = dateStr.split('-');
-    return `${day}.${month}.${year} ${formatTimeWithoutSeconds(timeStr)}`;
+    return `${day}.${month}.${year} ${timeStr.substring(0, 5)}`;
   };
 
   const getReportTypeName = (typeId: number, typeName: string) => {
@@ -126,7 +116,7 @@ const AdminReportsPage = () => {
   };
 
   const getReportTypeColor = (typeId: number): 'error' | 'warning' | 'info' | 'default' => {
-    switch(typeId) {
+    switch (typeId) {
       case 1: return 'error';
       case 2: return 'warning';
       case 3: return 'info';
@@ -138,8 +128,8 @@ const AdminReportsPage = () => {
     <Container maxWidth="lg">
       <Box sx={{ mt: 4, mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <IconButton 
-            sx={{ mr: 2 }} 
+          <IconButton
+            sx={{ mr: 2 }}
             onClick={goBack}
             color="primary"
           >
@@ -188,48 +178,34 @@ const AdminReportsPage = () => {
                           {formatDate(report.report.report_date, report.report.report_time)}
                         </TableCell>
                         <TableCell>
-                          <Chip 
-                            label={getReportTypeName(report.report.report_type_id, report.report.report_type_name)} 
+                          <Chip
+                            label={getReportTypeName(report.report.report_type_id, report.report.report_type_name)}
                             color={getReportTypeColor(report.report.report_type_id)}
                             size="small"
                           />
                         </TableCell>
                         <TableCell>
-                          <Link 
+                          <Link
                             component="button"
-                            variant="body1"
+                            variant="body2"
                             onClick={() => navigateToUserProfile(report.reporter_user.user_id)}
-                            sx={{ 
-                              textDecoration: 'none', 
-                              '&:hover': { 
-                                textDecoration: 'underline', 
-                                cursor: 'pointer' 
-                              } 
-                            }}
                           >
                             {report.reporter_user.name} {report.reporter_user.surname}
                           </Link>
                         </TableCell>
                         <TableCell>
-                          <Link 
+                          <Link
                             component="button"
-                            variant="body1"
+                            variant="body2"
                             onClick={() => navigateToUserProfile(report.reported_user.user_id)}
-                            sx={{ 
-                              textDecoration: 'none', 
-                              '&:hover': { 
-                                textDecoration: 'underline', 
-                                cursor: 'pointer' 
-                              } 
-                            }}
                           >
                             {report.reported_user.name} {report.reported_user.surname}
                           </Link>
                         </TableCell>
                         <TableCell>
                           <Button
-                            variant="outlined"
                             size="small"
+                            variant="outlined"
                             onClick={() => handleReportDetails(report)}
                           >
                             Szczegóły
@@ -246,8 +222,8 @@ const AdminReportsPage = () => {
       </Box>
 
       {/* Report details dialog */}
-      <Dialog 
-        open={!!selectedReport} 
+      <Dialog
+        open={!!selectedReport && !viewingReportedUser}
         onClose={handleCloseDetails}
         fullWidth
         maxWidth="md"
@@ -274,14 +250,14 @@ const AdminReportsPage = () => {
                   <Typography variant="body2" color="text.secondary">
                     Typ zgłoszenia
                   </Typography>
-                  <Chip 
-                    label={getReportTypeName(selectedReport.report.report_type_id, selectedReport.report.report_type_name)} 
+                  <Chip
+                    label={getReportTypeName(selectedReport.report.report_type_id, selectedReport.report.report_type_name)}
                     color={getReportTypeColor(selectedReport.report.report_type_id)}
                     size="small"
                   />
                 </Grid>
               </Grid>
-              
+
               <Divider sx={{ my: 2 }} />
 
               <Typography variant="subtitle1" gutterBottom fontWeight="bold">
@@ -293,152 +269,54 @@ const AdminReportsPage = () => {
                 </Typography>
               </Paper>
 
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <Card variant="outlined">
-                    <CardContent>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
-                          <PersonIcon />
-                        </Avatar>
-                        <Typography variant="h6">
-                          Zgłaszający
-                        </Typography>
-                      </Box>
-                      <Divider sx={{ mb: 2 }} />
-                      <Stack spacing={1}>
-                        <Typography variant="body1">
-                          <strong>Imię i nazwisko:</strong>{' '}
-                          <Link 
-                            component="button"
-                            variant="body1"
-                            onClick={() => navigateToUserProfile(selectedReport.reporter_user.user_id)}
-                            sx={{ 
-                              fontWeight: 'normal',
-                              textDecoration: 'none', 
-                              '&:hover': { 
-                                textDecoration: 'underline', 
-                                cursor: 'pointer' 
-                              } 
-                            }}
-                          >
-                            {selectedReport.reporter_user.name} {selectedReport.reporter_user.surname}
-                          </Link>
-                        </Typography>
-                        <Typography variant="body1">
-                          <strong>ID:</strong> {selectedReport.reporter_user.user_id}
-                        </Typography>
-                        <Typography variant="body1">
-                          <strong>Miasto:</strong> {selectedReport.reporter_user.city}
-                        </Typography>
-                        <Typography variant="body1">
-                          <strong>Ocena:</strong> {selectedReport.reporter_user.rating?.toFixed(1) || 'Brak'}
-                        </Typography>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </Grid>
-                
-                <Grid item xs={12} md={6}>
-                  <Card variant="outlined">
-                    <CardContent>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <Avatar sx={{ bgcolor: 'error.main', mr: 2 }}>
-                          <ReportIcon />
-                        </Avatar>
-                        <Typography variant="h6">
-                          Zgłoszony
-                        </Typography>
-                      </Box>
-                      <Divider sx={{ mb: 2 }} />
-                      <Stack spacing={1}>
-                        <Typography variant="body1">
-                          <strong>Imię i nazwisko:</strong>{' '}
-                          <Link 
-                            component="button"
-                            variant="body1"
-                            onClick={() => navigateToUserProfile(selectedReport.reported_user.user_id)}
-                            sx={{ 
-                              fontWeight: 'normal',
-                              textDecoration: 'none', 
-                              '&:hover': { 
-                                textDecoration: 'underline',
-                                cursor: 'pointer' 
-                              } 
-                            }}
-                          >
-                            {selectedReport.reported_user.name} {selectedReport.reported_user.surname}
-                          </Link>
-                        </Typography>
-                        <Typography variant="body1">
-                          <strong>ID:</strong> {selectedReport.reported_user.user_id}
-                        </Typography>
-                        <Typography variant="body1">
-                          <strong>Miasto:</strong> {selectedReport.reported_user.city}
-                        </Typography>
-                        <Typography variant="body1">
-                          <strong>Ocena:</strong> {selectedReport.reported_user.rating?.toFixed(1) || 'Brak'}
-                        </Typography>
-                      </Stack>
-                    </CardContent>
-                  </Card>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    onClick={handleViewReportedUser}
+                  >
+                    Zobacz szczegóły zgłoszonego użytkownika
+                  </Button>
                 </Grid>
               </Grid>
             </DialogContent>
             <DialogActions sx={{ p: 2 }}>
-              <Button 
-                onClick={handleCloseDetails} 
+              <Button
+                onClick={handleCloseDetails}
                 color="inherit"
               >
                 Zamknij
               </Button>
-              <Button 
-                onClick={handleOpenBanDialog} 
+              <Button
+                onClick={() => handleOpenBanDialog(selectedReport.reported_user)}
                 color="error"
                 variant="contained"
-                startIcon={<BlockIcon />}
               >
-                Zbanuj użytkownika
+                Zablokuj użytkownika
               </Button>
             </DialogActions>
           </>
         )}
       </Dialog>
 
-      {/* Ban user confirmation dialog */}
-      <Dialog
+      {selectedReport && viewingReportedUser && (
+        <UserDetailsDialog
+          open={true}
+          user={selectedReport.reported_user}
+          onClose={handleCloseReportedUserView}
+          onBan={() => handleOpenBanDialog(selectedReport.reported_user)}
+          onUnban={() => { }}
+        />
+      )}
+
+      <BanUserDialog
         open={banDialogOpen}
+        user={selectedReport?.reported_user || null}
         onClose={handleCloseBanDialog}
-      >
-        <DialogTitle>
-          Potwierdź zablokowanie użytkownika
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Czy na pewno chcesz zablokować użytkownika {selectedReport?.reported_user.name} {selectedReport?.reported_user.surname}? 
-            Spowoduje to zablokowanie jego konta oraz dezaktywację wszystkich jego ogłoszeń.
-            Ta operacja jest nieodwracalna.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button 
-            onClick={handleCloseBanDialog} 
-            color="inherit"
-            disabled={actionInProgress}
-          >
-            Anuluj
-          </Button>
-          <Button 
-            onClick={handleBanUser} 
-            color="error" 
-            variant="contained"
-            disabled={actionInProgress}
-            startIcon={actionInProgress ? <CircularProgress size={16} /> : <BlockIcon />}
-          >
-            {actionInProgress ? 'Przetwarzanie...' : 'Zablokuj użytkownika'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onConfirm={handleBanUser}
+        actionInProgress={actionInProgress}
+      />
     </Container>
   );
 };

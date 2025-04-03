@@ -4,7 +4,9 @@ import { AuthProvider } from './contexts/AuthProvider';
 import { NotificationProvider } from './contexts/NotificationContext';
 import DashboardLayout from './layouts/DashboardLayout';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminPostsPage from './pages/admin/AdminPostsPage';
 import AdminReportsPage from './pages/admin/AdminReportsPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
 import CreatePostPage from './pages/dashboard/CreatePostPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import EditDataPage from './pages/dashboard/EditDataPage';
@@ -49,6 +51,8 @@ function App() {
                 <Route element={<DashboardLayout />}>
                   <Route path='/admin' element={<AdminDashboardPage />} />
                   <Route path='/admin/reports' element={<AdminReportsPage />} />
+                  <Route path='/admin/posts' element={<AdminPostsPage />} />
+                  <Route path='/admin/users' element={<AdminUsersPage />} />
                 </Route>
               </Route>
             </Routes>

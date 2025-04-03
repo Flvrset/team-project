@@ -1,3 +1,4 @@
+import BlockIcon from '@mui/icons-material/Block';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PersonIcon from '@mui/icons-material/Person';
@@ -152,6 +153,30 @@ const UserPage = () => {
 
     const { user, pets, ratings } = userDetails;
 
+    if (user.is_banned) {
+        return (
+            <Container maxWidth="lg" sx={{ py: 4 }}>
+                <Paper
+                    elevation={3}
+                    sx={{
+                        p: 4,
+                        borderRadius: 3,
+                        textAlign: 'center',
+                        bgcolor: alpha(theme.palette.error.light, 0.1)
+                    }}
+                >
+                    <BlockIcon sx={{ fontSize: 64, color: theme.palette.error.main, mb: 2 }} />
+                    <Typography variant="h5" color="error" gutterBottom>
+                        Ten użytkownik został zablokowany
+                    </Typography>
+                    <Typography variant="body1">
+                        Profil tego użytkownika nie jest dostępny z powodu naruszenia zasad serwisu.
+                    </Typography>
+                </Paper>
+            </Container>
+        );
+    }
+
     return (
         <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
             <Card
@@ -178,12 +203,12 @@ const UserPage = () => {
                     <Typography variant="h4" fontWeight="bold">
                         Profil użytkownika
                     </Typography>
-                    <IconButton 
-                        aria-label="więcej opcji" 
+                    <IconButton
+                        aria-label="więcej opcji"
                         onClick={handleMenuClick}
-                        sx={{ 
+                        sx={{
                             color: 'white',
-                            '&:hover': { 
+                            '&:hover': {
                                 backgroundColor: alpha('#fff', 0.15)
                             }
                         }}
@@ -444,7 +469,7 @@ const UserPage = () => {
                 )}
             </Box>
 
-            <ReportUserModal 
+            <ReportUserModal
                 open={reportModalOpen}
                 onClose={() => setReportModalOpen(false)}
                 userId={userId || ''}
