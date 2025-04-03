@@ -121,6 +121,7 @@ const PostPage = () => {
         <PostOwnerView
           postDetails={postDetails}
           postId={postId}
+          onPostDetailsUpdate={(updatedDetails) => setPostDetails(updatedDetails)}
         />
       ) : (
         <PostApplicantView

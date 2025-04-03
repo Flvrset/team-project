@@ -249,7 +249,7 @@ const ReportUserModal = ({ open, onClose, userId }: ReportUserModalProps) => {
                             helperText={descriptionError || "Opisz szczegóły zgłoszenia (maksymalnie 500 znaków)"}
                             placeholder="Podaj więcej informacji o naruszeniu..."
                             inputProps={{
-                                maxLength: DESCRIPTION_MAX_LENGTH + 10 // Allow a little extra for validation feedback
+                                maxLength: DESCRIPTION_MAX_LENGTH + 10
                             }}
                             sx={{
                                 '& .MuiOutlinedInput-root': {

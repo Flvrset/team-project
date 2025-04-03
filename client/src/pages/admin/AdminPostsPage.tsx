@@ -24,7 +24,6 @@ const AdminPostsPage = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
     
-    // Separate filters for each category
     const [postIdFilter, setPostIdFilter] = useState('');
     const [userIdFilter, setUserIdFilter] = useState('');
     const [cityFilter, setCityFilter] = useState('');

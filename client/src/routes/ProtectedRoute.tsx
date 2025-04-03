@@ -13,7 +13,6 @@ const ProtectedRoute = () => {
         }
     }, [auth]);
 
-    // Show loading indicator while checking authentication
     if (auth.loading) {
         return (
             <Box sx={{

@@ -58,7 +58,7 @@ const RegisterPage = () => {
         }
 
         if (password !== confirmPassword) {
-            return; // Already has error message in the UI
+            return;
         }
 
         setLoading(true);

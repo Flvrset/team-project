@@ -35,7 +35,7 @@ interface ApplicantsModalProps {
     applicants: Applicant[];
     loading: boolean;
     postId: string | undefined;
-    onAcceptSuccess?: (userId: number) => void;
+    onAcceptSuccess?: () => void;
     onDeclineSuccess?: (userId: number) => void;
 }
 
@@ -66,7 +66,7 @@ const ApplicantsModal = ({
                 showNotification(data.msg, 'success');
 
                 if (onAcceptSuccess) {
-                    onAcceptSuccess(userId);
+                    onAcceptSuccess();
                 }
             } else {
                 const errorData = await response.json();
@@ -106,7 +106,6 @@ const ApplicantsModal = ({
         }
     };
 
-    // Get pending applicants first, then rejected ones
     const sortedApplicants = [...applicants].sort((a, b) => {
         if (a.status === "Declined" && b.status !== "Declined") return 1;
         if (a.status !== "Declined" && b.status === "Declined") return -1;

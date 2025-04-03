@@ -1,10 +1,13 @@
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import EmailIcon from '@mui/icons-material/Email';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import PersonIcon from '@mui/icons-material/Person';
+import PhoneIcon from '@mui/icons-material/Phone';
 import StarIcon from '@mui/icons-material/Star';
 import {
     Avatar,
@@ -29,7 +32,7 @@ import {
     alpha,
     useTheme
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useNotification } from '../../contexts/NotificationContext';
@@ -43,11 +46,13 @@ import PostDetailsSummary from './PostDetailsSummary';
 interface PostOwnerViewProps {
     postDetails: PostDetails;
     postId: string | undefined;
+    onPostDetailsUpdate: (updatedDetails: PostDetails) => void;
 }
 
 const PostOwnerView = ({
     postDetails,
     postId,
+    onPostDetailsUpdate,
 }: PostOwnerViewProps) => {
     const theme = useTheme();
     const { showNotification } = useNotification();
@@ -63,33 +68,6 @@ const PostOwnerView = ({
 
     const menuOpen = Boolean(menuAnchorEl);
 
-    useEffect(() => {
-        const fetchApplicants = async () => {
-            if (!postId || postDetails?.status !== "own") return;
-    
-            setApplicantsLoading(true);
-            try {
-                const response = await getWithAuth(`/api/getPost/${postId}/applications`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setApplicants(data.users);
-                } else {
-                    const errorData = await response.json();
-                    showNotification(errorData.msg || 'Błąd podczas pobierania aplikacji', 'error');
-                }
-            } catch (error) {
-                console.error('Error fetching applicants:', error);
-                showNotification('Nie udało się pobrać aplikacji', 'error');
-            } finally {
-                setApplicantsLoading(false);
-            }
-        };
-    
-        if (postDetails?.status === "own") {
-            fetchApplicants();
-        }
-    }, [postDetails?.status, postId, showNotification]);
-
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setMenuAnchorEl(event.currentTarget);
     };
@@ -100,7 +78,6 @@ const PostOwnerView = ({
 
     const handleEditPost = () => {
         handleMenuClose();
-        // This will be implemented in the future
         showNotification('Edit functionality will be implemented soon!', 'info');
     };
 
@@ -137,24 +114,45 @@ const PostOwnerView = ({
         }
     };
 
-    const handleOpenApplicationsModal = () => {
-        setApplicationsModalOpen(true);
+    const handleOpenApplicationsModal = async () => {
+        setApplicantsLoading(true);
+        try {
+            const response = await getWithAuth(`/api/getPost/${postId}/applications`);
+            if (response.ok) {
+                const data = await response.json();
+                setApplicants(data.users);
+                setApplicationsModalOpen(true);
+            } else {
+                const errorData = await response.json();
+                showNotification(errorData.msg || 'Błąd podczas pobierania aplikacji', 'error');
+            }
+        } catch (error) {
+            console.error('Error fetching applicants:', error);
+            showNotification('Nie udało się pobrać aplikacji', 'error');
+        } finally {
+            setApplicantsLoading(false);
+        }
     };
 
     const handleCloseApplicationsModal = () => {
         setApplicationsModalOpen(false);
     };
 
-    const handleApplicantAccepted = (userId: number) => {
-        // Since accepting makes the post inactive, update post details
-        if (postDetails) {
-            setApplicants(prev => prev.map(applicant =>
-                applicant.user_id === userId
-                    ? { ...applicant, status: "Accepted" }
-                    : { ...applicant, status: "Declined" }
-            ));
+
+    const handleApplicantAccepted = async () => {
+        try {
+            if (!postId) return;
+            
+            const response = await getWithAuth(`/api/getPost/${postId}`);
+            if (response.ok) {
+                const data = await response.json();
+                onPostDetailsUpdate(data);
+            } else {
+                console.error('Failed to refresh post details');
+            }
+        } catch (error) {
+            console.error('Error refreshing post details:', error);
         }
-        setApplicationsModalOpen(false);
     };
 
     const handleApplicantDeclined = (userId: number) => {
@@ -198,7 +196,6 @@ const PostOwnerView = ({
                         variant="contained"
                         color="primary"
                         onClick={handleOpenApplicationsModal}
-                        disabled={applicantsLoading || applicants.length === 0}
                         startIcon={applicantsLoading ? <CircularProgress size={20} color="inherit" /> : <NotificationsActiveIcon />}
                         sx={{
                             borderRadius: 2,
@@ -211,7 +208,7 @@ const PostOwnerView = ({
                             }
                         }}
                     >
-                        {applicantsLoading ? 'Ładowanie...' : applicants.length === 0 ? 'Brak aplikacji' : 'Przeglądaj'}
+                        {applicantsLoading ? 'Ładowanie...' : 'Przeglądaj aplikacje'}
                         {pendingCount > 0 && !applicantsLoading && (
                             <Badge
                                 badgeContent={pendingCount}
@@ -226,11 +223,9 @@ const PostOwnerView = ({
     };
 
     const renderAcceptedApplicantCard = () => {
-        if (postDetails?.status !== "own" || !postDetails) return null;
+        if (!postDetails || !postDetails.caregiver) return null;
 
-        const acceptedApplicant = applicants.find(app => app.status === "Accepted");
-        if (!acceptedApplicant) return null;
-
+        const acceptedApplicant = postDetails.caregiver;
         return (
             <Card
                 elevation={3}
@@ -256,91 +251,158 @@ const PostOwnerView = ({
                 </Box>
 
                 <CardContent sx={{ p: 3 }}>
-                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 3 }}>
-                        <Box sx={{ position: 'relative' }}>
-                            <Avatar
-                                src={acceptedApplicant.photo}
-                                alt={`${acceptedApplicant.name} ${acceptedApplicant.surname}`}
-                                sx={{
-                                    width: 100,
-                                    height: 100,
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                                    border: `4px solid ${theme.palette.background.paper}`,
-                                }}
-                            >
-                                {acceptedApplicant.name[0]}
-                            </Avatar>
-                            <Box
-                                sx={{
-                                    position: 'absolute',
-                                    bottom: -8,
-                                    right: -8,
-                                    backgroundColor: theme.palette.success.main,
-                                    borderRadius: '50%',
-                                    width: 30,
-                                    height: 30,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                                    border: `2px solid ${theme.palette.background.paper}`,
-                                }}
-                            >
-                                <CheckCircleOutlineIcon sx={{ color: 'white', fontSize: 18 }} />
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        {/* Avatar section */}
+                        <Box sx={{
+                            display: 'flex',
+                            flexDirection: { xs: 'column', sm: 'row' },
+                            alignItems: 'center',
+                            gap: 3
+                        }}>
+                            <Box sx={{ position: 'relative' }}>
+                                <Avatar
+                                    src={acceptedApplicant.photo}
+                                    alt={`${acceptedApplicant.name} ${acceptedApplicant.surname}`}
+                                    sx={{
+                                        width: 100,
+                                        height: 100,
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                        border: `4px solid ${theme.palette.background.paper}`,
+                                    }}
+                                >
+                                    {acceptedApplicant.name[0]}
+                                </Avatar>
+                                <Box
+                                    sx={{
+                                        position: 'absolute',
+                                        bottom: -8,
+                                        right: -8,
+                                        backgroundColor: theme.palette.success.main,
+                                        borderRadius: '50%',
+                                        width: 30,
+                                        height: 30,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                                        border: `2px solid ${theme.palette.background.paper}`,
+                                    }}
+                                >
+                                    <CheckCircleOutlineIcon sx={{ color: 'white', fontSize: 18 }} />
+                                </Box>
+                            </Box>
+
+                            <Box sx={{ flexGrow: 1, textAlign: { xs: 'center', sm: 'left' } }}>
+                                <Typography variant="h5" fontWeight="bold">
+                                    {acceptedApplicant.name} {acceptedApplicant.surname}
+                                </Typography>
+
+                                {!!acceptedApplicant.rating && (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
+                                        <Rating
+                                            value={acceptedApplicant.rating}
+                                            precision={0.5}
+                                            readOnly
+                                            size="small"
+                                        />
+                                        <Typography variant="body2" sx={{ ml: 1 }}>
+                                            {acceptedApplicant.rating.toFixed(1)}
+                                        </Typography>
+                                    </Box>
+                                )}
+
+                                {(!!acceptedApplicant.city && !!acceptedApplicant.postal_code) && (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
+                                        <LocationOnIcon color="primary" sx={{ mr: 1 }} />
+                                        <Typography>
+                                            {acceptedApplicant.city}, {acceptedApplicant.postal_code}
+                                        </Typography>
+                                    </Box>
+                                )}
                             </Box>
                         </Box>
 
-                        <Box sx={{ flexGrow: 1, textAlign: { xs: 'center', sm: 'left' } }}>
-                            <Typography variant="h5" fontWeight="bold">
-                                {acceptedApplicant.name} {acceptedApplicant.surname}
+                        <Box sx={{
+                            mt: 1,
+                            borderRadius: 2,
+                            textAlign: { xs: 'center', sm: 'left' }
+                        }}>
+                            <Typography variant="subtitle1" fontWeight="bold" color="success.main" sx={{ mb: 1.5, display: 'flex', alignItems: 'center' }}>
+                                <InfoOutlinedIcon sx={{ mr: 1, fontSize: 20 }} />
+                                Dane kontaktowe
                             </Typography>
 
-                            {!!acceptedApplicant.rating && (
-                                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
-                                    <Rating
-                                        value={acceptedApplicant.rating}
-                                        precision={0.5}
-                                        readOnly
-                                        size="small"
-                                    />
-                                    <Typography variant="body2" sx={{ ml: 1 }}>
-                                        {acceptedApplicant.rating.toFixed(1)}
-                                    </Typography>
+                            <Box sx={{
+                                p: 1.5,
+                                mb: 2,
+                                bgcolor: alpha(theme.palette.success.light, 0.08),
+                                borderRadius: 1.5,
+                                border: `1px solid ${alpha(theme.palette.success.main, 0.15)}`,
+                            }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                    <EmailIcon sx={{ color: theme.palette.success.main, mr: 1, fontSize: 20 }} />
+                                    <Typography variant="subtitle2" fontWeight="bold">Email</Typography>
                                 </Box>
-                            )}
+                                <Typography sx={{ ml: { xs: 0, sm: 4 }, wordBreak: 'break-word' }}>
+                                    {acceptedApplicant?.email}
+                                </Typography>
+                            </Box>
 
-                            {(!!acceptedApplicant.city && !!acceptedApplicant.postal_code) && (
-                                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
-                                    <LocationOnIcon color="primary" sx={{ mr: 1 }} />
-                                    <Typography>
-                                        {acceptedApplicant.city}, {acceptedApplicant.postal_code}
-                                    </Typography>
+                            <Box sx={{
+                                p: 1.5,
+                                mb: 2,
+                                bgcolor: alpha(theme.palette.success.light, 0.08),
+                                borderRadius: 1.5,
+                                border: `1px solid ${alpha(theme.palette.success.main, 0.15)}`,
+                            }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                    <PhoneIcon sx={{ color: theme.palette.success.main, mr: 1, fontSize: 20 }} />
+                                    <Typography variant="subtitle2" fontWeight="bold">Telefon</Typography>
                                 </Box>
-                            )}
+                                <Typography sx={{ ml: { xs: 0, sm: 4 }, wordBreak: 'break-word' }}>
+                                    {acceptedApplicant?.phone_number}
+                                </Typography>
+                            </Box>
+
+                            <Box sx={{
+                                p: 2,
+                                mb: 3,
+                                bgcolor: alpha(theme.palette.info.light, 0.08),
+                                borderRadius: 1.5,
+                                border: `1px solid ${alpha(theme.palette.info.main, 0.15)}`,
+                                display: 'flex',
+                                alignItems: 'flex-start'
+                            }}>
+                                <InfoOutlinedIcon sx={{ color: theme.palette.info.main, mr: 1.5, flexShrink: 0, mt: 0.3 }} />
+                                <Typography variant="body2">
+                                    Skontaktuj się z opiekunem, aby ustalić szczegóły dotyczące opieki nad Twoimi zwierzętami.
+                                </Typography>
+                            </Box>
+
+                            <Button
+                                component={Link}
+                                to={`/dashboard/users/${acceptedApplicant.user_id}`}
+                                variant="outlined"
+                                color="success"
+                                fullWidth
+                                startIcon={<PersonIcon />}
+                                sx={{
+                                    borderRadius: 2,
+                                    textTransform: 'none',
+                                    borderColor: theme.palette.success.main,
+                                    color: theme.palette.success.main,
+                                    py: 1.2,
+                                    '&:hover': {
+                                        borderColor: theme.palette.success.dark,
+                                        backgroundColor: alpha(theme.palette.success.main, 0.04),
+                                        transform: 'translateY(-2px)',
+                                        boxShadow: `0 4px 12px ${alpha(theme.palette.success.main, 0.2)}`,
+                                    }
+                                }}
+                            >
+                                Profil opiekuna
+                            </Button>
                         </Box>
-
-                        <Button
-                            component={Link}
-                            to={`/dashboard/users/${acceptedApplicant.user_id}`}
-                            variant="outlined"
-                            color="success"
-                            startIcon={<PersonIcon />}
-                            sx={{
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                borderColor: theme.palette.success.main,
-                                color: theme.palette.success.main,
-                                alignSelf: { xs: 'stretch', sm: 'center' },
-                                '&:hover': {
-                                    borderColor: theme.palette.success.dark,
-                                    backgroundColor: alpha(theme.palette.success.main, 0.04),
-                                    transform: 'translateY(-2px)',
-                                    boxShadow: `0 4px 12px ${alpha(theme.palette.success.main, 0.2)}`,
-                                }
-                            }}
-                        >
-                            Profil opiekuna
-                        </Button>
                     </Box>
                 </CardContent>
             </Card>

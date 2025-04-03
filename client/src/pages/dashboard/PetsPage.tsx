@@ -30,17 +30,14 @@ const PetsPage = () => {
     const theme = useTheme();
     const { showNotification } = useNotification();
 
-    // State for pets data
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // State for modals
     const [openAddModal, setOpenAddModal] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [selectedPetId, setSelectedPetId] = useState<number | null>(null);
 
-    // Load pets data
     const fetchPets = async () => {
         setLoading(true);
         setError(null);
@@ -67,7 +64,6 @@ const PetsPage = () => {
         fetchPets();
     }, []);
 
-    // Handle success from PetFormModal
     const handlePetAddSuccess = () => {
         showNotification('Zwierzak został dodany pomyślnie!', 'success');
         fetchPets();
@@ -81,7 +77,7 @@ const PetsPage = () => {
 
             if (response.ok) {
                 showNotification('Zwierzak został usunięty','info');
-                fetchPets(); // Refresh pets list
+                fetchPets();
             } else {
                 const errorData = await response.json();
                 showNotification(errorData.msg || 'Nie udało się usunąć zwierzaka','error');
@@ -95,7 +91,6 @@ const PetsPage = () => {
         }
     };
 
-    // Modal handlers
     const handleOpenAddModal = () => {
         setOpenAddModal(true);
     };

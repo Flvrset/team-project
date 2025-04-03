@@ -1,8 +1,11 @@
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import EmailIcon from '@mui/icons-material/Email';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import PetsIcon from '@mui/icons-material/Pets';
+import PhoneIcon from '@mui/icons-material/Phone';
 import StarIcon from '@mui/icons-material/Star';
 import {
     Box,
@@ -68,8 +71,6 @@ const PostApplicantView = ({ postDetails, postId }: PostApplicantViewProps) => {
             if (response.ok) {
                 const data = await response.json();
                 showNotification(data.msg, 'success');
-                // This would normally update the component state via a parent callback
-                // For now, we'll just refresh the page to show the updated status
                 window.location.reload();
             } else {
                 const errorData = await response.json();
@@ -93,8 +94,6 @@ const PostApplicantView = ({ postDetails, postId }: PostApplicantViewProps) => {
             if (response.ok) {
                 const data = await response.json();
                 showNotification(data.msg, 'success');
-                // This would normally update the component state via a parent callback
-                // For now, we'll just refresh the page to show the updated status
                 window.location.reload();
             } else {
                 const errorData = await response.json();
@@ -231,10 +230,92 @@ const PostApplicantView = ({ postDetails, postId }: PostApplicantViewProps) => {
         );
     };
 
+    const renderOwnerContactSection = () => {
+        if (postDetails?.status !== "accepted") return null;
+
+        return (
+            <Card
+                elevation={3}
+                sx={{
+                    mt: 0,
+                    mb: 4,
+                    borderRadius: 3,
+                    overflow: 'hidden',
+                }}
+            >
+                <CardContent sx={{ p: 3 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        <Box sx={{
+                            mt: 1,
+                            borderRadius: 2,
+                            textAlign: { xs: 'center', sm: 'left' }
+                        }}>
+                            <Typography variant="subtitle1" fontWeight="bold" color="success.main" sx={{ mb: 1.5, display: 'flex', alignItems: 'center' }}>
+                                <InfoOutlinedIcon sx={{ mr: 1, fontSize: 20 }} />
+                                Dane kontaktowe właściciela
+                            </Typography>
+
+                            <Box sx={{
+                                p: 1.5,
+                                mb: 2,
+                                bgcolor: alpha(theme.palette.success.light, 0.08),
+                                borderRadius: 1.5,
+                                border: `1px solid ${alpha(theme.palette.success.main, 0.15)}`,
+                            }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                    <EmailIcon sx={{ color: theme.palette.success.main, mr: 1, fontSize: 20 }} />
+                                    <Typography variant="subtitle2" fontWeight="bold">Email</Typography>
+                                </Box>
+                                <Typography sx={{ ml: { xs: 0, sm: 4 }, wordBreak: 'break-word' }}>
+                                    {postDetails.user?.email}
+                                </Typography>
+                            </Box>
+
+                            <Box sx={{
+                                p: 1.5,
+                                mb: 2,
+                                bgcolor: alpha(theme.palette.success.light, 0.08),
+                                borderRadius: 1.5,
+                                border: `1px solid ${alpha(theme.palette.success.main, 0.15)}`,
+                            }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                    <PhoneIcon sx={{ color: theme.palette.success.main, mr: 1, fontSize: 20 }} />
+                                    <Typography variant="subtitle2" fontWeight="bold">Telefon</Typography>
+                                </Box>
+                                <Typography sx={{ ml: { xs: 0, sm: 4 }, wordBreak: 'break-word' }}>
+                                    {postDetails.user?.phone_number}
+                                </Typography>
+                            </Box>
+
+                            <Box sx={{
+                                p: 2,
+                                mb: 3,
+                                bgcolor: alpha(theme.palette.info.light, 0.08),
+                                borderRadius: 1.5,
+                                border: `1px solid ${alpha(theme.palette.info.main, 0.15)}`,
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}>
+                                <InfoOutlinedIcon sx={{ color: theme.palette.info.main, mr: 1.5, flexShrink: 0, mt: 0.3 }} />
+                                <Typography variant="body2">
+                                    Twoja aplikacja została zaakceptowana! Skontaktuj się z właścicielem, aby ustalić szczegóły opieki nad zwierzętami.
+                                </Typography>
+                            </Box>
+                        </Box>
+                    </Box>
+                </CardContent>
+            </Card>
+        );
+    };
+
     const currentPet = postDetails.pets[selectedPetIndex];
 
     return (
         <Box>
+
+            <Box sx={{ width: '100%', mt: 4 }}>
+                {renderOwnerContactSection()}
+            </Box>
 
             <Box sx={{ width: '100%', mb: 4 }}>
                 {renderRateOwnerSection()}

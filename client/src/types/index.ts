@@ -1,4 +1,3 @@
-// Pet types
 export interface Pet {
     pet_id: number;
     pet_name: string;
@@ -11,7 +10,6 @@ export interface Pet {
     description?: string;
 }
 
-// Post types
 export interface Post {
     post_id: number;
     user_id: number;
@@ -33,7 +31,6 @@ export interface Post {
     is_active?: boolean;
 }
 
-// Backend response types
 export interface MyPostsResponse {
     post_lst: BackendPost[];
 }
@@ -72,20 +69,25 @@ export interface IRating {
     description: string;
 }
 
+export interface UserWithContactData extends User {
+    email?: string;
+    phone_number?: string;
+}
+
 
 export interface PostDetails {
-    user: User;
+    user: UserWithContactData;
     post: Post;
     pets: Pet[];
     status: "own" | "applied" | "accepted" | "declined" | "";
     can_rate?: boolean;
+    caregiver?: UserWithContactData;
 }
 
 export interface Applicant extends User {
     status: "Accepted" | "Declined" | "Pending";
 }
 
-// Other shared types can be added here
 export type PetSize = 'Mały' | 'Średni' | 'Duży';
 export type PetType = 'Pies' | 'Kot' | 'Królik' | 'Papuga' | 'Fretka' | 'Inne';
 

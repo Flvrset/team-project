@@ -38,7 +38,6 @@ const PetCard: React.FC<PetCardProps> = ({
     const theme = useTheme();
     const [descriptionModalOpen, setDescriptionModalOpen] = useState(false);
 
-    // Get pet icon color
     const getPetIconColor = (type: PetType) => {
         switch (type) {
             case 'Pies':
@@ -65,7 +64,7 @@ const PetCard: React.FC<PetCardProps> = ({
     };
 
     const handleDelete = (e: React.MouseEvent) => {
-        e.stopPropagation(); // Prevent card selection when clicking delete
+        e.stopPropagation();
         if (onDelete) {
             onDelete(pet.pet_id);
         }

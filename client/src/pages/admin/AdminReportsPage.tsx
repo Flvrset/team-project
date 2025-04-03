@@ -1,10 +1,12 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PersonIcon from '@mui/icons-material/Person';
 import {
   Box, Typography, Container, Paper, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Button, Chip, CircularProgress,
   Dialog, DialogActions, DialogContent, DialogTitle, Grid, Divider,
-  IconButton, Link
+  IconButton, Link, Accordion, AccordionSummary, AccordionDetails
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -32,9 +34,15 @@ interface Report {
   reported_user: User;
 }
 
+interface ReportGroup {
+  reportedUser: User;
+  reports: Report[];
+}
+
 const AdminReportsPage = () => {
   const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState<Report[]>([]);
+  const [groupedReports, setGroupedReports] = useState<ReportGroup[]>([]);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [viewingReportedUser, setViewingReportedUser] = useState(false);
 
@@ -50,6 +58,7 @@ const AdminReportsPage = () => {
     onUserUpdate: (userId, isBanned) => {
       if (isBanned) {
         setReports(reports.filter(r => r.reported_user.user_id !== userId));
+        setGroupedReports(groupedReports.filter(group => group.reportedUser.user_id !== userId));
       }
 
       if (selectedReport && selectedReport.reported_user.user_id === userId) {
@@ -61,6 +70,30 @@ const AdminReportsPage = () => {
   useEffect(() => {
     fetchReports();
   }, []);
+  
+  useEffect(() => {
+    const grouped = groupReportsByUser(reports);
+    setGroupedReports(grouped);
+  }, [reports]);
+
+  const groupReportsByUser = (reports: Report[]): ReportGroup[] => {
+    const groupsMap = new Map<number, ReportGroup>();
+    
+    reports.forEach(report => {
+      const userId = report.reported_user.user_id;
+      
+      if (!groupsMap.has(userId)) {
+        groupsMap.set(userId, {
+          reportedUser: report.reported_user,
+          reports: []
+        });
+      }
+      
+      groupsMap.get(userId)?.reports.push(report);
+    });
+    
+    return Array.from(groupsMap.values());
+  };
 
   const fetchReports = async () => {
     setLoading(true);
@@ -147,7 +180,7 @@ const AdminReportsPage = () => {
           </Box>
         ) : (
           <>
-            {reports.length === 0 ? (
+            {groupedReports.length === 0 ? (
               <Paper sx={{ p: 4, textAlign: 'center' }}>
                 <CheckCircleIcon sx={{ fontSize: 64, color: 'success.main', mb: 2 }} />
                 <Typography variant="h6">
@@ -158,70 +191,97 @@ const AdminReportsPage = () => {
                 </Typography>
               </Paper>
             ) : (
-              <TableContainer component={Paper} elevation={2}>
-                <Table>
-                  <TableHead sx={{ bgcolor: '#f5f5f5' }}>
-                    <TableRow>
-                      <TableCell>ID</TableCell>
-                      <TableCell>Data</TableCell>
-                      <TableCell>Typ zgłoszenia</TableCell>
-                      <TableCell>Zgłaszający</TableCell>
-                      <TableCell>Zgłoszony</TableCell>
-                      <TableCell>Akcje</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {reports.map((report) => (
-                      <TableRow key={report.report.report_id} hover>
-                        <TableCell>{report.report.report_id}</TableCell>
-                        <TableCell>
-                          {formatDate(report.report.report_date, report.report.report_time)}
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={getReportTypeName(report.report.report_type_id, report.report.report_type_name)}
-                            color={getReportTypeColor(report.report.report_type_id)}
-                            size="small"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Link
-                            component="button"
-                            variant="body2"
-                            onClick={() => navigateToUserProfile(report.reporter_user.user_id)}
-                          >
-                            {report.reporter_user.name} {report.reporter_user.surname}
-                          </Link>
-                        </TableCell>
-                        <TableCell>
-                          <Link
-                            component="button"
-                            variant="body2"
-                            onClick={() => navigateToUserProfile(report.reported_user.user_id)}
-                          >
-                            {report.reported_user.name} {report.reported_user.surname}
-                          </Link>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => handleReportDetails(report)}
-                          >
-                            Szczegóły
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              <Box>
+                {groupedReports.map((group) => (
+                  <Accordion key={group.reportedUser.user_id} sx={{ mb: 2 }}>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      sx={{ bgcolor: '#f5f5f5' }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <PersonIcon sx={{ mr: 1.5, color: 'primary.main' }} />
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            {group.reportedUser.name} {group.reportedUser.surname}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ p: 0 }}>
+                      <TableContainer component={Paper} elevation={0} variant="outlined">
+                        <Table size="small">
+                          <TableHead sx={{ bgcolor: '#fafafa' }}>
+                            <TableRow>
+                              <TableCell>ID</TableCell>
+                              <TableCell>Data</TableCell>
+                              <TableCell>Typ zgłoszenia</TableCell>
+                              <TableCell>Zgłaszający</TableCell>
+                              <TableCell>Akcje</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {group.reports.map((report) => (
+                              <TableRow key={report.report.report_id} hover>
+                                <TableCell>{report.report.report_id}</TableCell>
+                                <TableCell>
+                                  {formatDate(report.report.report_date, report.report.report_time)}
+                                </TableCell>
+                                <TableCell>
+                                  <Chip
+                                    label={getReportTypeName(report.report.report_type_id, report.report.report_type_name)}
+                                    color={getReportTypeColor(report.report.report_type_id)}
+                                    size="small"
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <Link
+                                    component="button"
+                                    variant="body2"
+                                    onClick={() => navigateToUserProfile(report.reporter_user.user_id)}
+                                  >
+                                    {report.reporter_user.name} {report.reporter_user.surname}
+                                  </Link>
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={() => handleReportDetails(report)}
+                                  >
+                                    Szczegóły
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between' }}>
+                        <Button 
+                          variant="outlined"
+                          size="small"
+                          onClick={() => navigateToUserProfile(group.reportedUser.user_id)}
+                        >
+                          Zobacz profil
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          size="small"
+                          onClick={() => handleOpenBanDialog(group.reportedUser)}
+                        >
+                          Zablokuj użytkownika
+                        </Button>
+                      </Box>
+                    </AccordionDetails>
+                  </Accordion>
+                ))}
+              </Box>
             )}
           </>
         )}
       </Box>
 
-      {/* Report details dialog */}
       <Dialog
         open={!!selectedReport && !viewingReportedUser}
         onClose={handleCloseDetails}
