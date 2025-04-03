@@ -494,6 +494,7 @@ def get_applications_count():
             sqlalchemy.and_(
                 PetCareApplication.declined == False,
                 PetCareApplication.cancelled == False,
+                PetCareApplication.accepted == False
             )
         )
         .scalar()
