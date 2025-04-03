@@ -185,6 +185,28 @@ def unban_user(user_id):
         )
 
 
+@admin_bprt.route("/adminPanel/reports/<int:report_id>/remove", methods=["PUT"])
+@jwt_required()
+def remove_report(report_id):
+    claims = get_jwt()
+
+    if not claims.get("is_admin"):
+        return jsonify({"msg": "Nie masz dostępu do tej funkcji!"}), 404
+
+    report = db.session.query(Report).filter(Report.report_id == report_id).first()
+
+    try:
+        report.was_considered = True
+        db.session.commit()
+        return jsonify({"msg": "Zgłoszenie usunięte!"}), 200
+    except sqlalchemy.exc.IntegrityError:
+        db.session.rollback()
+        return (
+            jsonify({"msg": "Serwer nie działa! Idź pospamić o to do IT!"}),
+            400,
+        )
+
+
 @admin_bprt.route("/adminPanel/removePost/<int:post_id>", methods=["PUT"])
 @jwt_required()
 def remove_post(post_id):
