@@ -99,6 +99,7 @@ def get_dashboard_post():
     resp_lst = [
         {
             "post_id": post_dashboard.post_id,
+            "is_active": post_dashboard.is_active,
             "user_id": user.user_id,
             "city": user.city,
             "postal_code": user.postal_code,
@@ -211,6 +212,7 @@ def get_post(post_id):
         .first()
     )
 
+    caregiver = None
     db_rating = None
     if post.user_id == int(get_jwt_identity()):
         db_rating = (
@@ -225,6 +227,22 @@ def get_post(post_id):
                     PetCareApplication.post_id == post_id,
                     PetCareApplication.accepted == True,
                     UserRating.user_id != int(get_jwt_identity()),
+                )
+            )
+            .first()
+        )
+        caregiver = (
+            db.session.query(User)
+            .join(
+                PetCareApplication,
+                PetCareApplication.user_id
+                == User.user_id,
+            )
+            .filter(
+                sqlalchemy.and_(
+                    PetCareApplication.post_id == post_id,
+                    PetCareApplication.accepted == True,
+                    User.user_id != int(get_jwt_identity()),
                 )
             )
             .first()
@@ -260,6 +278,14 @@ def get_post(post_id):
         )
     )
 
+    user_dto["phone_number"] = user.phone_number if status == "accepted" else None
+    user_dto["email"] = user.email if status == "accepted" else None
+
+    caregiver_dto = get_user_dto(caregiver) if caregiver else None
+    if caregiver_dto:
+        caregiver_dto["phone_number"] = caregiver_dto.phone_number
+        caregiver_dto["email"] = caregiver_dto.email
+
     return (
         jsonify(
             {
@@ -274,6 +300,7 @@ def get_post(post_id):
                     else False
                 ),
                 "status": status,
+                "caregiver": caregiver_dto
             }
         ),
         200,
