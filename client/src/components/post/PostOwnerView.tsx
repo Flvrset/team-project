@@ -68,25 +68,26 @@ const PostOwnerView = ({
 
     const menuOpen = Boolean(menuAnchorEl);
 
-    useEffect(() => {
-        const fetchApplicants = async () => {
-            setApplicantsLoading(true);
-            try {
-                const response = await getWithAuth(`/api/getPost/${postId}/applications`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setApplicants(data.users);
-                } else {
-                    const errorData = await response.json();
-                    showNotification(errorData.msg || 'Błąd podczas pobierania aplikacji', 'error');
-                }
-            } catch (error) {
-                console.error('Error fetching applicants:', error);
-                showNotification('Nie udało się pobrać aplikacji', 'error');
-            } finally {
-                setApplicantsLoading(false);
+    const fetchApplicants = async () => {
+        setApplicantsLoading(true);
+        try {
+            const response = await getWithAuth(`/api/getPost/${postId}/applications`);
+            if (response.ok) {
+                const data = await response.json();
+                setApplicants(data.users);
+            } else {
+                const errorData = await response.json();
+                showNotification(errorData.msg || 'Błąd podczas pobierania aplikacji', 'error');
             }
+        } catch (error) {
+            console.error('Error fetching applicants:', error);
+            showNotification('Nie udało się pobrać aplikacji', 'error');
+        } finally {
+            setApplicantsLoading(false);
         }
+    }
+
+    useEffect(() => {
         fetchApplicants();
     }, []);
 
@@ -136,12 +137,14 @@ const PostOwnerView = ({
         }
     };
 
-    const handleCloseApplicationsModal = () => {
+    const handleApplicantAccepted = async (userId: number) => {
+        setApplicants(prev => prev.map(applicant =>
+            applicant.user_id === userId
+                ? { ...applicant, status: "Declined" }
+                : applicant
+        ));
         setApplicationsModalOpen(false);
-    };
 
-
-    const handleApplicantAccepted = async () => {
         try {
             if (!postId) return;
 
@@ -155,6 +158,8 @@ const PostOwnerView = ({
         } catch (error) {
             console.error('Error refreshing post details:', error);
         }
+
+        fetchApplicants();
     };
 
     const handleApplicantDeclined = (userId: number) => {
@@ -588,7 +593,6 @@ const PostOwnerView = ({
 
             <ApplicantsModal
                 open={applicationsModalOpen}
-                onClose={handleCloseApplicationsModal}
                 applicants={applicants}
                 loading={applicantsLoading}
                 postId={postId}

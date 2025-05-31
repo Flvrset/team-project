@@ -31,17 +31,15 @@ import { putWithAuth } from '../../utils/auth';
 
 interface ApplicantsModalProps {
     open: boolean;
-    onClose: () => void;
     applicants: Applicant[];
     loading: boolean;
     postId: string | undefined;
-    onAcceptSuccess?: () => void;
-    onDeclineSuccess?: (userId: number) => void;
+    onAcceptSuccess: (userId: number) => void;
+    onDeclineSuccess: (userId: number) => void;
 }
 
 const ApplicantsModal = ({
     open,
-    onClose,
     applicants,
     loading,
     postId,
@@ -64,10 +62,7 @@ const ApplicantsModal = ({
             if (response.ok) {
                 const data = await response.json();
                 showNotification(data.msg, 'success');
-
-                if (onAcceptSuccess) {
-                    onAcceptSuccess();
-                }
+                onAcceptSuccess(userId);
             } else {
                 const errorData = await response.json();
                 showNotification(errorData.msg || 'Wystąpił błąd podczas akceptowania aplikacji', 'error');
@@ -90,10 +85,7 @@ const ApplicantsModal = ({
             if (response.ok) {
                 const data = await response.json();
                 showNotification(data.msg, 'success');
-
-                if (onDeclineSuccess) {
-                    onDeclineSuccess(userId);
-                }
+                onDeclineSuccess(userId);
             } else {
                 const errorData = await response.json();
                 showNotification(errorData.msg || 'Wystąpił błąd podczas odrzucania aplikacji', 'error');
@@ -115,7 +107,6 @@ const ApplicantsModal = ({
     return (
         <Dialog
             open={open}
-            onClose={onClose}
             maxWidth="md"
             fullWidth
             fullScreen={isMobile}
@@ -140,7 +131,6 @@ const ApplicantsModal = ({
                         Aplikanci ({applicants.filter(a => a.status !== "Declined").length} aktywnych, {applicants.filter(a => a.status === "Declined").length} odrzuconych)
                     </DialogTitle>
                     <IconButton
-                        onClick={onClose}
                         aria-label="zamknij okno"
                         edge="end"
                         sx={{

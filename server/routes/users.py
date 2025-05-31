@@ -130,49 +130,57 @@ def get_user(user_id):
 @user_bprt.route("/post/<int:post_id>/reviewUser/<int:user_id>", methods=["POST"])
 @jwt_required()
 def review_owner(post_id, user_id):
-    if user_id == int(get_jwt_identity()):
-        return jsonify({"msg": "Nie możesz sobie sam wystawić oceny!"}), 40
+    current_user_id = int(get_jwt_identity())
+    
+    if user_id == current_user_id:
+        return jsonify({"msg": "Nie możesz sobie sam wystawić oceny!"}), 400
 
-    volunteer = (
-        db.session.query(User.user_id)
-        .join(PetCareApplication, PetCareApplication.user_id == User.user_id)
-        .filter(
-            sqlalchemy.and_(
-                User.user_id == int(get_jwt_identity()),
-                PetCareApplication.accepted == True,
-                PetCareApplication.post_id == post_id,
-            )
+    post = db.session.query(Post).filter(Post.post_id == post_id).first()
+    if not post:
+        return jsonify({"msg": "Podane ogłoszenie nie istnieje!"}), 404
+    
+    is_current_user_owner = post.user_id == current_user_id
+    
+    is_current_user_volunteer = db.session.query(PetCareApplication).filter(
+        sqlalchemy.and_(
+            PetCareApplication.user_id == current_user_id,
+            PetCareApplication.post_id == post_id,
+            PetCareApplication.accepted == True,
         )
-        .first()
-    )
+    ).first() is not None
+    
+    is_reviewed_user_owner = post.user_id == user_id
+    
+    is_reviewed_user_volunteer = db.session.query(PetCareApplication).filter(
+        sqlalchemy.and_(
+            PetCareApplication.user_id == user_id,
+            PetCareApplication.post_id == post_id,
+            PetCareApplication.accepted == True
+        )
+    ).first() is not None
 
-    owner = (
-        db.session.query(Post)
-        .filter(
-            sqlalchemy.and_(
-                Post.post_id == post_id, Post.user_id == int(get_jwt_identity())
-            ),
-        )
-        .first()
-    )
+    valid_review = (is_current_user_owner and is_reviewed_user_volunteer) or \
+                  (is_current_user_volunteer and is_reviewed_user_owner)
 
-    if volunteer or owner:
-        return (
-            jsonify(
-                {
-                    "msg": "Nie brałeś udziały w danym ogłoszeniu! Nie możesz napisać recenzji"
-                }
-            ),
-            404,
-        )
+    if not valid_review:
+        return jsonify({"msg": "Nie brałeś udziału w danym ogłoszeniu! Nie możesz napisać recenzji"}), 404
 
     rating_dto = user_rating_dto.load(request.json)
     rating_dto.petcareapplication_id = (
         db.session.query(PetCareApplication.petcareapplication_id)
-        .join(Post, Post.post_id == PetCareApplication.post_id)
         .filter(
-            sqlalchemy.or_(
-                Post.user_id == user_id, PetCareApplication.user_id == user_id
+            sqlalchemy.and_(
+                PetCareApplication.post_id == post_id,
+                sqlalchemy.or_(
+                    sqlalchemy.and_(
+                        PetCareApplication.user_id == user_id,
+                        post.user_id == current_user_id
+                    ),
+                    sqlalchemy.and_(
+                        PetCareApplication.user_id == current_user_id,
+                        post.user_id == user_id
+                    )
+                )
             )
         )
         .scalar()
