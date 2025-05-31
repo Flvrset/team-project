@@ -32,7 +32,7 @@ import {
     alpha,
     useTheme
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useNotification } from '../../contexts/NotificationContext';
@@ -67,6 +67,28 @@ const PostOwnerView = ({
     const [ratingModalOpen, setRatingModalOpen] = useState<boolean>(false);
 
     const menuOpen = Boolean(menuAnchorEl);
+
+    useEffect(() => {
+        const fetchApplicants = async () => {
+            setApplicantsLoading(true);
+            try {
+                const response = await getWithAuth(`/api/getPost/${postId}/applications`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setApplicants(data.users);
+                } else {
+                    const errorData = await response.json();
+                    showNotification(errorData.msg || 'Błąd podczas pobierania aplikacji', 'error');
+                }
+            } catch (error) {
+                console.error('Error fetching applicants:', error);
+                showNotification('Nie udało się pobrać aplikacji', 'error');
+            } finally {
+                setApplicantsLoading(false);
+            }
+        }
+        fetchApplicants();
+    }, []);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setMenuAnchorEl(event.currentTarget);
@@ -114,26 +136,6 @@ const PostOwnerView = ({
         }
     };
 
-    const handleOpenApplicationsModal = async () => {
-        setApplicantsLoading(true);
-        try {
-            const response = await getWithAuth(`/api/getPost/${postId}/applications`);
-            if (response.ok) {
-                const data = await response.json();
-                setApplicants(data.users);
-                setApplicationsModalOpen(true);
-            } else {
-                const errorData = await response.json();
-                showNotification(errorData.msg || 'Błąd podczas pobierania aplikacji', 'error');
-            }
-        } catch (error) {
-            console.error('Error fetching applicants:', error);
-            showNotification('Nie udało się pobrać aplikacji', 'error');
-        } finally {
-            setApplicantsLoading(false);
-        }
-    };
-
     const handleCloseApplicationsModal = () => {
         setApplicationsModalOpen(false);
     };
@@ -142,7 +144,7 @@ const PostOwnerView = ({
     const handleApplicantAccepted = async () => {
         try {
             if (!postId) return;
-            
+
             const response = await getWithAuth(`/api/getPost/${postId}`);
             if (response.ok) {
                 const data = await response.json();
@@ -195,7 +197,7 @@ const PostOwnerView = ({
                     <Button
                         variant="contained"
                         color="primary"
-                        onClick={handleOpenApplicationsModal}
+                        onClick={() => setApplicationsModalOpen(true)}
                         startIcon={applicantsLoading ? <CircularProgress size={20} color="inherit" /> : <NotificationsActiveIcon />}
                         sx={{
                             borderRadius: 2,

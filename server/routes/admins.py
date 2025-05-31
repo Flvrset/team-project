@@ -308,7 +308,7 @@ def get_users_admin():
     for user, user_photo, rating_overall, rating_lst, pet_lst in users_info_lst:
         user_dict = get_user_dto.dump(user)
         user_dict["photo"] = (
-            generate_presigned_url("user_photo", user_photo.photo) if user_photo else ""
+            generate_presigned_url("user_photo", user_photo.photo_name) if user_photo else ""
         )
         user_dict["rating"] = (
             float(rating_overall) if rating_overall else rating_overall

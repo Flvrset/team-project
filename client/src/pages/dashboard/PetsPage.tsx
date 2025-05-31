@@ -114,7 +114,6 @@ const PetsPage = () => {
             maxWidth: 1200,
             mx: 'auto',
             p: { xs: 2, md: 4 },
-            minHeight: '100vh'
         }}>
             {/* Header */}
             <Paper
