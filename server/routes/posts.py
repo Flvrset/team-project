@@ -121,7 +121,7 @@ def get_dashboard_post():
         post_query = post_query.filter(Post.user_id != int(get_jwt_identity())).filter(
             Post.is_active == True
         ).filter(
-            User.postal_code.in_(alias_distance_subquery.c.postal_code)
+            User.postal_code.in_(alias_distance_subquery)
         )
 
     post_lst = post_query.all()
