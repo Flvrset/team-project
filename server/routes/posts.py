@@ -10,6 +10,7 @@ from db_models.database_tables import (
     PetPhoto,
     PetCareApplication,
     UserRating,
+    DPostalCode,
 )
 from db_dto.post_dto import (
     create_post_dto,
@@ -22,6 +23,8 @@ from db_dto.post_dto import (
 import sqlalchemy
 from utils.file_storage import generate_presigned_url
 from datetime import datetime
+from math import radians
+
 
 post_bprt = Blueprint("post", __name__)
 
@@ -73,8 +76,36 @@ def get_dashboard_post():
     city = request.args.get("city", None)
     postal_code = request.args.get("postal_code", None)
     kms = request.args.get("kms", 0)
-    print(f"city: {city}, postal code: {postal_code}, km: {kms}")
-    # dodac logike do wybierania 10 (albo wiecej) dla uzytkownika
+
+    target_city = DPostalCode.query.filter(
+        sqlalchemy.or_(
+            DPostalCode.place == city, DPostalCode.postal_code == postal_code
+        )
+    ).first()
+
+    if not target_city:
+        return jsonify({"error": "City not found"}), 404
+
+    lat1, lon1 = map(radians, [target_city.latitude, target_city.longitude])
+
+    distance_expr = 6371 * db.func.acos(
+        db.func.cos(lat1)
+        * db.func.cos(db.func.radians(DPostalCode.latitude))
+        * db.func.cos(db.func.radians(DPostalCode.longitude) - lon1)
+        + db.func.sin(lat1) * db.func.sin(db.func.radians(DPostalCode.latitude))
+    )
+
+    distance_subquery = (
+        db.session.query(
+            DPostalCode.postal_code_id,
+            DPostalCode.place,
+            DPostalCode.postal_code,
+            distance_expr.label("distance"),
+        )
+        .having(distance_expr <= kms)
+        .subquery()
+    )
+    alias_distance_subquery = sqlalchemy.alias(distance_subquery)
 
     post_query = (
         db.session.query(
@@ -86,6 +117,13 @@ def get_dashboard_post():
         .join(User, Post.user_id == User.user_id, isouter=True)
         .join(PetCare, Post.post_id == PetCare.post_id, isouter=True)
         .outerjoin(PetPhoto, PetCare.pet_id == PetPhoto.pet_id)
+        .join(
+            alias_distance_subquery,
+            sqlalchemy._and(
+                User.city == alias_distance_subquery.c.place,
+                User.postal_code == alias_distance_subquery.c.postal_code,
+            ),
+        )
         .group_by(Post.post_id, User.user_id)
     )
 
@@ -235,8 +273,7 @@ def get_post(post_id):
             db.session.query(User)
             .join(
                 PetCareApplication,
-                PetCareApplication.user_id
-                == User.user_id,
+                PetCareApplication.user_id == User.user_id,
             )
             .filter(
                 sqlalchemy.and_(
@@ -300,7 +337,7 @@ def get_post(post_id):
                     else False
                 ),
                 "status": status,
-                "caregiver": caregiver_dto
+                "caregiver": caregiver_dto,
             }
         ),
         200,
@@ -494,7 +531,7 @@ def get_applications_count():
             sqlalchemy.and_(
                 PetCareApplication.declined == False,
                 PetCareApplication.cancelled == False,
-                PetCareApplication.accepted == False
+                PetCareApplication.accepted == False,
             )
         )
         .scalar()
