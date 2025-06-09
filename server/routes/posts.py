@@ -116,19 +116,18 @@ def get_dashboard_post():
         .join(User, Post.user_id == User.user_id, isouter=True)
         .join(PetCare, Post.post_id == PetCare.post_id, isouter=True)
         .outerjoin(PetPhoto, PetCare.pet_id == PetPhoto.pet_id)
-        .join(
-            alias_distance_subquery,
-            sqlalchemy.and_(
-                User.city == alias_distance_subquery.c.place,
-                User.postal_code == alias_distance_subquery.c.postal_code,
-            ),
-        )
         .group_by(Post.post_id, User.user_id)
     )
 
     if not get_jwt().get("is_admin", False):
         post_query = post_query.filter(Post.user_id != int(get_jwt_identity())).filter(
             Post.is_active == True
+        ).join(
+            alias_distance_subquery,
+            sqlalchemy.and_(
+                User.city == alias_distance_subquery.c.place,
+                User.postal_code == alias_distance_subquery.c.postal_code,
+            ),
         )
 
     post_lst = post_query.all()
