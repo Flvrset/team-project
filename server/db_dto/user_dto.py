@@ -49,7 +49,7 @@ class EditUserDTO(ma.SQLAlchemyAutoSchema):
     postal_code = ma.auto_field()
     street = ma.auto_field()
     house_number = ma.auto_field()
-    apartment_number = ma.auto_field()
+    apartment_number = ma.auto_field(allow_none=True)
     phone_number = ma.auto_field()
     description = ma.auto_field(allow_none=True)
 

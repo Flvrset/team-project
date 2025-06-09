@@ -16,7 +16,7 @@ class User(db.Model):
     postal_code = db.Column(db.String(255))
     street = db.Column(db.String(255))
     house_number = db.Column(db.String(255))
-    apartment_number = db.Column(db.Integer)
+    apartment_number = db.Column(db.Integer, nullable=True)
     phone_number = db.Column(db.String(20))
     email = db.Column(db.String(255), nullable=False, unique=True)
     description = db.Column(db.Text, nullable=True)
