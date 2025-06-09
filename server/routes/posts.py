@@ -97,10 +97,9 @@ def get_dashboard_post():
 
     distance_subquery = (
         db.session.query(
-            DPostalCode.postal_code_id,
             DPostalCode.place,
             DPostalCode.postal_code,
-            distance_expr.label("distance"),
+            # distance_expr.label("distance"),
         )
         .having(distance_expr <= kms)
         .subquery()
