@@ -99,7 +99,7 @@ def get_dashboard_post():
         db.session.query(
             DPostalCode.postal_code,
         )
-        .having(distance_expr <= kms)
+        .where(distance_expr <= kms)
         .subquery()
     )
     alias_distance_subquery = sqlalchemy.alias(distance_subquery)
