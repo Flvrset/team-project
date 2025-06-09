@@ -122,12 +122,8 @@ def get_dashboard_post():
     if not get_jwt().get("is_admin", False):
         post_query = post_query.filter(Post.user_id != int(get_jwt_identity())).filter(
             Post.is_active == True
-        ).join(
-            alias_distance_subquery,
-            sqlalchemy.and_(
-                User.city == alias_distance_subquery.c.place,
-                User.postal_code == alias_distance_subquery.c.postal_code,
-            ),
+        ).filter(
+            User.postal_code.in_(alias_distance_subquery.c.postal_code)
         )
 
     post_lst = post_query.all()
