@@ -119,7 +119,7 @@ def get_dashboard_post():
         .outerjoin(PetPhoto, PetCare.pet_id == PetPhoto.pet_id)
         .join(
             alias_distance_subquery,
-            sqlalchemy._and(
+            sqlalchemy.and_(
                 User.city == alias_distance_subquery.c.place,
                 User.postal_code == alias_distance_subquery.c.postal_code,
             ),
